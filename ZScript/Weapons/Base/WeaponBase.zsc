@@ -146,6 +146,33 @@ class DSCItemPickup : CustomInventory abstract
 	}
 }	
 
+class DSCMissilePickup : DSCItemPickup
+{
+	class<DSCSpecialWeapon> missType;
+	int amt;
+	
+	Property Setup : missType, amt;
+	
+	override string PickupMessage()
+	{
+		let defs = GetDefaultByType(missType);
+		if(defs) return String.Format("%d %ss!", amt, defs.fullname); 
+		
+		return pickupmsg;
+	}
+		
+	States
+	{
+		Spawn:
+			TNT1 A 1;
+		loop;
+	
+		Pickup:
+			TNT1 A 0 A_GiveInventory(invoker.missType, invoker.amt);
+		goto Done;
+	}
+}
+
 class DSCSpecialWeapon : Inventory abstract
 {
 	String displayName;
@@ -290,6 +317,12 @@ class DSCProjectile : FastProjectile
 		super.PostBeginPlay();
 		
 		A_StartSound(FireSound, CHAN_VOICE, CHANF_OVERLAP);
+	}
+	
+	override int SpecialMissileHit(Actor victim)
+	{
+		if(victim != target) Spawn("ImpactExplosion", pos);
+		return super.SpecialMissileHit(victim);
 	}
 	
 	override void Tick()

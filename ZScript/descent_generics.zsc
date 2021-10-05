@@ -108,6 +108,8 @@ mixin class DSCPickupGenerics
 		+Inventory.NoScreenFlash;
 		+FLOATBOB;
 		Scale 0.8;
+		Height 32;
+		Radius 16;
 		Inventory.PickupMessage "";
 		Inventory.PickupSound "DSCItem/Pickup";
 	}
@@ -127,6 +129,8 @@ mixin class DSCAmmoGenerics
 		+Inventory.NoScreenFlash;
 		+FLOATBOB;
 		Scale 0.8;
+		Height 32;
+		Radius 16;
 		Inventory.PickupMessage "";
 		Inventory.PickupSound "DSCItem/Pickup";
 	}

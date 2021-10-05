@@ -36,17 +36,18 @@ class Descent_ConMissile : DSCSpecialWeapon
 	}
 }
 
-class Descent_ConMissileBundle : DSCItemPickup
+class Descent_ConMissileBundle : DSCMissilePickup
 {
+	Default
+	{
+		DSCMissilePickup.Setup "Descent_ConMissile", 4;
+	}
+	
 	States
 	{
 		Spawn:
-			TNT1 A 1;
+			CMS4 ABCDEFGHIJKLMNO 5;
 		loop;
-	
-		Pickup:
-			TNT1 A 0 A_GiveInventory("Descent_ConMissile", 4);
-		goto Done;
 	}
 }
 

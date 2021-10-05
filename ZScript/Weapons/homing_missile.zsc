@@ -36,6 +36,21 @@ class Descent_HomMissile : DSCSpecialWeapon
 	}
 }
 
+class Descent_HomMissileBundle : DSCMissilePickup
+{
+	Default
+	{
+		DSCMissilePickup.Setup "Descent_HomMissile", 4;
+	}
+	
+	States
+	{
+		Spawn:
+			HMS4 ABCDEFGHIJKLMNO 5;
+		loop;
+	}
+}
+
 class DSCProj_HomMissile : DSCProj_ConMissile
 {
 	double mindist, maxdist, trackTime;

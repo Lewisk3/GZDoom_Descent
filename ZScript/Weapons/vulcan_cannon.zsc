@@ -4,8 +4,16 @@ class VulcanAmmo : Ammo
 	
 	Default
 	{
-		Inventory.Amount 1;
+		Inventory.Amount 2500;
 		Inventory.MaxAmount 20000;
+		Inventory.PickupMessage "Vulcan Ammo!";
+	}
+	
+	States
+	{
+		Spawn:
+			VLCA ABCDEFGHIJKLMNO 5;
+		loop;
 	}
 }
 
@@ -15,6 +23,10 @@ class Descent_VulcanCannon : DSCWeapon
 	{
 		Weapon.SlotNumber 4;
 		Tag "Vulcan";
+		
+		Weapon.AmmoType1 "VulcanAmmo";
+		Weapon.AmmoGive1 2500;
+		
 		DSCWeapon.WeaponName "Vulcan Cannon";
 		DSCWeapon.DisplayGraphic "WeapVulcan";
 		DSCWeapon.SetupCrosshairs "Crosshair/weapon1", "Crosshair/weapon0";

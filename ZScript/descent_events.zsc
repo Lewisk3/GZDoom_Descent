@@ -10,5 +10,7 @@ class DescentEvents : EventHandler
 		if(!plrKiller) return;
 		
 		plrKiller.scorePts += e.Thing.SpawnHealth();
+		vector3 explodePos = level.vec3offset(e.Thing.pos, (0,0,e.Thing.Height*0.5));
+		Actor.Spawn("EnemyExplosion", explodePos);
 	}
 }

@@ -67,3 +67,43 @@ class MegaMissileExplosion : MissileExplosion
 	}
 }
 
+class ImpactExplosion : MissileExplosion
+{	
+	Default
+	{
+		Scale 0.40;
+	}
+	
+	States
+	{
+		Spawn:
+			EXDI ABCDEFGH 2 Bright;
+		stop;
+	}
+}
+
+class EnemyExplosion : MissileExplosion
+{	
+	Default
+	{
+		Scale 0.65;
+	}
+
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay A_StartSound("Missile/Explode", CHAN_BODY, CHANF_OVERLAP);
+			TNT1 A 0 A_Jump(255, "One", "Two", "Three");
+		One:
+			EXDD ABCDEFGHIJKJMNOPQ 2 Bright;
+		stop;
+		Two:
+			EXDF ABCDEFGHIJKJMNOPQ 2 Bright;
+		stop;
+		Three:
+			EXDJ ABCDEFGHIJK 2 Bright;
+		stop;
+	}
+}
+
+

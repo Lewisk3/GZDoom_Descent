@@ -322,6 +322,7 @@ class DescentStatusBar : BaseStatusBar
 		DrawStr(String.Format("%d", floor(dscplr.shields)), shieldPos+(0,-110), Font.CR_LightBlue, flags:DescentDraw.SS_TEXT_CENTER, scale:(1.5*cockpitScale.x,1.7*cockpitScale.y));
 		
 		DrawWeapons(cockpitPos, cockpitScale);
+		DrawCockpitKeys();
 		
 		// Draw Energy
 		vector2 leftEnergyBarPos  = cockpitPos + (-735, -101);
@@ -343,4 +344,41 @@ class DescentStatusBar : BaseStatusBar
 		// Should be always drawn on top.
 		DrawCrosshair(1.0);
 	}	
+	
+	void DrawCockpitKeys()
+	{	
+		vector2 keyScale = (1.0, 0.8);
+		for(let item = dscplr.Inv; item; item = item.Inv)
+		{
+			let keyItem = Key(item);
+			if(!keyItem) continue;
+			
+			string keySpecies = keyItem.Species;
+			if(keySpecies ~== "none") keySpecies = keyItem.GetTag(); 
+			
+			vector2 keypos = (-664,303);
+			string keyGraphic = "";
+			string keyType = "key";
+
+			if(keySpecies.IndexOf("Blue") > -1) 
+			{
+				keyGraphic = "blue";
+				keypos.y += 50;
+			}
+			if(keySpecies.IndexOf("Yellow") > -1) 
+			{
+				keyGraphic = "yellow";
+				keypos += (-5, 95);
+			}
+			if(keySpecies.IndexOf("Red") > -1) 
+			{	
+				keyGraphic = "red";
+				keypos += (-10, 138);
+			}
+			if(keySpecies.IndexOf("Skull")  > -1) keyType    = "skull";
+			keyGraphic = keyGraphic .. keyType;
+
+			DrawImg(keyGraphic, keypos, keyScale);
+		}
+	}
 }
