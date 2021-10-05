@@ -1,0 +1,14 @@
+class DescentEvents : EventHandler
+{	
+	override void WorldThingDied(WorldEvent e)
+	{
+		Actor killer = e.Inflictor;
+		if(!killer) killer = e.Thing.target;
+		if(killer && killer.bMISSILE) killer = killer.target;
+		
+		let plrKiller = DescentPlayer(killer);
+		if(!plrKiller) return;
+		
+		plrKiller.scorePts += e.Thing.SpawnHealth();
+	}
+}

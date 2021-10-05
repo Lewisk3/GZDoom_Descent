@@ -1,0 +1,176 @@
+// Weapons
+
+// Why is MODELDEF soo bad?
+Model DSCProj_LaserCore
+{ 
+   Path "Models"
+   Skin 0 "Textures/laser.png" 
+   Model 0 "Weapons/laser_core.md3" 
+   Scale 10.0 10.0 10.0
+   USEACTORPITCH
+   USEACTORROLL
+   
+   FrameIndex MODL A 0 0 
+}
+
+Model DSCProj_LaserLV1
+{ 
+   Path "Models"
+   Skin 0 "Textures/laser.png" 
+   Model 0 "Weapons/laser.md3" 
+   Scale 10.0 10.0 10.0
+   USEACTORPITCH
+   USEACTORROLL
+   
+   FrameIndex MODL A 0 0 
+}
+Model DSCProj_LaserLV2
+{ 
+   Path "Models"
+   Skin 0 "Textures/laser.png" 
+   Model 0 "Weapons/laser.md3" 
+   Scale 10.0 10.0 10.0
+   USEACTORPITCH
+   USEACTORROLL
+   
+   FrameIndex MODL A 0 0 
+}
+Model DSCProj_LaserLV3
+{ 
+   Path "Models"
+   Skin 0 "Textures/laser.png" 
+   Model 0 "Weapons/laser.md3" 
+   Scale 10.0 10.0 10.0
+   USEACTORPITCH
+   USEACTORROLL
+   
+   FrameIndex MODL A 0 0 
+}
+Model DSCProj_LaserLV4
+{ 
+   Path "Models"
+   Skin 0 "Textures/laser.png" 
+   Model 0 "Weapons/laser.md3" 
+   Scale 10.0 10.0 10.0
+   USEACTORPITCH
+   USEACTORROLL
+   
+   FrameIndex MODL A 0 0 
+}
+Model DSCProj_LaserLV5
+{ 
+   Path "Models"
+   Skin 0 "Textures/laser.png" 
+   Model 0 "Weapons/laser.md3" 
+   Scale 10.0 10.0 10.0
+   USEACTORPITCH
+   USEACTORROLL
+   
+   FrameIndex MODL A 0 0 
+}
+Model DSCProj_LaserLV6
+{ 
+   Path "Models"
+   Skin 0 "Textures/laser.png" 
+   Model 0 "Weapons/laser.md3" 
+   Scale 10.0 10.0 10.0
+   USEACTORPITCH
+   USEACTORROLL
+   
+   FrameIndex MODL A 0 0 
+}
+
+// Projectiles
+Model DSCProj_FusionPlasma
+{ 
+   Path "Models"
+   Skin 0 "Textures/laser.png" 
+   Model 0 "Weapons/Fusion_Blob.md3" 
+   Scale 10.0 10.0 10.0
+   USEACTORPITCH
+   USEACTORROLL
+   
+   FrameIndex MODL A 0 0 
+}
+Model DSCProj_FusionCore
+{ 
+   Path "Models"
+   Model 0 "Weapons/Fusion_Blob_Core.md3" 
+   Scale 10.0 10.0 10.0
+   SurfaceSkin 0 0 "Textures/laser.png"
+   SurfaceSkin 0 1 "Textures/laser.png"
+   USEACTORPITCH
+   USEACTORROLL
+   
+   FrameIndex MODL A 0 0 
+}
+
+// Missiles
+Model DSCProj_ConMissile
+{
+	Path "models"
+	Model 0 "Weapons/concussion_missile.md3"
+	Scale 10.0 10.0 10.0
+	SurfaceSkin 0 0 "Textures/rbot044.png"
+	SurfaceSkin 0 1 "Textures/glow04.png"
+	USEACTORPITCH
+	USEACTORROLL
+
+	FrameIndex MODL A 0 0
+}
+Model DSCProj_HomMissile
+{
+	Path "models"
+	Model 0 "Weapons/homing_missile.md3"
+	Scale 10.0 10.0 10.0
+	SurfaceSkin 0 0 "Textures/rbot045.png"
+	SurfaceSkin 0 1 "Textures/glow04.png"
+	USEACTORPITCH
+	USEACTORROLL
+
+	FrameIndex MODL A 0 0
+}
+Model DSCProj_MegaMissile
+{
+	Path "models"
+	Model 0 "Weapons/mega_missile.md3"
+	Scale 10.0 10.0 10.0
+	SurfaceSkin 0 0 "Textures/glow04.png"
+	SurfaceSkin 0 1 "Textures/rbot047.png"
+	USEACTORPITCH
+	USEACTORROLL
+
+	FrameIndex MODL A 0 0
+}
+Model DSCProj_SmartMissile
+{
+	Path "models"
+	Model 0 "Weapons/smart_missile.md3"
+	Scale 10.0 10.0 10.0
+	SurfaceSkin 0 0 "Textures/glow04.png"
+	SurfaceSkin 0 1 "Textures/rbot046.png"
+	USEACTORPITCH
+	USEACTORROLL
+
+	FrameIndex MODL A 0 0
+}
+
+
+
+// Player
+Model DescentPlayer 
+{
+	Path "models"
+	Model 0 "Player/ship.md3"
+	Scale 10.0 10.0 10.0
+	USEACTORPITCH
+	USEACTORROLL
+	SurfaceSkin 0 0 "Textures/glow04.png" 
+	SurfaceSkin 0 1 "Textures/ship1-1.png"
+	SurfaceSkin 0 2 "Textures/ship1-2.png" 
+	SurfaceSkin 0 3 "Textures/ship1-3.png" 
+	SurfaceSkin 0 4 "Textures/ship1-4.png"
+	SurfaceSkin 0 5 "Textures/ship1-5.png"
+	
+	FrameIndex SHIP A 0 0
+}

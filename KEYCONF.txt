@@ -1,0 +1,19 @@
+AddKeySection "6DoF Controls" 6DoFControls
+
+AddMenuKey "Roll Left" +rollleft
+Alias +rollleft "netevent +rollleft"
+Alias -rollleft "netevent -rollleft"
+DefaultBind Q +rollleft
+
+AddMenuKey "Roll Right" +rollright
+Alias +rollright "netevent +rollright"
+Alias -rollright "netevent -rollright"
+DefaultBind E +rollright
+
+AddMenuKey "Rear View" rearview
+Alias rearview "netevent rearview"
+DefaultBind R rearview
+
+// Weapon binds
+AddMenuKey "Fire Secondary" +altattack
+DefaultBind mouse2 +altattack

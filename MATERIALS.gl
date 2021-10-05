@@ -1,0 +1,20 @@
+
+// Weapons (FullBright Weapons)
+material texture models/Textures/laser.png {
+	brightmap "models/Textures/laser.png"
+	brightness 1.0
+}
+material texture models/Textures/glow02.png {
+	brightmap "models/Textures/glow02.png"
+	brightness 1.0
+}
+material texture models/Textures/glow04.png {
+	brightmap "models/Textures/glow04.png"
+	brightness 1.0
+}
+
+material texture models/Textures/ship1-1.png { shader "shaders/simsun.fp" }
+material texture models/Textures/ship1-2.png { shader "shaders/simsun.fp" }
+material texture models/Textures/ship1-3.png { shader "shaders/simsun.fp" }
+material texture models/Textures/ship1-4.png { shader "shaders/simsun.fp" }
+material texture models/Textures/ship1-5.png { shader "shaders/simsun.fp" }

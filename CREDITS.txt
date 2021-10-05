@@ -1,0 +1,30 @@
+* Graphics, Sprites and Sounds by Parallax Software *
+{	
+	Designer(s)	
+		Che-Yuan Wang
+		Mark Dinse
+		Jasen Whiteside
+	Artist(s)	
+		Adam Pletcher
+}	
+
+* Tools Used in mod Creation *
+{
+	DTX2 (http://www.cybertrash.com/shareware/dtx/)
+		- Used to gather sounds and sprites from Descent 1/2 
+		
+	OTVDM (https://github.com/otya128/winevdm)
+		- Used to run older 16bit software "natively" such as DTX2
+	
+	DesDump (https://github.com/arbruijn/DesDump) 
+		- Used to gather models and textures from Descent 1/2
+}
+
+* DescentGZ Programmers *
+{
+	Lead Programmer
+		Lewisk3 (Redxone)
+	
+	Pitch-Limit Removing 6DOF code
+		dodopod ( https://gitlab.com/dodopod/6dof-player )
+}

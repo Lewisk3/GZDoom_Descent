@@ -1,0 +1,108 @@
+class Descent_ProxMine : DSCSpecialWeapon
+{
+	Default
+	{
+		DSCSpecialWeapon.Tag "PROXIM.\n\c[DarkGreen]BOMB";
+		DSCSpecialWeapon.WeaponName "Proximity Bomb";
+		DSCSpecialWeapon.DisplayGraphic "proxMine";
+		DSCSpecialWeapon.SetupCrosshairs "Crosshair/rocket1", "Crosshair/rocket0";
+		DSCSpecialWeapon.SlotNumber 5;
+		Inventory.Amount 4;
+		Inventory.MaxAmount 10;
+	}
+	
+	override bool Fire()
+	{
+		if(cooldown || raiseY < 1.0) return false;
+		if(amount <= 0) return false;
+		
+		if(ShootProjectile("DSCProj_ProxMine", offs:(-30,0,-10)))
+		{
+			cooldown = 20;
+			Deplete();
+		}
+		
+		return true;
+	}
+	
+	States
+	{
+		Spawn:
+			PBMS ABCDEFGHIJ 5;
+		loop;
+	}
+}
+
+class DSCProj_ProxMine : DSCProjectile
+{
+	bool primed;
+	Default
+	{
+		Speed 0;
+		Radius 10;
+		Height 28;
+		Scale 0.8;
+		DSCProjectile.FireSound "ProximityMine/Drop";
+
+		+SHOOTABLE;
+		-MISSILE;
+		-NOBLOCKMAP;
+		-SOLID;
+	}
+	
+	override int DamageMobJ(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
+	{
+		if(primed) return 0;
+		Detonate();
+		return 1;
+	}	
+	
+	void Detonate()
+	{
+		primed = true;
+		SetState(FindState("Explode"));
+	}
+	
+	override void Tick()
+	{
+		super.Tick();
+		if(GetAge() < (2 * 35)) return;
+		
+		// Detonate after 10 seconds.
+		if(GetAge() > (10 * 35)) Detonate();
+		
+		if(primed) return;
+		bSOLID = true;
+		
+		let it = ThinkerIterator.Create();
+		Actor act;
+		while(act = Actor(it.Next()))
+		{	
+			if(act == self) continue;
+			if(!act.bSHOOTABLE) continue;
+			double dist = Distance3D(act); 
+			
+			if(dist <= 32) 
+			{
+				Detonate();
+				break;
+			}
+		}
+	}
+	
+	States
+	{
+		Spawn:
+			PBOM ABCDEFGHIJ 5;
+		loop;	
+		
+		Explode:
+			TNT1 A 1 DoMissileExplosion(29 * DSCDMG, 128, scale:0.6);
+		stop;
+		
+		Crash:
+		Death:
+		XDeath:
+		stop;
+	}
+}

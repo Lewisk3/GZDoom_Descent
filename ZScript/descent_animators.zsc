@@ -1,0 +1,73 @@
+
+class DescentTeleportFog : TeleportFog
+{
+	Default
+	{
+		+NOGRAVITY;
+		+NOINTERACTION;
+		Scale 2.0;
+		RenderStyle "Add";
+	}
+	
+	States
+	{
+		Spawn:
+			DFOG ABCDEFGHIJK 4;
+		stop;
+	}
+}
+
+class DeathAnimator : Inventory
+{
+	Default
+	{
+		Inventory.MaxAmount 1;
+	}
+	
+	void finish()
+	{
+		Owner.RemoveInventory(self);
+		GoAwayAndDie();
+	}
+	
+	override void DoEffect()
+	{
+		super.DoEffect();
+		
+		let plr = DescentPlayer(Owner);
+		if(!plr) 
+		{
+			finish();
+			return;
+		}
+		
+		plr.player.cheats |= CF_TOTALLYFROZEN;
+		plr.bSHOOTABLE = false;
+		
+		uint btns = plr.player.cmd.buttons;
+		bool respawnBtns = ((btns & BT_USE) || (btns & BT_ATTACK));
+		
+		// TODO: Death animation
+		int lives = plr.countinv("Token_ExtraLife");
+		if(lives <= 0)
+		{
+			plr.player.cheats &= ~CF_TOTALLYFROZEN;
+			plr.A_Die();
+			finish();
+		}
+		
+		if( lives && respawnBtns )
+		{
+			plr.player.cheats &= ~CF_TOTALLYFROZEN;
+			plr.bSHOOTABLE = true;
+			vector3 spawnpos;
+			double spawnangle;
+			[spawnpos, spawnangle] = level.PickPlayerStart(plr.PlayerNumber());
+			plr.Teleport(spawnpos, spawnangle, 0);
+			vector3 fogPos = DSCMath.V3Offset(plr.angle,plr.pitch,plr.roll, 40,0,100, 1.0);
+			Spawn("DescentTeleportFog", level.vec3offset(spawnpos, fogPos));
+			plr.Respawn();
+			finish();
+		}
+	}
+}

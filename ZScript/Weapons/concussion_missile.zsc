@@ -1,0 +1,82 @@
+class Descent_ConMissile : DSCSpecialWeapon
+{
+	bool fireLeft;
+
+	Default
+	{
+		DSCSpecialWeapon.Tag "CONCSN\n\c[DarkGreen]MISSILE";
+		DSCSpecialWeapon.WeaponName "Concussion Missile";
+		DSCSpecialWeapon.DisplayGraphic "concussionMissile";
+		DSCSpecialWeapon.SetupCrosshairs "Crosshair/missile2", "Crosshair/missile0";
+		DSCSpecialWeapon.SlotNumber 1;
+		Inventory.MaxAmount 20;
+	}
+	
+	override bool Fire()
+	{
+		if(cooldown || raiseY < 1.0) return false;
+		if(amount <= 0) return false;
+		
+		if(ShootProjectile("DSCProj_ConMissile", offs:(10,fireLeft ? -15 : 15, 0)))
+		{
+			fireLeft = !fireLeft;
+			OnCrosshair = fireLeft ? "Crosshair/missile1" : "Crosshair/missile2";
+			cooldown = 10;
+			Deplete();
+		}
+		
+		return true;
+	}
+	
+	States
+	{
+		Spawn:
+			CMIS ABCDEFGHIJKLMNO 5;
+		loop;
+	}
+}
+
+class Descent_ConMissileBundle : DSCItemPickup
+{
+	States
+	{
+		Spawn:
+			TNT1 A 1;
+		loop;
+	
+		Pickup:
+			TNT1 A 0 A_GiveInventory("Descent_ConMissile", 4);
+		goto Done;
+	}
+}
+
+class DSCProj_ConMissile : DSCProjectile
+{
+	Default
+	{
+		Scale 1.25;
+		Speed 25;
+		DamageFunction 20 * DSCDMG;
+		DSCProjectile.FireSound "ConcussionMissile/Fire";
+	}
+			
+	// Used for custom missile payloads.
+	virtual void DoPayload() {}
+	
+	States
+	{
+		Spawn:
+			MODL A 1 SpawnTrail();
+		loop;	
+		
+		Crash:
+		Death:
+		XDeath:
+			TNT1 A 1 
+			{
+				DoMissileExplosion(scale:0.8);
+				DoPayload();
+			}
+		stop;
+	}
+}

@@ -1,0 +1,75 @@
+class VulcanAmmo : Ammo
+{
+	mixin DSCAmmoGenerics;
+	
+	Default
+	{
+		Inventory.Amount 1;
+		Inventory.MaxAmount 20000;
+	}
+}
+
+class Descent_VulcanCannon : DSCWeapon
+{
+	Default
+	{
+		Weapon.SlotNumber 4;
+		Tag "Vulcan";
+		DSCWeapon.WeaponName "Vulcan Cannon";
+		DSCWeapon.DisplayGraphic "WeapVulcan";
+		DSCWeapon.SetupCrosshairs "Crosshair/weapon1", "Crosshair/weapon0";
+	}
+	
+	override string GetUIDescription()
+	{
+		return String.Format("\c[DarkGreen]%s\n\c[Red]%.3d", GetTag().MakeUpper(), Owner.countinv("VulcanAmmo"));
+	}
+	
+	States
+	{
+		Ready:
+			TNT1 A 1 A_WeaponReady();
+		Loop;
+		
+		Fire:
+			TNT1 A 2
+			{
+				A_ShootProjectile("VulcanBullet", "VulcanCannon/Fire", true, offs:(20, frandom(-5,5), frandom(-8,8)));
+			}
+		Goto Ready;
+		
+		Spawn:
+			VULC ABCDEFGHIJKLMNO 5;
+		loop;
+	}
+}
+
+
+class VulcanBullet : DSCProjectile
+{
+	Default
+	{	
+		Radius 2;
+		Height 2;
+		Speed 500;
+		Scale 0.65;
+		DamageFunction 8; // 4
+		+ROLLSPRITE;
+		DSCProjectile.SetupAmmo "VulcanAmmo", 13; // 12.75 per-shot.
+	}
+		
+	override void Tick()
+	{
+		super.Tick();
+		bInvisible = GetAge() <= 5;
+	}
+
+	States
+	{
+		Death:
+		Crash:
+		XDeath:
+			LS1H ABCDE 3 Bright;
+		stop;
+	}
+}

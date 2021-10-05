@@ -1,0 +1,346 @@
+class DescentMessage ui
+{
+	Font fnt;
+	uint fontcol;
+	double staytime;
+	double maxtime;
+	string msg;
+	double alpha;
+	vector2 scale;
+	
+	static DescentMessage CreateMessage(Font fnt, string msg, vector2 scale, int staytime = 60, uint translation = Font.CR_DarkGreen)
+	{
+		let hudmsg = DescentMessage(new("DescentMessage"));
+		if(hudmsg)
+		{
+			hudmsg.alpha = 1.0;
+			hudmsg.fnt = fnt;
+			hudmsg.msg = msg;
+			hudmsg.fontcol = translation;
+			hudmsg.maxtime = staytime;
+			hudmsg.staytime = staytime * 1.5;
+			hudmsg.scale = scale;
+		}
+		return hudmsg;
+	}
+	
+	void DoFade(double dt)
+	{
+		staytime -= dt;
+		if(staytime <= 0)
+		{
+			msg = "";
+			return;
+		}
+		alpha = staytime/maxtime;
+	}
+	
+	void Draw(vector2 pos, double dt)
+	{
+		uint flags = DescentDraw.SS_SCREEN_CENTER | DescentDraw.SS_NOASPECTCORRECTION | DescentDraw.SS_TEXT_CENTER;
+		DescentDraw.DrawString(fnt, msg, pos, flags, fontcol, alpha, scale, linespacing:15);
+	}
+}
+
+class DescentStatusBar : BaseStatusBar
+{
+	const ANIM_FPS = 60;
+	const MSGMAX = 4;
+	
+	DescentPlayer dscplr;
+
+	// Delta-time logic.
+	double prevMS; 
+	double deltatime;
+	
+	// Font(s)
+	HUDFont mHUDFont;
+	Font fnt;
+	
+	// Const
+	vector2 baseScale;
+	vector2 baseRes;
+	
+	// HUD Messages
+	Array<DescentMessage> messages;
+	
+	
+	// Animations
+	double weapFade; // Fade for switching weapons.
+	double specWeapFade;
+	double curScore;
+	
+	// Helper functions
+	void DrawImg(String graphic, vector2 pos, vector2 scale = (1.0,1.0), double alpha = 1.0, double rotation = 0)
+	{
+		scale = ApplyScale(scale);
+		DescentDraw.DrawImage("Graphics/HUD/" .. graphic .. ".png",pos, DescentDraw.SS_SCREEN_CENTER | DescentDraw.SS_NOASPECTCORRECTION, alpha, scale, 0);
+	}
+	
+	void ClipImage(vector2 pos, vector2 imgOffs, vector2 size, bool visualize = false)
+	{		
+		vector2 mid = (1920/2., 1080/2.);
+		size = ApplyScale(size);
+		imgOffs = ApplyScale(imgOffs);
+		pos.x -= imgOffs.x;
+		pos.y -= imgOffs.y;
+		
+		DescentDraw.SetClipRect(pos.x + mid.x, pos.y + mid.y, size.x, size.y, visual:visualize); 
+	}
+	
+	void DrawStr(String txt, vector2 pos, uint fontcol = Font.CR_UNTRANSLATED, uint flags = 0, double alpha = 1.0, vector2 scale = (1.0,1.0))
+	{	
+		DescentDraw.DrawString(fnt, txt, pos, DescentDraw.SS_SCREEN_CENTER | DescentDraw.SS_NOASPECTCORRECTION | flags, fontcol, alpha, scale, linespacing:15);
+	}
+	
+	double GetAspectScale()
+	{
+		return 1 / (Screen.GetAspectRatio() / (1600. / 1200.));
+	}
+	
+	vector2 ApplyScale(vector2 scale)
+	{
+		scale.x *= baseScale.x;
+		scale.y *= baseScale.y;
+		
+		return scale;
+	}
+	
+	// Messages
+	override bool ProcessNotify(EPrintLevel printlevel, String outline)
+	{
+		bool logprint = (printlevel & PRINT_LOG);
+		bool chatmsg  = (printlevel & (PRINT_CHAT|PRINT_TEAMCHAT));
+		bool validprint = (logprint && chatmsg) || (printlevel < PRINT_HIGH);
+		if(!validprint) return false;
+		
+		PushMessage(outline);
+		return true;
+	}
+		
+	void PushMessage(String msg)
+	{
+		vector2 msgscale = (1.0, 1.5);
+		uint count = messages.Size()-1;
+		// Generate
+		let msg = DescentMessage.CreateMessage(fnt, msg.MakeUpper(), msgscale);
+		if(count >= MSGMAX) messages.Delete(0);
+
+		messages.Insert(0, msg);
+	}
+	
+	
+	void DrawMessages()
+	{
+		vector2 msgpos = (0, -540);
+		uint count = messages.Size()-1;
+		for(int i = count; i >= 0; i--)
+		{
+			let msg = messages[i];
+			if(msg.msg == "") 
+			{
+				messages.Delete(i);
+				continue;
+			}
+			
+			if(i == count) 
+				msg.DoFade(deltatime);
+			else
+				msg.alpha = 1.0;
+				
+			msg.Draw(msgpos, deltatime);
+			msgpos.y += 40;
+		}
+	}
+	
+	override void Init()
+	{
+		Super.Init();
+		if(CPlayer) dscplr = DescentPlayer(CPlayer.mo);
+		
+		// Create the font used for the fullscreen HUD
+		fnt = "DescFont";
+		mHUDFont = HUDFont.Create(fnt);
+		baseRes = (1920, 1080);
+		baseScale = (6.0,5.5);
+		SetSize(0, baseRes.x, baseRes.y);
+	}
+	
+	override void Draw (int state, double TicFrac)
+	{
+		if(automapactive) Super.Draw(state, TicFrac);
+		
+		// Always draw HUD
+		BeginHUD();
+		DrawMainBar (TicFrac);
+	}
+	
+	void DrawMainBar (double TicFrac)
+	{
+		if(CPlayer && CPlayer.mo)
+		{	
+			if(!dscplr) 
+			{
+				dscplr = DescentPlayer(CPlayer.mo);
+				return;	
+			}
+			
+			
+			// Draw features
+			if(!automapactive) DrawPrimaryHUD();
+			
+			// Lives and Score
+			vector2 livesPos = (-900, -500);
+			string livesTxt = String.Format("\c[DarkGreen]x %d", dscplr.countinv("Token_ExtraLife"));
+			DrawImg("lives", livesPos);
+			DrawStr(livesTxt, livesPos+(32,-16));
+			
+			vector2 scorePos = (600, -520);
+			string scoreTxt = String.Format("\c[Green]Score:");
+			string pts = String.Format("\c[Green]%d", curScore);
+			DrawStr(scoreTxt, scorePos, scale:(1.35,1.25));
+			DrawStr(pts, (900,-520), flags:DescentDraw.SS_TEXT_RIGHT, scale:(1.35,1.25));
+			
+			// Interpolated values
+			curScore = DSCMath.Lerp(curScore, dscplr.scorePts, 0.25 * deltaTime);
+			if(abs(curScore - dscplr.scorePts) <= 1) curScore = dscplr.scorePts;
+			
+			// Screen colors
+			Screen.Dim(dscplr.screen_color, dscplr.screen_fade, 0,0, Screen.GetWidth(), Screen.GetHeight());
+			
+			// UI Messages
+			DrawMessages();
+			
+			// Keep track of time, always.
+			if(!prevMS)
+			{
+				prevMS = MSTime();
+				return;
+			}
+			double ftime = MSTime()-prevMS;
+			prevMS = MSTime();
+			double dtime = 1000.0 / ANIM_FPS;
+			deltatime = (ftime/dtime);
+		}
+	}
+	
+	void DrawWeapons(vector2 origin, vector2 scale)
+	{
+		// Draw weapon
+		let weap = DSCWeapon(dscplr.player.ReadyWeapon);
+		let pendWeap = DSCWeapon(dscplr.player.PendingWeapon);
+		if(!weap) return;
+		vector2 weapPos = origin + (-530,60);
+		string weapName = weap.GetTag();
+		DrawImg(weap.HUDGraphic, weapPos, scale, 1.0-weapFade);
+		//DrawStr(weapName.MakeUpper(), weapPos+(70,-80), Font.CR_DarkGreen, 1.0-weapFade, scale:(1.5*scale.x,1.25*scale.y));
+		DrawStr(weap.GetUIDescription(), weapPos+(70,-80), alpha:1.0-weapFade, scale:(1.25*scale.x,1.60*scale.y));
+		
+		if(pendWeap)
+		{
+			weapFade += 0.1 * deltaTime;
+		}
+		else if(weapFade > 0)
+		{
+			weapFade -= 0.1 * deltaTime;
+		}
+		weapFade = clamp(weapFade, 0, 1.0);
+		
+		// Draw Special Weapon
+		let specWeap = DSCSpecialWeapon(dscplr.ReadySpecial);
+		let specPendWeap = DSCSpecialWeapon(dscplr.PendingSpecial);
+		if(!specWeap) specWeap = specPendWeap;
+		if(!specWeap) return;
+		weapPos = origin + (530,60);
+		weapName = specWeap.displayName;
+		DrawImg(specWeap.HUDGraphic, weapPos, scale, 1.0-specWeapFade);
+		DrawStr(specWeap.GetUIDescription(), weapPos+(-240,-80), alpha:1.0-specWeapFade, scale:(1.25*scale.x,1.60*scale.y));
+		
+		if(specPendWeap)
+		{
+			specWeapFade += 0.1 * deltaTime;
+		}
+		else if(specWeapFade > 0)
+		{
+			specWeapFade -= 0.1 * deltaTime;
+		}
+		specWeapFade = clamp(specWeapFade, 0, 1.0);
+		
+	}
+	
+	void DrawCrosshair(double scale = 1.0)
+	{
+		vector2 xScale = (scale,scale);
+		DrawImg("Crosshair/cross1", (0,0), xScale);
+		
+		
+		// Draw Weapon crosshair.
+		let weap = DSCWeapon(dscplr.player.ReadyWeapon);
+		if(!weap) return;
+		
+		string xhairFiring = weap.OffCrosshair;    
+		string xhairReady  = weap.OnCrosshair;    
+		
+		let psp = dscplr.player.GetPSprite(PSP_WEAPON);
+		if(psp)
+		{	
+			bool weapReady = Actor.InStateSequence(psp.CurState, weap.FindState("Ready"));
+			string xhairWeap = weapReady ? xhairReady : xhairFiring;
+			
+			DrawImg(xhairWeap, (0,36), xScale);
+		}
+		
+		// Draw Special Weapon crosshair.
+		let specWeap = DSCSpecialWeapon(dscplr.ReadySpecial);
+		if(!specWeap) return;
+		
+		xhairFiring = specWeap.OffCrosshair;    
+		xhairReady  = specWeap.OnCrosshair;    
+		string xhairWeap = specWeap.cooldown > 5 ? xhairFiring : xhairReady;
+		
+		DrawImg(xhairWeap, (0,18), xScale);
+	}
+	
+	void DrawPrimaryHUD()
+	{
+		if(dscplr.rearView)
+		{
+			DrawImg("rearview", (0,0));
+			return;
+		}
+		
+		vector2 cockpitPos = (0,360);
+		vector2 cockpitScale = (1.0,0.80);
+		DrawImg("cockpit_upper", (0,0));
+		DrawImg("cockpit_lower", cockpitPos, cockpitScale);
+		
+		int shieldImg = 9 - ceil((dscplr.shields / dscplr.maxShield) * 9.);
+		vector2 shieldPos = cockpitPos+(15,55);
+		DrawImg("shield" .. shieldImg, shieldPos, cockpitScale);
+		DrawImg("ship", shieldPos, cockpitScale);
+		
+		DrawStr(String.Format("%d", floor(dscplr.shields)), shieldPos+(0,-110), Font.CR_LightBlue, flags:DescentDraw.SS_TEXT_CENTER, scale:(1.5*cockpitScale.x,1.7*cockpitScale.y));
+		
+		DrawWeapons(cockpitPos, cockpitScale);
+		
+		// Draw Energy
+		vector2 leftEnergyBarPos  = cockpitPos + (-735, -101);
+		vector2 rightEnergyBarPos = cockpitPos + ( 370, -101);
+		
+		double energyPerc = clamp(dscplr.energy / dscplr.default.energy, 0, 1.0);
+		
+		ClipImage(rightEnergyBarPos, (32,4), (64 * energyPerc, 8)); 
+		DrawImg("energyGauge", rightEnergyBarPos, cockpitScale);
+		DescentDraw.ClearClipRect();
+		
+		double xoffs = (1.0-energyPerc) * -64;
+		ClipImage((leftEnergyBarPos.x, leftEnergyBarPos.y), (-32 + xoffs,4), (64 * energyPerc, 8)); 
+		DrawImg("energyGauge", leftEnergyBarPos, (-cockpitScale.x, cockpitScale.y) );
+		DescentDraw.ClearClipRect();
+		
+		DrawStr(String.Format("%d", floor(dscplr.energy)), rightEnergyBarPos+(-352,-15), Font.CR_Gold, flags:DescentDraw.SS_TEXT_CENTER, scale:(1.5*cockpitScale.x,1.7*cockpitScale.y));
+		
+		// Should be always drawn on top.
+		DrawCrosshair(1.0);
+	}	
+}

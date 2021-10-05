@@ -1,0 +1,241 @@
+class DescentPlayer : SixDoFPlayer
+{
+	int scorePts;
+	double shields, energy;
+	double maxShield, maxEnergy;
+	bool rearView;
+	
+	// UI 
+	Color screen_color;
+	double screen_fade;
+	const FADE_RATE = 0.96;
+	
+	// Special Weapons
+	DSCSpecialWeapon PendingSpecial;
+	DSCSpecialWeapon ReadySpecial;
+	
+	
+	Property Shield : shields, maxShield;
+	Property Energy : energy, maxEnergy;
+	
+	Default
+	{
+		Player.ViewHeight 16;
+		Mass 3000;
+		Health 1;
+		Player.MaxHealth 1;
+		
+		DescentPlayer.Shield 100, 200;
+		DescentPlayer.Energy 99, 200;
+		
+		Player.DisplayName "DescentShip";
+		Player.StartItem "Descent_Laser", 1;
+		Player.StartItem "Descent_ConMissile", 3;
+		Player.StartItem "Token_ExtraLife", 2;
+	}	
+	
+	
+	clearscope bool checkVoodoo() 
+	{ 
+		return (!player || !player.mo || player.mo != self);
+	}
+	
+	override bool OnGiveSecret(bool printmsg, bool playsound) 
+	{ 
+		scorePts += 500;
+		return true; 
+	}
+		
+	void Respawn()
+	{
+		TakeInventory("Token_ExtraLife", 1);
+		shields = default.shields;
+		energy = default.energy;
+	}
+	
+	override int DamageMobJ(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
+	{	
+		if(checkVoodoo() || (shields <= 0 && !countinv("Token_ExtraLife"))) 
+			return super.DamageMobJ(inflictor, source, damage, mod, flags, angle);
+		
+		double trueDamage = double(damage) * 0.25;
+		if(shields > 0)
+		{
+			shields -= trueDamage;
+			if(shields < 0) shields = 0;
+		}
+		else
+		{
+			// Check lives, Respawn.
+			GiveInventory("DeathAnimator", 1);
+		}
+		
+		return floor(trueDamage);
+	}
+	
+	void FilterWeapons()
+	{
+		for(let item = Inv; item; item = item.Inv)
+		{
+			if( !Weapon(item) ) continue;
+			if( !DSCWeapon(item) ) DropInventory(item);
+		}
+	}
+	
+	override void Tick()
+	{
+		super.Tick();
+		if(checkVoodoo() || health <= 0) return;
+		
+		// Height is set here so that voodoo scripts do not break.
+		if(height != 28) A_SetSize(16,28);
+		
+		screen_fade *= FADE_RATE;
+		FilterWeapons();
+		
+		// Clamp stats
+		shields = clamp(shields, 0, maxShield);
+		energy = clamp(energy, 0, maxEnergy);
+		
+		controlInvert = rearView;
+		ViewAngle = rearView ? 180 : 0;
+		
+		if(!ReadySpecial && FindNextSpecial()) FindNextSpecial().Select();
+		uint btns = player.cmd.buttons;
+		
+		// Handle SpecialWeapon shooting.
+		if( (btns & BT_ALTATTACK) && ReadySpecial )
+		{
+			SoundAlert(self);
+			ReadySpecial.Fire();
+		}
+			
+		// Handle SpecialWeapon switching.
+		if( (btns & BT_USER1) && !PendingSpecial)
+			PendingSpecial = FindPrevSpecial();
+		
+		if( (btns & BT_USER2) && !PendingSpecial)
+			PendingSpecial = FindNextSpecial();
+			
+	}
+	
+	// Messy but idk how to fix currently.
+	virtual DSCSpecialWeapon FindNextSpecial()
+	{
+		DSCSpecialWeapon result;
+		if(!ReadySpecial)
+		{
+			for(let item = Inv; item; item = item.Inv)
+			{
+				let spec = DSCSpecialWeapon(item);
+				if(!spec) continue;
+				result = spec;
+				break;
+			}
+		}
+		else
+		{
+			int desiredSlot = ReadySpecial.slot + 1;
+			int closestSlot = int.max;
+			for(let item = Inv; item; item = item.Inv)
+			{
+				let spec = DSCSpecialWeapon(item);
+				if(!spec || spec == ReadySpecial) continue;
+				int slotDiff = abs(desiredSlot-spec.slot);
+				if(slotDiff < closestSlot && spec.slot >= desiredSlot) 
+				{
+					closestSlot = slotDiff;
+					result = spec;
+				}
+			}
+			if(!result)
+			{
+				desiredSlot = 0;
+				for(let item = Inv; item; item = item.Inv)
+				{
+					let spec = DSCSpecialWeapon(item);
+					if(!spec || spec == ReadySpecial) continue;
+					int slotDiff = abs(desiredSlot-spec.slot);
+					if(slotDiff < closestSlot) 
+					{
+						closestSlot = slotDiff;
+						result = spec;
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	virtual DSCSpecialWeapon FindPrevSpecial()
+	{
+		DSCSpecialWeapon result;
+		if(!ReadySpecial)
+		{
+			for(let item = Inv; item; item = item.Inv)
+			{
+				let spec = DSCSpecialWeapon(item);
+				if(!spec) continue;
+				result = spec;
+				break;
+			}
+		}
+		else
+		{
+			int desiredSlot = ReadySpecial.slot - 1;
+			int closestSlot = int.max;
+			for(let item = Inv; item; item = item.Inv)
+			{
+				let spec = DSCSpecialWeapon(item);
+				if(!spec || spec == ReadySpecial) continue;
+				int slotDiff = abs(desiredSlot-spec.slot);
+				if(slotDiff < closestSlot && spec.slot <= desiredSlot) 
+				{
+					closestSlot = slotDiff;
+					result = spec;
+				}
+			}
+			if(!result)
+			{
+				desiredSlot = 9;
+				for(let item = Inv; item; item = item.Inv)
+				{
+					let spec = DSCSpecialWeapon(item);
+					if(!spec || spec == ReadySpecial) continue;
+					int slotDiff = abs(desiredSlot-spec.slot);
+					if(slotDiff < closestSlot) 
+					{
+						closestSlot = slotDiff;
+						result = spec;
+					}
+				}
+			}
+		}
+		return result;
+	}
+	
+	States
+	{
+		Spawn:
+			SHIP A -1;
+			Loop;
+		See:
+			SHIP A 4;
+			Loop;
+		Missile:
+			SHIP A 12;
+			Goto Spawn;
+		Melee:
+			SHIP A 6;
+			Goto Missile;
+		Pain:
+			SHIP A 4 A_Pain();
+		Goto Spawn;
+		Death:
+			SHIP A -1 A_NoBlocking();
+			Stop;
+		XDeath:
+			SHIP A -1 A_NoBlocking();
+			Stop;
+	}
+}	

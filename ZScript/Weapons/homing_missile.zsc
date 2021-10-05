@@ -1,0 +1,100 @@
+class Descent_HomMissile : DSCSpecialWeapon
+{
+	bool fireLeft;
+
+	Default
+	{
+		DSCSpecialWeapon.Tag "HOMING\n\c[DarkGreen]MISSILE";
+		DSCSpecialWeapon.WeaponName "Homing Missile";
+		DSCSpecialWeapon.DisplayGraphic "homingMissile";
+		DSCSpecialWeapon.SetupCrosshairs "Crosshair/missile2", "Crosshair/missile0";
+		DSCSpecialWeapon.SlotNumber 2;
+		Inventory.MaxAmount 10;
+	}
+	
+	override bool Fire()
+	{
+		if(cooldown || raiseY < 1.0) return false;
+		if(amount <= 0) return false;
+		
+		if(ShootProjectile("DSCProj_HomMissile", offs:(10,fireLeft ? -15 : 15, 0)))
+		{
+			fireLeft = !fireLeft;
+			OnCrosshair = fireLeft ? "Crosshair/missile1" : "Crosshair/missile2";
+			cooldown = 10;
+			Deplete();
+		}
+		
+		return true;
+	}
+	
+	States
+	{
+		Spawn:
+			HMIS ABCDEFGHIJKLMNO 5;
+		loop;
+	}
+}
+
+class DSCProj_HomMissile : DSCProj_ConMissile
+{
+	double mindist, maxdist, trackTime;
+	Property TargetFindTime : trackTime; // In seconds.
+	Property TrackingRanges : mindist, maxdist; 
+	
+	Default
+	{
+		Speed 20;
+		DamageFunction 27 *2;
+		DSCProj_HomMissile.TargetFindTime 1.0;
+		DSCProj_HomMissile.TrackingRanges 128, 512;
+		DSCProjectile.FireSound "HomingMissile/Fire";
+	}
+	
+	void TrackTracer(double maxturn = 2)
+	{
+		if(!tracer) return;
+		if(tracer.health <= 0 || tracer.bCORPSE) 
+		{
+			tracer = null;
+			return;
+		}
+		
+		vector3 trackAngles = level.SphericalCoords(pos, (tracer.pos.xy, tracer.pos.z+tracer.height*0.5), (angle, pitch));
+		if(abs(trackAngles.x) > maxturn) trackAngles.x = maxturn*DSCMath.Sign(trackAngles.x); 
+		if(abs(trackAngles.y) > maxturn) trackAngles.y = maxturn*DSCMath.Sign(trackAngles.y);
+		angle -= trackAngles.x;
+		pitch -= trackAngles.y;
+		
+		// Modify velocity
+		vel = DSCMath.V3Offset(angle,pitch,roll, 1,0,0, vel.Length());
+	}
+	
+	Actor FindTarget()
+	{
+		let it = BlockThingsIterator.Create(self, 512);
+		Actor act;
+		int closest = tracer ? Distance3DSquared(tracer) : int.max;
+		while (it.Next())
+		{
+			let act = it.thing;
+			int dist = Distance3DSquared(act);
+			if(dist < mindist) continue;
+			if(dist > closest) continue;
+			if(act == self || act == target) continue;
+			if(!act.bSHOOTABLE || !act.bISMONSTER) continue;
+			if (act.bKILLED) continue;        
+			if(!IsVisible(act, false)) continue; // Actor is behind wall.     
+			tracer = act;
+			closest = dist;
+		}
+		return tracer;
+	}
+	
+	override void Tick()
+	{
+		super.Tick();
+		if(GetAge() < (trackTime * 35.0) || trackTime <= 0) FindTarget();
+		TrackTracer();
+	}
+}

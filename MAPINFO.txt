@@ -1,0 +1,6 @@
+GameInfo
+{
+	PlayerClasses = "DescentPlayer"
+	AddEventHandlers = "SDOF_MovementHandler", "DescentEvents"
+	StatusBarClass = "DescentStatusBar"
+}	

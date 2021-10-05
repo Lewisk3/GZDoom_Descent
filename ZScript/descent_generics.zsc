@@ -1,0 +1,138 @@
+
+class DSCEffects abstract play
+{
+	// Spawn helpers
+	play static DSCProjectile ShootProjectile(Actor ptr, class<DSCProjectile> proj, bool useammo = true, double angle = 0, double pitch = 0, double roll = 0, vector3 offs = (0,0,0), double speed = 0)
+	{
+		let defs = GetDefaultByType(proj);
+		if(!defs) return null;
+		
+		let dscplr = DescentPlayer(ptr);
+		if(useammo && dscplr && !sv_infiniteammo)
+		{
+			// Check ammo and energy validity.
+			double energyLeft = dscplr.energy - defs.energyUse;
+			if(energyLeft < 0) return null;
+			dscplr.energy -= defs.energyUse;
+			
+			if(defs.AmmoType)
+			{
+				double ammoLeft = ptr.countinv(defs.AmmoType) - defs.AmmoUse;
+				if(ammoLeft < 0) return null;
+				ptr.TakeInventory(defs.AmmoType, defs.AmmoUse);
+			}
+		}
+		vector3 fromOffs = ptr.pos;
+		if(ptr.player) fromOffs = (ptr.pos.xy, ptr.player.viewz);
+	
+		vector3 views = (ptr.angle+angle, ptr.pitch+pitch, ptr.roll+roll);
+		vector3 worldOffs = DSCMath.V3Offset(views.x,views.y,views.z, offs.x,offs.y,offs.z, 1.0);
+		vector3 spawnPos = level.vec3offset(fromOffs, worldOffs);
+		
+		let proj = DSCProjectile(Actor.Spawn(proj, spawnPos));
+		if(proj)
+		{
+			proj.angle = views.x;
+			proj.pitch = views.y;
+			proj.roll  = views.z;
+			proj.target = ptr;
+			
+			double move = speed ? speed : proj.default.Speed;
+            proj.vel = DSCMath.V3Offset(views.x,views.y,views.z, 1,0,0, move);
+		}
+		
+		return proj;
+	}
+
+	static void ParticlesFX(Actor ptr, Color col = 0xFFF0E11A, double amt = 30, double size = 2, double spd = 5, vector3 pos_spread = (30,30,30), vector2 ang_spread = (90,30))
+	{
+		for(int i = 0; i < amt; i++)
+		{
+			double part_angle = (ptr.angle+180)+frandom(-ang_spread.x,ang_spread.x);
+			double part_pitch = ptr.pitch+frandom(-ang_spread.y,ang_spread.y);
+
+			vector3 partpos = (
+				cos(part_angle)*frandom(-pos_spread.x,pos_spread.x),
+				sin(part_angle)*frandom(-pos_spread.y,pos_spread.y),
+				sin(part_pitch)*frandom(-pos_spread.z,pos_spread.z)
+			);
+			
+			vector3 partvel = (
+				sin(part_angle)  * cos(part_pitch+90),
+				sin(part_angle)  * cos(part_pitch+90),
+				sin(part_pitch)) * spd;
+		
+			ptr.A_SpawnParticle(
+				col,SPF_FULLBRIGHT | SPF_RELATIVE,16,size,
+				part_angle,
+				partpos.x,partpos.y,partpos.z,
+				partvel.x,partvel.y,partvel.z
+			);
+		}
+	}
+	
+	static void ScreenFlash(Actor src, Color col, double fade)
+	{
+		let dscplr = DescentPlayer(src);
+		dscplr.screen_color = col;
+		dscplr.screen_fade = fade;
+	}
+	static void ViewRecoil(Actor src, double angle_recoil, double pitch_recoil, double roll_recoil)
+	{
+		let dscplr = DescentPlayer(src);
+		dscplr.viewAngles.x += angle_recoil;
+		dscplr.viewAngles.y += pitch_recoil;
+		dscplr.viewAngles.z += roll_recoil;
+	}
+	static void RecoilPush(Actor src, double forward, double leftright, double updown)
+	{
+		let dscplr = DescentPlayer(src);
+		Vector3 fw, lr, ud;
+        [fw, lr, ud] = Quaternion.GetActorAxes(dscplr, (1,1,1));
+        vector3 wishVel = forward * fw + leftright * lr + updown * ud;
+		dscplr.accel += wishVel;
+	}
+	
+	static void DoPickupFlash(Actor caller)
+	{
+		if(caller) DSCEffects.ScreenFlash(caller, "#FF00FF", 0.35);
+	}
+}
+
+// Generics for Inventory
+mixin class DSCPickupGenerics
+{
+	Default
+	{
+		+Inventory.NoScreenBlink;
+		+Inventory.NoScreenFlash;
+		+FLOATBOB;
+		Scale 0.8;
+		Inventory.PickupMessage "";
+		Inventory.PickupSound "DSCItem/Pickup";
+	}
+
+	override void DoPickupSpecial(Actor toucher)
+	{
+		DSCEffects.DoPickupFlash(toucher);
+	}
+}
+
+// Generics for Ammunition
+mixin class DSCAmmoGenerics
+{
+	Default
+	{
+		+Inventory.NoScreenBlink;
+		+Inventory.NoScreenFlash;
+		+FLOATBOB;
+		Scale 0.8;
+		Inventory.PickupMessage "";
+		Inventory.PickupSound "DSCItem/Pickup";
+	}
+	
+	override void DoPickupSpecial(Actor toucher)
+	{
+		DSCEffects.DoPickupFlash(toucher);
+	}
+}

@@ -1,0 +1,69 @@
+class MissileTrail : Actor
+{
+	Default
+	{
+		+NOGRAVITY;
+		-SOLID;
+		+NOINTERACTION;
+		RenderStyle "Add";
+		Alpha 0.60;
+		Scale 0.35;
+	}
+	
+	States
+	{
+		Spawn:
+			EXPP AB 8;
+		FadeLoop:
+			EXPP C 1 A_FadeOut(0.125);
+		wait;
+		Death:
+			EXPP C 1 A_FadeOut(0.125);
+		stop;
+	}
+}
+
+class MissileExplosion : Actor
+{
+	Default
+	{
+		+NOINTERACTION;
+		+ROLLSPRITE;
+		Scale 0.75;
+	}
+	
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay
+			{
+				DSCEffects.ParticlesFX(self, "#C45632", amt:30, 5, 8);
+				A_StartSound("Missile/Explode", CHAN_BODY, CHANF_OVERLAP);
+				A_SetRoll(frandom(-90,90));
+			}
+			EXD6 ABCDEFGHIJKL 2 Bright;
+		stop;
+	}
+}
+
+class MegaMissileExplosion : MissileExplosion
+{
+	Default
+	{
+		Scale 4.5;
+	}
+	
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay
+			{
+				DSCEffects.ParticlesFX(self, "#C45632", amt:60, 5, 8, (100,100,100),(40,40));
+				A_StartSound("MegaMissile/Explode", CHAN_BODY, CHANF_OVERLAP);
+				A_SetRoll(frandom(-90,90));
+			}
+			EXDV ABCDEFGHIJKLM 2 Bright;
+		stop;
+	}
+}
+

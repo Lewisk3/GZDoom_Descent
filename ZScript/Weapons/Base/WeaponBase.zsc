@@ -1,0 +1,335 @@
+class DSCWeapon : Weapon abstract
+{	
+	const NOCROSSHAIR = 9;
+	string HUDGraphic;
+	string Fullname;
+	int curLevel;
+	int maxLevel;
+	
+	string OnCrosshair, OffCrosshair;
+		
+	Property SetupCrosshairs : OnCrosshair, OffCrosshair;
+	Property DisplayGraphic : HUDGraphic;
+	Property WeaponName : Fullname;
+	Property MaximumLevel : maxLevel;
+	
+	mixin DSCPickupGenerics;
+	
+	Default
+	{
+		Inventory.PickupSound "DSCItem/Pickup";
+		Weapon.SlotNumber 1;
+		+FLOATBOB; 
+		+Inventory.NoScreenBlink;
+		+Inventory.NoScreenFlash;
+		Scale 0.8;
+	}
+	
+	override bool TryPickup (in out Actor toucher)
+	{
+		let hasItem = DSCWeapon(toucher.FindInventory(getClass()));
+		if(!hasItem) return super.TryPickup(toucher);
+		
+		string pickupMsg = hasItem.DoLevelup();
+		Inventory.PrintPickupMessage(toucher.CheckLocalView(), pickupMsg);
+		toucher.A_StartSound(hasItem.PickupSound, CHAN_ITEM, CHANF_OVERLAP|CHANF_LOCAL);
+		DoPickupSpecial(toucher);
+		GoAwayAndDie();
+		return super.TryPickup(toucher);
+	}
+	
+	action void A_ScreenFlash(Color col, double fade)
+	{
+		DSCEffects.ScreenFlash(self, col, fade);
+	}
+	action void A_ViewRecoil(double angle_recoil, double pitch_recoil, double roll_recoil)
+	{
+		DSCEffects.ViewRecoil(self, angle_recoil, pitch_recoil, roll_recoil);
+	}
+	action void A_RecoilPush(double forward, double leftright, double updown)
+	{
+		DSCEffects.RecoilPush(self, forward, leftright, updown);
+	}
+	
+	override string PickupMessage()
+	{
+		return String.Format("%s!", Fullname != "" ? Fullname : getTag()); 
+	}
+	
+	// Called to upgrade weapons to their maximum potential.
+	virtual void MakeMaxLevel() 
+	{
+		curLevel = maxLevel-1;
+	}
+	
+	virtual string DoLevelup()
+	{
+		if(maxLevel <= 0)
+			return String.Format("You already have a %s!", Fullname != "" ? Fullname : getTag()); 
+		
+		if(curLevel >= maxLevel-1) 
+			return String.Format("%s is maxed out!", Fullname != "" ? Fullname : getTag());  
+			
+		curLevel++;
+		return String.Format("%s boosted to %d", Fullname != "" ? Fullname : getTag(), curLevel+1); 
+	}
+
+	action DSCProjectile A_ShootProjectile(class<DSCProjectile> proj, Sound fireSound = "", bool useammo = true, double angle = 0, double pitch = 0, double roll = 0, vector3 offs = (0,0,0), double speed = 0)
+	{
+		DSCProjectile proj = DSCEffects.ShootProjectile(self, proj, useammo, angle, pitch, roll, offs, speed);
+		if(proj) A_StartSound(fireSound, flags:CHANF_OVERLAP);
+		
+		return proj;
+	}
+		
+	action void A_ChangeWeapLevel(int amt)
+	{
+		invoker.curLevel += amt;
+		invoker.curLevel = clamp(invoker.curLevel, 0, invoker.maxLevel-1);
+	}
+	
+	clearscope virtual string GetUIDescription()
+	{
+		return String.Format("\c[DarkGreen]%s\n\c[DarkGreen]LVL: %d", GetTag().MakeUpper(), curLevel+1);
+	}
+	
+	override void DoEffect()
+	{
+		super.DoEffect();
+		UpdateWeapon();
+	}
+	
+	// Alternative to Tick override for cleaner code.
+	virtual void UpdateWeapon() {}
+	
+	States
+	{
+		Ready:
+			TNT1 A 1 A_WeaponReady();
+		Loop;
+		
+		Select:
+			TNT1 A 1 
+			{
+				A_SetCrosshair(NOCROSSHAIR);
+				A_Raise(12);
+			}
+		wait;
+		
+		Deselect:
+			TNT1 A 1 
+			{
+				A_SetCrosshair(NOCROSSHAIR);
+				A_StartSound("Cockpit/WeaponCycle", CHAN_WEAPON, CHANF_OVERLAP|CHANF_LOCAL|CHANF_NOSTOP);
+				A_Lower(12);
+			}
+		wait;
+		
+		Fire:
+		goto Ready;
+	}
+}	
+
+class DSCItemPickup : CustomInventory abstract
+{
+	int success;
+	mixin DSCPickupGenerics;
+
+	States
+	{
+		Done:
+			TNT1 A 0 
+			{
+				DSCEffects.DoPickupFlash(self);
+			}
+		stop;
+	}
+}	
+
+class DSCSpecialWeapon : Inventory abstract
+{
+	String displayName;
+	int slot;
+	string HUDGraphic;
+	string Fullname;
+	double raiseY; // Simulate delay for weapon switching.
+	string OnCrosshair, OffCrosshair;	
+	
+	Property SetupCrosshairs : OnCrosshair, OffCrosshair;
+	Property SlotNumber : slot;
+	Property DisplayGraphic : HUDGraphic;
+	Property Tag : displayName;
+	Property WeaponName : Fullname;
+	
+	mixin DSCPickupGenerics;
+	
+	Default
+	{
+		DSCSpecialWeapon.Tag "Unknown (9)";
+		DSCSpecialWeapon.DisplayGraphic "WeapLaser";
+		DSCSpecialWeapon.SlotNumber 9;
+		
+		+Inventory.KeepDepleted;
+		Inventory.MaxAmount 99999;
+	}
+	
+	override bool TryPickup(in out Actor toucher)
+	{
+		bool firstPickup = !toucher.FindInventory(getClass());
+		bool success = super.TryPickup(toucher);
+		if(firstPickup && success) Select(); 
+		
+		return success;
+	}
+	
+	override string PickupMessage()
+	{
+		if(default.amount <= 1)
+			return String.Format("%s!", Fullname != "" ? Fullname : getTag()); 
+		else
+			return String.Format("%d %ss!", default.amount, Fullname != "" ? Fullname : getTag()); 
+	}
+	
+	clearscope virtual string GetUIDescription()
+	{
+		return String.Format("\c[DarkGreen]%s\n  \c[DarkRed]%.3d", displayName, Owner.countinv(getClass()));
+	}
+	
+	DSCProjectile ShootProjectile(class<DSCProjectile> proj, Sound fireSound = "", bool useammo = true, double angle = 0, double pitch = 0, double roll = 0, vector3 offs = (0,0,0), double speed = 0)
+	{
+		DSCProjectile proj = DSCEffects.ShootProjectile(Owner, proj, useammo, angle, pitch, roll, offs, speed);
+		if(proj) A_StartSound(fireSound, flags:CHANF_OVERLAP);
+		
+		return proj;
+	}
+	
+	void Deplete(double amt = 1)
+	{
+		if(sv_infiniteammo) return;
+		Owner.TakeInventory(getClass(), amt); 
+		if(amount <= 0) 
+		{
+			let dscplr = DescentPlayer(Owner);
+			if(!dscplr) return;
+			let spec = dscplr.FindNextSpecial();
+			if(spec) spec.Select();
+		}
+	}
+	
+	void Select()
+	{
+		let dscplr = DescentPlayer(Owner);
+		if(!dscplr) return;
+		dscplr.PendingSpecial = self;
+	}
+	
+	override void DoEffect()
+	{
+		super.DoEffect();
+		if(cooldown) cooldown--;
+		
+
+		let dscplr = DescentPlayer(Owner);
+		if(!dscplr) return;
+		
+		// Handle "switching"
+		let curSpecial = dscplr.ReadySpecial;		
+		if(dscplr.PendingSpecial == self && curSpecial != self) 
+		{
+			if(curSpecial) 
+			{
+				curSpecial.raiseY -= 0.10;
+				Owner.A_StartSound("Cockpit/MissileCycle", CHAN_WEAPON, CHANF_OVERLAP|CHANF_LOCAL|CHANF_NOSTOP);
+			}
+			if(!curSpecial || curSpecial.raiseY <= 0)
+			{
+				if(curSpecial) curSpecial.raiseY = 0;
+				raiseY += 0.10;
+				if(raiseY >= 1.0)
+				{
+					dscplr.ReadySpecial = self;
+					dscplr.PendingSpecial = NULL;
+				}
+			}
+		}
+	}
+	
+	int cooldown;
+	
+	// @returns: True on successful fire, False on failure.
+	virtual bool Fire()
+	{
+		return true;
+	}
+}
+
+class DSCProjectile : FastProjectile
+{
+	double energyUse;
+	Sound fireSound;
+	
+	class<Ammo> ammoType;
+	double ammoUse;
+	vector3 localAccel; // Localized acceleration with offsets relative to position.
+	
+	Property FireSound : fireSound;
+	Property EnergyUse : energyUse;
+	Property SetupAmmo : ammoType, ammoUse;
+	
+	Default
+	{	
+		Radius 5;
+		Height 5;
+		Speed 40;
+		Damage 0;
+		Projectile;
+	}
+		
+	override void PostBeginPlay()
+	{
+		super.PostBeginPlay();
+		
+		A_StartSound(FireSound, CHAN_VOICE, CHANF_OVERLAP);
+	}
+	
+	override void Tick()
+	{
+		super.Tick();
+		if(isFrozen()) return;
+		
+		if(!bMISSILE) return; // Collided.
+		// Accelerate in relative direction.
+		vector3 worldAccel = DSCMath.V3Offset(angle,pitch,roll, localAccel.x,localAccel.y,localAccel.z, 1.0);
+		SetOrigin(level.vec3offset(pos, worldAccel), true);
+	}
+	
+	Actor DoMissileExplosion(double dam = -1, double dist = -1, double scale = -1, uint flags = XF_HURTSOURCE, class<Actor> type = "MissileExplosion")
+	{
+		if(scale == -1) scale = self.scale.X;
+		A_Explode(dam, dist, flags);
+		let expl = Spawn(type, (pos.xy,pos.z+(height*0.5)));
+		if(expl) expl.A_SetScale(scale, scale);
+		return expl;
+	}
+		
+	Actor SpawnTrail(vector3 offs = (-35,0,0), class<Actor> type = "MissileTrail")
+	{
+		vector3 worldOffs = DSCMath.V3Offset(angle, pitch, roll, offs.x,offs.y,offs.z, 1.0);
+		vector3 spawnPos = level.vec3offset(pos, worldOffs);
+		
+		let trail = Actor.Spawn(type, spawnPos);
+		if(trail) 
+		{
+			double spd = vel.Length();
+			trail.vel = DSCMath.V3Offset(angle,pitch,roll, 1,0,0, spd*0.8);
+		}
+		return trail;
+	}
+	
+	States
+	{
+		Spawn:
+			MODL A 1 Bright;
+		loop;
+	}
+}

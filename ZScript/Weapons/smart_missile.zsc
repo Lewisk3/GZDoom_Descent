@@ -1,0 +1,95 @@
+class Descent_SmartMissile : DSCSpecialWeapon
+{
+	bool fireLeft;
+
+	Default
+	{
+		DSCSpecialWeapon.Tag "SMART\n\c[DarkGreen]MISSILE";
+		DSCSpecialWeapon.WeaponName "Smart Missile";
+		DSCSpecialWeapon.DisplayGraphic "smartMissile";
+		DSCSpecialWeapon.SetupCrosshairs "Crosshair/rocket1", "Crosshair/rocket0";
+		DSCSpecialWeapon.SlotNumber 3;
+		Inventory.MaxAmount 5;
+	}
+	
+	override bool Fire()
+	{
+		if(cooldown || raiseY < 1.0) return false;
+		if(amount <= 0) return false;
+		
+		if(ShootProjectile("DSCProj_SmartMissile", offs:(10,0,-10)))
+		{
+			cooldown = 10;
+			Deplete();
+		}
+		
+		return true;
+	}
+	
+	States
+	{
+		Spawn:
+			SMIS ABCDEFGHIJKLMNO 5;
+		loop;
+	}
+}
+
+class DSCProj_SmartMissile : DSCProj_ConMissile
+{
+	Default
+	{
+		DSCProjectile.FireSound "SmartMissile/Fire";
+	}
+	
+	override void DoPayload() 
+	{
+		for(int i = 0; i < 6; i++)
+		{
+			vector3 views = (
+				 frandom(-90,90) + 180,
+				-pitch + frandom(-30,30), 
+				 roll
+			);
+			DSCEffects.ShootProjectile(self, "DSCProj_SmartTracker", false, views.x,views.y,views.z);
+		}
+	}
+	
+	States
+	{
+		Spawn:
+			MODL A 1 SpawnTrail();
+		loop;
+	}
+}
+
+class DSCProj_SmartTracker : DSCProj_HomMissile
+{
+	Default
+	{
+		Scale 0.25;
+		Speed 5;
+		DamageFunction 35 * DSCDMG;
+		DSCProj_HomMissile.TargetFindTime 0; // Infinite
+		DSCProj_HomMissile.TrackingRanges 128, 512;
+		DSCProjectile.FireSound "";
+	}
+	
+	override void Tick()
+	{
+		super.Tick();
+		bSOLID = GetAge() > 5;
+	}
+	
+	States
+	{
+		Spawn:
+			PLSB A 1 Bright;
+		loop;
+		
+		Crash:
+		Death:
+		XDeath:
+			PLSB A 1 Bright DoMissileExplosion(64,128,0.8);
+		stop;
+	}
+}

@@ -1,0 +1,278 @@
+class Descent_Laser : DSCWeapon
+{
+	bool quadFire;
+
+	Default
+	{
+		Weapon.SlotNumber 1;
+		Tag "Laser";
+		DSCWeapon.WeaponName "Laser Cannon";
+		DSCWeapon.DisplayGraphic "WeapLaser";
+		DSCWeapon.SetupCrosshairs "Crosshair/weapon1", "Crosshair/weapon0";
+		DSCWeapon.MaximumLevel 4;
+	}
+	
+	override void MakeMaxLevel()
+	{
+		curLevel = 5;
+		quadFire = true;
+	}
+	
+	override string GetUIDescription()
+	{
+		string desc = super.GetUIDescription();
+		if(quadFire) desc = desc .. "\n\c[DarkGreen]QUAD";
+		return desc;
+	}
+	
+	action void A_FireLaser(double leftright = 0, double updown = 0, bool useammo = true, bool playsound = true)
+	{
+		int lvl = invoker.curLevel+1;
+		Sound snd = String.Format("Laser/LV%d/Fire", lvl);
+		if(!playsound) snd = "";
+		A_ShootProjectile("DSCProj_LaserLV" .. lvl, snd, useammo, offs:(20, leftright, updown));
+	}
+	
+	override void UpdateWeapon()
+	{
+		if(curLevel >= 4) 
+			HUDGraphic = "WeapSuperLaser";
+	}
+	
+	States
+	{
+		Ready:
+			TNT1 A 1 A_WeaponReady();
+		Loop;
+		
+		Spawn:
+			LASR ABCDEFGHIJKLMNO 5;
+		loop;
+		
+		Fire:
+			TNT1 A 8
+			{
+				A_FireLaser(-15, -5);
+				A_FireLaser( 15, -5);
+				if(invoker.quadFire)
+				{
+					A_FireLaser(-30, -15, false, false);
+					A_FireLaser( 30, -15, false, false);
+				}
+			}
+		Goto Ready;
+	}
+}
+
+// Weapon Buffs
+class Descent_SuperLaser : DSCItemPickup
+{
+	override string PickupMessage()
+	{
+		if(success) return String.Format("Super boost to laser level %d", success+1);
+		return String.Format("Super laser is maxed out!");
+	}
+	
+	States
+	{
+		Pickup:
+			TNT1 A 0 
+			{
+				let dscplr = DescentPlayer(self);
+				if(dscplr)
+				{
+					let laser = Descent_Laser(dscplr.FindInventory("Descent_Laser"));
+					if(laser && laser.curLevel < 5) 
+					{
+						if(laser.curLevel < 4) 
+							laser.curLevel = 4;
+						else 
+							laser.curLevel++;
+						
+						invoker.success = laser.curLevel;
+					}
+				}
+			}
+		goto Done;
+		
+		Spawn:
+			SLAS ABCDEFGHIJKLMNO 5;
+		loop;
+	}
+}	
+
+class Descent_QuadLasers : DSCItemPickup
+{
+	override string PickupMessage()
+	{
+		return String.Format("Quad Lasers!");
+	}
+	
+	States
+	{
+		Pickup:
+			TNT1 A 0 
+			{
+				let dscplr = DescentPlayer(self);
+				if(dscplr)
+				{
+					let laser = Descent_Laser(dscplr.FindInventory("Descent_Laser"));
+					if(laser) 
+					{
+						laser.OnCrosshair = "Crosshair/quadlaser";
+						laser.quadFire = true;
+					}
+				}
+			}
+		goto Done;
+		
+		Spawn:
+			QLAS ABCDEFGHIJKLMNO 5;
+		loop;
+	}
+}
+
+// Lasers
+class DSCProj_LaserCore : Actor
+{
+	// Purely aesthetic
+	Default
+	{
+		Radius 5;
+		Height 5;
+		Damage 0;
+		RenderStyle "Shaded";
+		+NOINTERACTION;
+	}
+	
+	override void Tick()
+	{
+		super.tick();
+		if(!master) Destroy();
+	}
+	
+	
+	static DSCProj_LaserCore SpawnCore(Actor src, Color col, class<Actor> type = "DSCProj_LaserCore")
+	{
+		let core = DSCProj_LaserCore(Spawn(type, src.pos));
+		if(core)
+		{
+			core.vel = src.vel;
+			core.angle = src.angle;
+			core.pitch = src.pitch;
+			core.roll = src.roll;
+			core.master = src;
+			core.A_SetScale(src.Scale.X, src.Scale.Y);
+			core.SetShade(col);
+		}
+		return core;
+	}
+	
+	States
+	{
+		Spawn:
+			MODL A 1;
+		loop;
+	}
+}
+
+class DSCProj_Laser : DSCProjectile
+{ 
+	Color col;
+	Color core_col;
+	class<DSCProj_LaserCore> coreType;
+	Property CoreType : coreType;
+	Property LaserColor : col;
+	Property CoreColor : core_col;
+	
+	Default
+	{	
+		Radius 5;
+		Height 5;
+		Speed 40;
+		DamageFunction 10;
+		
+		RenderStyle "AddShaded";
+		DSCProj_Laser.CoreType "DSCProj_LaserCore";
+		DSCProj_Laser.LaserColor "#C93936";
+		DSCProj_Laser.CoreColor "#FFBE24";
+		Scale 1.0;
+		Decal "BulletChip";
+		Alpha 0.75;
+		Projectile;
+	}
+	
+	override void Tick()
+	{	
+		super.Tick();
+		SetShade(col);
+	}
+		
+	override void PostBeginPlay()
+	{
+		super.PostBeginPlay();
+		DSCProj_LaserCore.SpawnCore(self, core_col, coreType);
+	}
+	
+	States
+	{	
+		Crash:
+		Death:
+			TNT1 A 0 
+			{
+				A_StartSound("Missile/Explode", flags:CHANF_OVERLAP);
+				DSCEffects.ParticlesFX(self);
+			}
+			LS1H ABCDE 3 Bright;
+		stop;
+	}
+}
+
+// DSC Numbers - 10, 11, 12, 13
+class DSCProj_LaserLV1 : DSCProj_Laser {
+	Default {	
+		DamageFunction 10 * DSCDMG;
+		DSCProj_Laser.LaserColor "Red";
+		DSCProjectile.energyUse 0.1;
+	}
+}
+class DSCProj_LaserLV2 : DSCProj_Laser {
+	Default {	
+		DamageFunction 11 * DSCDMG;
+		DSCProj_Laser.LaserColor "Purple";
+		DSCProj_Laser.CoreColor "#F580FF";
+		DSCProjectile.energyUse 0.1;
+	}
+}
+class DSCProj_LaserLV3 : DSCProj_Laser {
+	Default {	
+		DamageFunction 12 * DSCDMG;
+		DSCProj_Laser.LaserColor "Blue";
+		DSCProj_Laser.CoreColor "#B0B0FF";
+		DSCProjectile.energyUse 0.1;
+	}
+}
+class DSCProj_LaserLV4 : DSCProj_Laser {
+	Default {	
+		DamageFunction 13 * DSCDMG;
+		DSCProj_Laser.LaserColor "Green";
+		DSCProj_Laser.CoreColor "#C7F2B8";
+		DSCProjectile.energyUse 0.1;
+	}
+}
+class DSCProj_LaserLV5 : DSCProj_Laser {
+	Default {	
+		DamageFunction 14 * DSCDMG;
+		DSCProj_Laser.LaserColor "Yellow";
+		DSCProj_Laser.CoreColor "#FFFFFF";
+		DSCProjectile.energyUse 0.2;
+	}
+}
+class DSCProj_LaserLV6 : DSCProj_Laser {
+	Default {	
+		DamageFunction 15 * DSCDMG;
+		DSCProj_Laser.LaserColor "White";
+		DSCProj_Laser.CoreColor "#000000";
+		DSCProjectile.energyUse 0.2;
+	}
+}

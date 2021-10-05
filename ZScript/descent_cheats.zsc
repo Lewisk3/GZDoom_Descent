@@ -1,0 +1,331 @@
+extend class DescentPlayer
+{
+	override void CheatGive (String name, int amount)
+	{
+		int i;
+		Class<Inventory> type;
+		let player = self.player;
+
+		if (player.mo == NULL || player.health <= 0)
+		{
+			return;
+		}
+
+		int giveall = ALL_NO;
+		if (name ~== "all")
+		{
+			giveall = ALL_YES;
+		}
+		else if (name ~== "everything")
+		{
+			giveall = ALL_YESYES;
+		}
+
+		if (name ~== "health" || name ~== "shield")
+		{
+			if (amount > 0)
+			{
+				shields += amount;
+			}
+			else
+			{
+				shields = maxShield;
+			}
+		}
+
+		if (giveall || name ~== "backpack")
+		{
+			// Select the correct type of backpack based on the game
+			type = (class<Inventory>)(gameinfo.backpacktype);
+			if (type != NULL)
+			{
+				GiveInventory(type, 1, true);
+			}
+
+			if (!giveall)
+				return;
+		}
+
+		if (giveall || name ~== "ammo")
+		{
+			// Find every unique type of ammo. Give it to the player if
+			// he doesn't have it already, and set each to its maximum.
+			for (i = 0; i < AllActorClasses.Size(); ++i)
+			{
+				let ammotype = (class<Ammo>)(AllActorClasses[i]);
+
+				if (ammotype && GetDefaultByType(ammotype).GetParentAmmo() == ammotype)
+				{
+					let ammoitem = FindInventory(ammotype);
+					if (ammoitem == NULL)
+					{
+						ammoitem = Inventory(Spawn (ammotype));
+						ammoitem.AttachToOwner (self);
+						ammoitem.Amount = ammoitem.MaxAmount;
+					}
+					else if (ammoitem.Amount < ammoitem.MaxAmount)
+					{
+						ammoitem.Amount = ammoitem.MaxAmount;
+					}
+				}
+				
+				// Descent: Give Ammo
+				let specialType = (class<DSCSpecialWeapon>)(AllActorClasses[i]);
+				if(specialType && specialType != "DSCSpecialWeapon")
+				{
+					if(giveall) GiveInventory(specialType, 1);
+					let item = FindInventory(specialType);
+					if(item) 
+					{
+						item.amount = item.MaxAmount;
+					}
+				}
+			}
+			
+			energy = maxEnergy;
+
+			if (!giveall)
+				return;
+		}
+
+		if (giveall || name ~== "keys")
+		{
+			for (int i = 0; i < AllActorClasses.Size(); ++i)
+			{
+				if (AllActorClasses[i] is "Key")
+				{
+					let keyitem = GetDefaultByType (AllActorClasses[i]);
+					if (keyitem.special1 != 0)
+					{
+						let item = Inventory(Spawn(AllActorClasses[i]));
+						if (!item.CallTryPickup (self))
+						{
+							item.Destroy ();
+						}
+					}
+				}
+			}
+			if (!giveall)
+				return;
+		}
+
+		if (giveall || name ~== "weapons")
+		{
+			let savedpending = player.PendingWeapon;
+			for (i = 0; i < AllActorClasses.Size(); ++i)
+			{
+				let type = (class<Weapon>)(AllActorClasses[i]);
+				if (type != null && type != "Weapon" && type != "DSCWeapon")
+				{
+					// Don't give replaced weapons unless the replacement was done by Dehacked.
+					let rep = GetReplacement(type);
+					if (rep == type || rep is "DehackedPickup")
+					{
+						// Give the weapon only if it is set in a weapon slot.
+						if (player.weapons.LocateWeapon(type))
+						{
+							readonly<Weapon> def = GetDefaultByType (type);
+							if (giveall == ALL_YESYES || !def.bCheatNotWeapon)
+							{
+								GiveInventory(type, 1, true);
+							}
+						}
+					}
+					
+					let item = DSCWeapon(FindInventory(type));
+					if(item) item.MakeMaxLevel();
+				}
+				
+				// Descent: Give Special Weapons
+				let specialType = (class<DSCSpecialWeapon>)(AllActorClasses[i]);
+				if(specialType && !FindInventory(specialType) && specialType != "DSCSpecialWeapon")
+					GiveInventory(specialType, 1);
+					
+			}
+			player.PendingWeapon = savedpending;
+
+			if (!giveall)
+				return;
+		}
+
+		if (giveall || name ~== "artifacts")
+		{
+			for (i = 0; i < AllActorClasses.Size(); ++i)
+			{
+				type = (class<Inventory>)(AllActorClasses[i]);
+				if (type!= null)
+				{
+					let def = GetDefaultByType (type);
+					if (def.Icon.isValid() && def.MaxAmount > 1 &&
+						!(type is "PuzzleItem") && !(type is "Powerup") && !(type is "Ammo") &&	!(type is "Armor"))
+					{
+						// Do not give replaced items unless using "give everything"
+						if (giveall == ALL_YESYES || GetReplacement(type) == type)
+						{
+							GiveInventory(type, amount <= 0 ? def.MaxAmount : amount, true);
+						}
+					}
+				}
+			}
+			if (!giveall)
+				return;
+		}
+
+		if (giveall || name ~== "puzzlepieces")
+		{
+			for (i = 0; i < AllActorClasses.Size(); ++i)
+			{
+				let type = (class<PuzzleItem>)(AllActorClasses[i]);
+				if (type != null)
+				{
+					let def = GetDefaultByType (type);
+					if (def.Icon.isValid())
+					{
+						// Do not give replaced items unless using "give everything"
+						if (giveall == ALL_YESYES || GetReplacement(type) == type)
+						{
+							GiveInventory(type, amount <= 0 ? def.MaxAmount : amount, true);
+						}
+					}
+				}
+			}
+			if (!giveall)
+				return;
+		}
+
+		if (giveall)
+			return;
+
+		type = name;
+		if (type == NULL)
+		{
+			if (PlayerNumber() == consoleplayer)
+				A_Log(String.Format("Unknown item \"%s\"\n", name));
+		}
+		else
+		{
+			GiveInventory(type, amount, true);
+		}
+		return;
+	}
+	
+	void CheatTakeAllAmmo()
+	{
+		CheatTakeType("Ammo");
+		for(let item = Inv; item; item = item.Inv)
+		{
+			let spec = DSCSpecialWeapon(item);
+			if(!spec) continue;
+			spec.amount = 0;
+		}
+	}
+
+	override void CheatTake (String name, int amount)
+	{
+		bool takeall;
+		Class<Inventory> type;
+		let player = self.player;
+
+
+		if (player.mo == NULL || player.health <= 0)
+		{
+			return;
+		}
+
+		takeall = name ~== "all";
+
+		if (!takeall && name ~== "health")
+		{
+			if (shields - amount <= 0 || amount == 0)
+			{
+				CheatSuicide ();
+
+				if (PlayerNumber() == consoleplayer)
+					Console.HideConsole ();
+
+				return;
+			}
+			if (amount > 0) shields -= amount;
+
+			if (!takeall)
+				return;
+		}
+
+		if (takeall || name ~== "backpack")
+		{
+			CheatTakeType("BackpackItem");
+			if (!takeall)
+				return;
+		}
+
+		if (takeall || name ~== "ammo")
+		{
+			CheatTakeAllAmmo();
+			if (!takeall)
+				return;
+		}
+
+		if (takeall || name ~== "armor")
+		{
+			CheatTakeType("Armor");
+			if (!takeall)
+				return;
+		}
+		
+		if (takeall || name ~== "keys")
+		{
+			CheatTakeType("Key");
+			if (!takeall)
+				return;
+		}
+
+		if (takeall || name ~== "weapons")
+		{
+			CheatTakeType("Weapon");
+			CheatTakeType("DSCSpecialWeapon");
+			CheatTakeType("WeaponHolder");
+			player.ReadyWeapon = null;
+			player.PendingWeapon = WP_NOCHANGE;
+
+			if (!takeall)
+				return;
+		}
+
+		if (takeall || name ~== "artifacts")
+		{
+			for (int i = 0; i < AllActorClasses.Size(); ++i)
+			{
+				type = (class<Inventory>)(AllActorClasses[i]);
+				if (type!= null && !(type is "PuzzleItem") && !(type is "Powerup") && !(type is "Ammo") &&	!(type is "Armor"))
+				{
+					let pack = FindInventory(type);
+					if (pack) pack.Destroy();
+				}
+			}
+			if (!takeall)
+				return;
+		}
+
+		if (takeall || name ~== "puzzlepieces")
+		{
+			CheatTakeType("PuzzleItem");
+			if (!takeall)
+				return;
+		}
+
+		if (takeall)
+			return;
+
+		type = name;
+		if (type == NULL)
+		{
+			if (PlayerNumber() == consoleplayer)
+				A_Log(String.Format("Unknown item \"%s\"\n", name));
+		}
+		else
+		{
+			TakeInventory(type, max(amount, 1));
+		}
+		return;
+	}
+}

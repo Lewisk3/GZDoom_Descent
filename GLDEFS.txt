@@ -1,0 +1,118 @@
+#include "Materials.gl"
+
+pointlight GreenPointLight
+{
+    color 0.0 1.0 0.0
+    size 26
+}
+pulselight YellowLight
+{
+	color 0.96 0.92 0
+	size 30    
+	secondarySize 16
+    interval 0.5
+}
+pointlight DarkRedPointLight
+{
+    color 0.5 0.0 0.0
+    size 45
+}
+pointlight RedPointLight
+{
+    color 1.0 0.0 0.0
+    size 45
+}
+pointlight RedPointLightSmall
+{
+    color 1.0 0.0 0.0
+    size 32
+}
+pointlight OrangePointLight
+{
+    color 1.0 0.5 0.0
+    size 45
+}
+pointlight BluePointLight
+{
+    color 0.0 0.0 4.0
+    size 45
+}
+pointlight PurplePointLight
+{
+	color 0.29 0.13 0.77
+	size 54
+}
+pointlight YellowPointLight
+{
+    color 5.0 5.0 0.0
+    size 65
+}
+pointlight WhitePointLight
+{
+    color 5.0 5.0 5.0
+    size 65
+}
+pointlight YellowSmallLight
+{
+    color 5.0 5.0 0.0
+    size 32
+}
+pointlight BlueBrightLight
+{
+    color 0.0 0.0 1.0
+    size 32
+}
+
+pulselight BluePulseLight
+{
+    color 0.25 0.25 0.83
+    size 45
+    secondarySize 32
+    interval 0.5
+}
+
+object DSCProj_LaserLV1 
+{
+	frame MODL { light RedPointLightSmall }
+}
+
+object MissileExplosion
+{
+	frame EXD6 { light YellowPointLight }
+}
+object MegaMissileExplosion
+{
+	frame EXDV { light WhitePointLight }
+}
+
+object DSCProj_ConMissile
+{
+	frame MODL { light YellowSmallLight }
+}
+object DSCProj_HomMissile
+{
+	frame MODL { light YellowSmallLight }
+}
+object DSCProj_SmartMissile
+{
+	frame MODL { light YellowSmallLight }
+}
+object DSCProj_MegaMissile
+{
+	frame MODL { light YellowSmallLight }
+}
+
+object DSCProj_Spreadfire
+{
+	frame SPRD { light BlueBrightLight }
+}
+
+object DSCProj_Plasma
+{
+	frame PLSB { light GreenPointLight }
+}
+object DSCProj_SmartTracker
+{
+	frame PLSB { light GreenPointLight }
+}
+

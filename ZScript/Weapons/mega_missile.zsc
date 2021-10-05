@@ -1,0 +1,67 @@
+class Descent_MegaMissile : DSCSpecialWeapon
+{
+	Default
+	{
+		DSCSpecialWeapon.Tag "MEGA\n\c[DarkGreen]MISSILE";
+		DSCSpecialWeapon.WeaponName "Mega Missile";
+		DSCSpecialWeapon.DisplayGraphic "megaMissile";
+		DSCSpecialWeapon.SetupCrosshairs "Crosshair/rocket1", "Crosshair/rocket0";
+		DSCSpecialWeapon.SlotNumber 4;
+		Inventory.MaxAmount 5;
+	}
+	
+	override bool Fire()
+	{
+		if(cooldown || raiseY < 1.0) return false;
+		if(amount <= 0) return false;
+		
+		if(ShootProjectile("DSCProj_MegaMissile", offs:(10,0,-10)))
+		{
+			SetState(FindState("DoRecoil"));
+			cooldown = 35;
+			Deplete();
+		}
+		
+		return true;
+	}
+	
+	States
+	{
+		Spawn:
+			MMIS ABCDEFGHIJKLMNO 5;
+		loop;
+		DoRecoil:
+			TNT1 A 0 
+			{
+				DSCEffects.ViewRecoil(Owner, -5.0, -5.0, 0);
+				DSCEffects.RecoilPush(Owner, -2,0,0);
+			}
+			TNT1 A 5;
+			TNT1 A 0 
+			{
+				DSCEffects.ViewRecoil(Owner, 2.8, 2.8, 0);
+			}
+		goto Spawn;
+	}
+}
+
+class DSCProj_MegaMissile : DSCProj_HomMissile
+{
+	Default
+	{
+		Speed 15;
+		DamageFunction 350 * DSCDMG;
+		DSCProj_HomMissile.TargetFindTime 1.0;
+		DSCProj_HomMissile.TrackingRanges 128, 512;
+		DSCProjectile.FireSound "MegaMissile/Fire";
+	}
+	
+	States
+	{
+		Crash:
+		Death:
+		XDeath:
+			TNT1 A 1 Bright DoMissileExplosion(350, 1024, 4.5, 0, "MegaMissileExplosion");
+		stop;
+	}
+}

@@ -1,0 +1,36 @@
+version "4.5"
+
+const DSCDMG = 2.0; // Damage Scale
+
+// Full Credit to: dodopod ( https://gitlab.com/dodopod/6dof-player )
+#include "ZScript/6dof/quaternion.zs"
+#include "ZScript/6dof/ctrls_handler.zs"
+#include "ZScript/6dof/six_dof_player.zs"
+
+// Descent
+#include "ZScript/descent_math.zsc"
+#include "ZScript/descent_player.zsc"
+#include "ZScript/descent_cheats.zsc"
+#include "ZScript/descent_hud.zsc"
+#include "ZScript/descent_generics.zsc"
+#include "ZScript/descent_powerups.zsc"
+#include "ZScript/descent_animators.zsc"
+#include "ZScript/descent_events.zsc"
+
+// SBS
+#include "ZScript/SBS/dsc_sbs_base.zsc"
+#include "ZScript/SBS/dsc_sbs_3D.zsc"
+
+// Weapons
+#include "ZScript/Weapons/Base/WeaponBase.zsc"
+#include "ZScript/Weapons/Base/weapon_gfx.zsc"
+#include "ZScript/Weapons/concussion_missile.zsc"
+#include "ZScript/Weapons/homing_missile.zsc"
+#include "ZScript/Weapons/mega_missile.zsc"
+#include "ZScript/Weapons/smart_missile.zsc"
+#include "ZScript/Weapons/laser_cannon.zsc"
+#include "ZScript/Weapons/spreadfire_cannon.zsc"
+#include "ZScript/Weapons/plasma_cannon.zsc"
+#include "ZScript/Weapons/vulcan_cannon.zsc"
+#include "ZScript/Weapons/fusion_cannon.zsc"
+#include "ZScript/Weapons/proximity_bomb.zsc"
