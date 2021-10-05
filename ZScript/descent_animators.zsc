@@ -17,8 +17,92 @@ class DescentTeleportFog : TeleportFog
 	}
 }
 
+class DeathCamera : Actor
+{
+	DescentPlayer src;
+	double dist_xy;
+	double dist_z;
+	
+	Property Distances : dist_xy, dist_z;
+	
+	Default
+	{
+		DeathCamera.Distances 200, 30;
+		+NOINTERACTION;
+		+INTERPOLATEANGLES;
+	}
+	
+	static DeathCamera ActivateCam(DescentPlayer on, double dist_xy = 200, double dist_z = 30)
+	{
+		let cam = DeathCamera(Spawn("DeathCamera", on.pos));
+		if(cam)
+		{
+			cam.src = on;
+			cam.dist_xy = dist_xy;
+			cam.dist_z = dist_z;
+			on.player.Camera = cam;
+		}
+		return cam;
+	}
+	
+	void DeactivateCam()
+	{
+		src.player.Camera = src;
+		Destroy();
+	}
+	
+	void UpdatePos()
+	{
+		double maxdist = dist_xy;
+		FLineTraceData lndata;
+		src.LineTrace(angle + 90,dist_xy,pitch,TRF_THRUACTORS|TRF_THRUBLOCK|TRF_ABSOFFSET,dist_z+sin(pitch),0,0,lndata);
+		if( lndata.HitType == lndata.TRACE_HitWall    || 
+		    lndata.HitType == lndata.TRACE_HitCeiling || 
+			lndata.HitType == TRACE_HitFloor			  ) 
+		{
+			maxdist = lndata.Distance;
+		}	
+		
+		vector3 toSource = level.SphericalCoords(pos, src.pos, (ViewAngle+angle, ViewPitch));
+		ViewAngle -= toSource.x;
+		ViewPitch -= toSource.y;
+		
+		vector3 followPos = DSCMath.V3Offset(angle + 90,pitch,roll, maxdist, 0, 0, 1.0); 
+
+		vector3 topos = level.vec3offset(src.pos, followpos);
+		vector3 curpos = DSCMath.Lerp3D(pos, topos, 0.65);
+		
+		SetOrigin(curpos, true);
+	}
+	
+	override void Tick()
+	{
+		super.Tick();
+		if(!src) return;
+		
+		if(src.shields > 0) 
+		{
+			DeactivateCam();
+			return;
+		}
+		
+		angle += 0.5;
+		UpdatePos();
+	}
+	
+	States
+	{
+		Spawn:
+			MODL A 1;
+		loop;
+	}
+}
+
 class DeathAnimator : Inventory
 {
+	DescentPlayer plr;
+	
+	
 	Default
 	{
 		Inventory.MaxAmount 1;
@@ -30,44 +114,93 @@ class DeathAnimator : Inventory
 		GoAwayAndDie();
 	}
 	
-	override void DoEffect()
+	override void AttachToOwner(Actor other)
 	{
-		super.DoEffect();
-		
-		let plr = DescentPlayer(Owner);
+		Owner = other;
+		plr = DescentPlayer(Owner);
 		if(!plr) 
 		{
 			finish();
 			return;
 		}
-		
-		plr.player.cheats |= CF_TOTALLYFROZEN;
-		plr.bSHOOTABLE = false;
-		
-		uint btns = plr.player.cmd.buttons;
-		bool respawnBtns = ((btns & BT_USE) || (btns & BT_ATTACK));
-		
-		// TODO: Death animation
-		int lives = plr.countinv("Token_ExtraLife");
-		if(lives <= 0)
-		{
-			plr.player.cheats &= ~CF_TOTALLYFROZEN;
-			plr.A_Die();
-			finish();
-		}
-		
-		if( lives && respawnBtns )
-		{
-			plr.player.cheats &= ~CF_TOTALLYFROZEN;
-			plr.bSHOOTABLE = true;
-			vector3 spawnpos;
-			double spawnangle;
-			[spawnpos, spawnangle] = level.PickPlayerStart(plr.PlayerNumber());
-			plr.Teleport(spawnpos, spawnangle, 0);
-			vector3 fogPos = DSCMath.V3Offset(plr.angle,plr.pitch,plr.roll, 40,0,100, 1.0);
-			Spawn("DescentTeleportFog", level.vec3offset(spawnpos, fogPos));
-			plr.Respawn();
-			finish();
-		}
+	
+		SetState(FindState("BeginAnimation"));
+	}
+	
+	
+	States
+	{
+		BeginAnimation:
+			TNT1 A 0
+			{
+				plr.player.cheats |= CF_TOTALLYFROZEN;
+				plr.bSHOOTABLE = false;				
+				plr.bSOLID = false;
+				DeathCamera.ActivateCam(plr);
+			}
+		Spin:
+			TNT1 A 1
+			{
+				// Spin player
+				double spinSpd = 0.10;
+				DSCEffects.ViewRecoil(plr, spinSpd, spinSpd, 0, true);
+			}	
+			TNT1 A 0 A_JumpIf(GetAge() < 35 * 2, "Spin");
+			TNT1 A 0 
+			{
+				DSCEffects.ViewRecoil(plr, 0,0,0);
+			}
+			TNT1 A 25;
+		Explode:
+			TNT1 A 1
+			{
+				for(int i = 0; i < random(1,3); i++)
+				{
+					let expl = Spawn("EnemyExplosion", plr.pos);
+					if(expl) expl.A_SetScale(1.5);
+				}
+			}
+		FinishExplosion:
+			TNT1 A 1
+			{
+				plr.A_SetScale(0);
+				plr.DropItems();
+			}
+		WaitRespawn:
+			TNT1 A 1
+			{		
+				DSCEffects.ViewRecoil(plr, 0,0,0);
+				uint btns = plr.player.cmd.buttons;
+				bool respawnBtns = ((btns & BT_USE) || (btns & BT_ATTACK));
+				plr.waitingRespawn = true;
+				
+				// TODO: Death animation
+				int lives = plr.countinv("Token_ExtraLife");
+				if(lives <= 0)
+				{
+					plr.Die(plr.target, plr.target);
+					plr.bNOGRAVITY = true;
+					finish();
+					return ResolveState("null");
+				}
+				
+				if( lives && respawnBtns )
+				{
+					plr.player.cheats &= ~CF_TOTALLYFROZEN;
+					plr.bSHOOTABLE = true;
+					plr.bSOLID = true;
+					plr.A_SetScale(1.0);
+					vector3 spawnpos;
+					double spawnangle;
+					[spawnpos, spawnangle] = level.PickPlayerStart(plr.PlayerNumber());
+					plr.Teleport(spawnpos, spawnangle, 0);
+					vector3 fogPos = DSCMath.V3Offset(plr.angle,plr.pitch,plr.roll, 40,0,100, 1.0);
+					Spawn("DescentTeleportFog", level.vec3offset(spawnpos, fogPos));
+					plr.Respawn();
+					finish();
+				}
+				return ResolveState(null);
+			}
+		loop;
 	}
 }

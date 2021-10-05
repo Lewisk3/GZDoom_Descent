@@ -185,9 +185,10 @@ class DescentStatusBar : BaseStatusBar
 				return;	
 			}
 			
+			bool dead = dscplr.health <= 0;
 			
 			// Draw features
-			if(!automapactive) DrawPrimaryHUD();
+			if(!automapactive && !dead) DrawPrimaryHUD();
 			
 			// Lives and Score
 			vector2 livesPos = (-900, -500);
@@ -204,6 +205,14 @@ class DescentStatusBar : BaseStatusBar
 			// Interpolated values
 			curScore = DSCMath.Lerp(curScore, dscplr.scorePts, 0.25 * deltaTime);
 			if(abs(curScore - dscplr.scorePts) <= 1) curScore = dscplr.scorePts;
+			
+			
+			if(dscplr.waitingRespawn)
+			{
+				String respawnText = "Press the use key to continue... ";
+				if(!dscplr.countinv("Token_ExtraLife")) respawnText = "GameOver.";
+				DrawStr(respawnText.MakeUpper(), (50,460), Font.CR_Green, DescentDraw.SS_TEXT_CENTER, scale:(2.0,2.0));
+			}
 			
 			// Screen colors
 			Screen.Dim(dscplr.screen_color, dscplr.screen_fade, 0,0, Screen.GetWidth(), Screen.GetHeight());

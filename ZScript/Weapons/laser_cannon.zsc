@@ -12,6 +12,23 @@ class Descent_Laser : DSCWeapon
 		DSCWeapon.MaximumLevel 4;
 	}
 	
+	override void EjectWeapon()
+	{
+		string laserType = "Descent_Laser";
+		double upgrades = curLevel;
+		if(curLevel >= 4)
+		{
+			upgrades = curLevel-4;
+			laserType = "Descent_SuperLaser";
+		}
+		
+		for(int i = 0; i < upgrades; i++)
+		{
+			DSCEffects.EjectItem(laserType, Owner.pos, frandom(0,360), frandom(-90,90), 5);
+			curLevel--;
+		}
+	}
+	
 	override void MakeMaxLevel()
 	{
 		curLevel = 5;

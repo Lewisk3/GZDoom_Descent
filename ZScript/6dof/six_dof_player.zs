@@ -16,11 +16,19 @@ class SixDoFPlayer : PlayerPawn
     const maxPitch = 65536.0;
     const maxRoll = 65536.0;
     const Friction = 0.90;
+	double viewFriction;
 	vector3 viewAngles;
 	vector3 accel;
 	
     double upMove;
     Quaternion targetRotation;
+	
+	Property ViewFriction : viewFriction;
+	
+	Default
+	{
+		SixDoFPlayer.ViewFriction 0.90;
+	}
 
 
     override void PostBeginPlay()
@@ -30,6 +38,14 @@ class SixDoFPlayer : PlayerPawn
         bFly = true;
         targetRotation.FromEulerAngle(angle, pitch, roll);
     }
+	
+	virtual void ResetRotation()
+	{
+		viewAngles *= 0;
+		pitch = 0;
+		roll = 0;
+		targetRotation.FromEulerAngle(angle, pitch, roll);
+	}
 
     override void HandleMovement()
     {
@@ -49,7 +65,7 @@ class SixDoFPlayer : PlayerPawn
     {
         UserCmd cmd = player.cmd;
 
-		viewAngles *= 0.90;
+		viewAngles *= viewFriction;			
 		vel *= Friction;
 		accel *= Friction;
 		ViewRoll *= 0.90;
@@ -111,17 +127,6 @@ class SixDoFPlayer : PlayerPawn
             cmd.yaw = floor(0.5 * maxYaw / turn180_ticks);
         }
     }
-
-	virtual void ThrustView(double tAngle, double tPitch, double tRoll)
-	{
-		vector3 viewScale = (
-			360 / maxYaw, 
-			360 / maxPitch, 
-			360 / maxRoll
-		);
-		
-		viewAngles.x += tAngle * (1/viewScale.x);
-	}
 
     virtual void RotatePlayer()
     {

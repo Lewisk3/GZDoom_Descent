@@ -1,6 +1,7 @@
 class DescentPlayer : SixDoFPlayer
 {
 	int scorePts;
+	bool waitingRespawn;
 	double shields, energy;
 	double maxShield, maxEnergy;
 	bool rearView;
@@ -46,29 +47,57 @@ class DescentPlayer : SixDoFPlayer
 		return true; 
 	}
 		
+	
+	void DropItems()
+	{
+		for(let item = Inv; item; )
+		{
+			let dscWeap = DSCWeapon(item);
+			let dscSpecWeap = DSCSpecialWeapon(item);
+			if(!dscWeap && !dscSpecWeap) 
+			{
+				item = item.Inv;
+				continue;
+			}
+			
+			if(dscWeap) dscWeap.EjectWeapon(); 
+			if(dscSpecWeap) dscSpecWeap.EjectSpecialWeapon();
+			
+			// If item was de-tached from inventory, repeat loop.
+			if(!item.Owner) 
+				item = Inv;
+			else
+				item = item.Inv;
+		}
+	}
+	
 	void Respawn()
 	{
 		TakeInventory("Token_ExtraLife", 1);
+		ResetRotation();
+		A_SetHealth(MaxHealth);
 		shields = default.shields;
 		energy = default.energy;
+		waitingRespawn = false;
 	}
 	
 	override int DamageMobJ(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
 	{	
-		if(checkVoodoo() || (shields <= 0 && !countinv("Token_ExtraLife"))) 
+		if(checkVoodoo()) 
 			return super.DamageMobJ(inflictor, source, damage, mod, flags, angle);
-		
+
 		double trueDamage = double(damage) * 0.25;
-		if(shields > 0)
+		if(!shields)
+		{
+			health -= trueDamage;
+		}
+		else
 		{
 			shields -= trueDamage;
 			if(shields < 0) shields = 0;
 		}
-		else
-		{
-			// Check lives, Respawn.
-			GiveInventory("DeathAnimator", 1);
-		}
+	
+		if(health <= 0) GiveInventory("DeathAnimator", 1);
 		
 		return floor(trueDamage);
 	}
@@ -77,8 +106,8 @@ class DescentPlayer : SixDoFPlayer
 	{
 		for(let item = Inv; item; item = item.Inv)
 		{
-			if( !Weapon(item) ) continue;
-			if( !DSCWeapon(item) ) DropInventory(item);
+			if(!Weapon(item)) continue;
+			if(!DSCWeapon(item)) DropInventory(item);
 		}
 	}
 	

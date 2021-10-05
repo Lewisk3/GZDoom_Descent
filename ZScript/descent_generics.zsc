@@ -77,12 +77,18 @@ class DSCEffects abstract play
 		dscplr.screen_color = col;
 		dscplr.screen_fade = fade;
 	}
-	static void ViewRecoil(Actor src, double angle_recoil, double pitch_recoil, double roll_recoil)
+	static void ViewRecoil(Actor src, double angle_recoil, double pitch_recoil, double roll_recoil, bool noFriction = false)
 	{
 		let dscplr = DescentPlayer(src);
 		dscplr.viewAngles.x += angle_recoil;
 		dscplr.viewAngles.y += pitch_recoil;
 		dscplr.viewAngles.z += roll_recoil;
+		
+		if(noFriction) 
+			dscplr.viewFriction = 1.0;
+		else
+			dscplr.viewFriction	= dscplr.default.viewFriction;
+			
 	}
 	static void RecoilPush(Actor src, double forward, double leftright, double updown)
 	{
@@ -96,6 +102,18 @@ class DSCEffects abstract play
 	static void DoPickupFlash(Actor caller)
 	{
 		if(caller) DSCEffects.ScreenFlash(caller, "#FF00FF", 0.35);
+	}
+	
+	static Actor EjectItem(class<Inventory> item, vector3 atPos, double angle, double pitch, double speed)
+	{
+		vector3 ejectVel = DSCMath.V3Offset(angle, pitch, 0, speed,0,0, 1.0);
+		let ejected = Actor.Spawn(item, level.vec3Offset(atPos,ejectVel*10));
+		if(ejected) 
+		{
+			ejected.vel = ejectVel;
+			ejected.bNOGRAVITY = true;
+		}
+		return ejected;
 	}
 }
 
@@ -112,6 +130,12 @@ mixin class DSCPickupGenerics
 		Radius 16;
 		Inventory.PickupMessage "";
 		Inventory.PickupSound "DSCItem/Pickup";
+	}
+	
+	override void Tick()
+	{
+		super.Tick();
+		vel *= 0.94;
 	}
 
 	override void DoPickupSpecial(Actor toucher)
