@@ -172,20 +172,3 @@ Model DescentPlayer
 	
 	FrameIndex SHIP A 0 0
 }
-
-Model DeathCamera 
-{
-	Path "models"
-	Model 0 "Player/ship.md3"
-	Scale 5.0 5.0 5.0
-	USEACTORPITCH
-	USEACTORROLL
-	SurfaceSkin 0 0 "Textures/glow04.png" 
-	SurfaceSkin 0 1 "Textures/ship1-1.png"
-	SurfaceSkin 0 2 "Textures/ship1-2.png" 
-	SurfaceSkin 0 3 "Textures/ship1-3.png" 
-	SurfaceSkin 0 4 "Textures/ship1-4.png"
-	SurfaceSkin 0 5 "Textures/ship1-5.png"
-	
-	FrameIndex MODL A 0 0
-}

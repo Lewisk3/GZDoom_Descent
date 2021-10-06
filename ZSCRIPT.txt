@@ -13,7 +13,7 @@ const DSCDMG = 2.0; // Damage Scale
 #include "ZScript/descent_cheats.zsc"
 #include "ZScript/descent_hud.zsc"
 #include "ZScript/descent_generics.zsc"
-#include "ZScript/descent_powerups.zsc"
+#include "ZScript/descent_pickups.zsc"
 #include "ZScript/descent_animators.zsc"
 #include "ZScript/descent_events.zsc"
 

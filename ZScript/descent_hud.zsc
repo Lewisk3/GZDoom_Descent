@@ -10,7 +10,7 @@ class DescentMessage ui
 	
 	static DescentMessage CreateMessage(Font fnt, string msg, vector2 scale, int staytime = 60, uint translation = Font.CR_DarkGreen)
 	{
-		let hudmsg = DescentMessage(new("DescentMessage"));
+		let hudmsg = new("DescentMessage");
 		if(hudmsg)
 		{
 			hudmsg.alpha = 1.0;
@@ -42,6 +42,73 @@ class DescentMessage ui
 	}
 }
 
+class PowerupAnimator ui
+{
+	double timer;
+	bool onoff;
+	
+	bool CheckActive(Actor src, class<Powerup> pwr, double dT, double blinkrate = 15)
+	{
+		let item = Powerup(src.FindInventory(pwr));
+		if(!item) return false;
+		
+		if(item.EffectTics <= Inventory.BLINKTHRESHOLD)
+		{
+			timer += dT;
+			
+			if(timer > blinkrate) 
+			{
+				onoff = !onoff;
+				timer = 0;
+			}
+		}
+		else 
+		{
+			onoff = true;
+		}
+		
+		return onoff;
+	}
+} 
+
+class AnimatedImage ui
+{
+	string graphic;
+	double timer;
+	double animrate;
+	uint frame;
+	uint maxframe;
+	
+	static AnimatedImage Create(string img, double animspd, uint frames)
+	{
+		let animImg = new("AnimatedImage");
+		if(animImg)
+		{
+			animImg.graphic = img;
+			animImg.animrate = animspd;
+			animImg.maxframe = frames;
+		}
+		return animImg;
+	}
+	
+	void Reset()
+	{	
+		timer = frame = 0;
+	}
+	
+	string GetImage(double dT)
+	{	
+		timer += dT;
+		if(timer > animrate)
+		{
+			timer = 0;
+			frame++;
+			if(frame > maxframe) frame = 0;
+		}
+		return String.Format("%s%d", graphic, frame);
+	}
+}
+
 class DescentStatusBar : BaseStatusBar
 {
 	const ANIM_FPS = 60;
@@ -69,6 +136,11 @@ class DescentStatusBar : BaseStatusBar
 	double weapFade; // Fade for switching weapons.
 	double specWeapFade;
 	double curScore;
+	
+	// Powerups
+	PowerupAnimator cloakPowerup;
+	PowerupAnimator invulPowerup;
+	AnimatedImage invulGraphic;
 	
 	// Helper functions
 	void DrawImg(String graphic, vector2 pos, vector2 scale = (1.0,1.0), double alpha = 1.0, double rotation = 0)
@@ -163,6 +235,9 @@ class DescentStatusBar : BaseStatusBar
 		mHUDFont = HUDFont.Create(fnt);
 		baseRes = (1920, 1080);
 		baseScale = (6.0,5.5);
+		cloakPowerup = new("PowerupAnimator");
+		invulPowerup = new("PowerupAnimator");
+		invulGraphic = AnimatedImage.Create("Invuln", 10, 10);
 		SetSize(0, baseRes.x, baseRes.y);
 	}
 	
@@ -323,10 +398,17 @@ class DescentStatusBar : BaseStatusBar
 		DrawImg("cockpit_upper", (0,0));
 		DrawImg("cockpit_lower", cockpitPos, cockpitScale);
 		
-		int shieldImg = 9 - ceil((dscplr.shields / dscplr.maxShield) * 9.);
+		int shieldImg = 9 - ceil((dscplr.shields / dscplr.default.shields) * 9.);
 		vector2 shieldPos = cockpitPos+(15,55);
 		DrawImg("shield" .. shieldImg, shieldPos, cockpitScale);
-		DrawImg("ship", shieldPos, cockpitScale);
+		
+		// Check for invulnerability
+		if(invulPowerup.CheckActive(dscplr, "PowerInvuln", deltaTime))
+			DrawImg(invulGraphic.GetImage(deltaTime), shieldPos, cockpitScale); 
+		
+		// Check for cloaking device.
+		if(!cloakPowerup.CheckActive(dscplr, "PowerCloak", deltaTime)) 
+			DrawImg("ship", shieldPos, cockpitScale);
 		
 		DrawStr(String.Format("%d", floor(dscplr.shields)), shieldPos+(0,-110), Font.CR_LightBlue, flags:DescentDraw.SS_TEXT_CENTER, scale:(1.5*cockpitScale.x,1.7*cockpitScale.y));
 		

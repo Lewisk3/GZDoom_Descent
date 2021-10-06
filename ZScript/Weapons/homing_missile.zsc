@@ -80,7 +80,7 @@ class DSCProj_HomMissile : DSCProj_ConMissile
 		DSCProjectile.FireSound "HomingMissile/Fire";
 	}
 	
-	void TrackTracer(double maxturn = 2)
+	void TrackTracer(double maxturn = 4)
 	{
 		if(!tracer) return;
 		if(tracer.health <= 0 || tracer.bCORPSE) 

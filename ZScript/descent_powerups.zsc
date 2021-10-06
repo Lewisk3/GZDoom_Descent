@@ -1,7 +1,0 @@
-class Token_ExtraLife : Inventory
-{
-	Default
-	{
-		Inventory.MaxAmount 99;
-	}
-}

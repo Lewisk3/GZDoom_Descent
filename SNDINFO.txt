@@ -12,7 +12,6 @@ $volume Laser/LV4/Fire 0.5;
 $volume Laser/LV5/Fire 0.5;
 $volume Laser/LV6/Fire 0.5;
 
-
 SpreadFire/Fire "Sounds/Weapons/SpreadFire.wav"
 $volume SpreadFire/Fire 0.5;
 
@@ -37,5 +36,6 @@ ProximityMine/Drop "Sounds/Weapons/dropbomb.wav"
 DSCItem/Pickup "Sounds/Items/pickup.wav"
 
 // Cockpit sounds
+Player/TakingDamage "Sounds/Cockpit/takedmg.wav"
 Cockpit/WeaponCycle "Sounds/Cockpit/change1.wav"
 Cockpit/MissileCycle "Sounds/Cockpit/change2.wav"
