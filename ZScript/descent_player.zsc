@@ -85,13 +85,18 @@ class DescentPlayer : SixDoFPlayer
 	{	
 		if(checkVoodoo()) 
 			return super.DamageMobJ(inflictor, source, damage, mod, flags, angle);
-		
+				
 		if(bInvulnerable) return 0;
 		
 		A_StartSound("Player/TakingDamage", flags:CHANF_OVERLAP);
 		DSCEffects.ScreenFlash(self, "Red", 0.35);
 		
-		double trueDamage = double(damage) * 0.25;
+		double trueDamage = damage;
+		if(source is "DescentPlayer") 
+			trueDamage /= DSCDMG;
+		else 
+			trueDamage *= 0.25;
+		
 		if(!shields)
 		{
 			health -= trueDamage;

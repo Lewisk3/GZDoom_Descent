@@ -1,5 +1,10 @@
 class DescentEvents : EventHandler
 {	
+	override void CheckReplacement(ReplaceEvent e)
+	{
+		
+	}
+
 	override void WorldThingDied(WorldEvent e)
 	{
 		Actor killer = e.Inflictor;

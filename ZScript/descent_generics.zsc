@@ -82,13 +82,8 @@ class DSCEffects abstract play
 		let dscplr = DescentPlayer(src);
 		dscplr.viewAngles.x += angle_recoil;
 		dscplr.viewAngles.y += pitch_recoil;
-		dscplr.viewAngles.z += roll_recoil;
-		
-		if(noFriction) 
-			dscplr.viewFriction = 1.0;
-		else
-			dscplr.viewFriction	= dscplr.default.viewFriction;
-			
+		dscplr.viewAngles.z += roll_recoil;			
+		dscplr.viewFriction = noFriction ? 1.0 : dscplr.default.viewFriction;
 	}
 	static void RecoilPush(Actor src, double forward, double leftright, double updown)
 	{
@@ -126,8 +121,8 @@ mixin class DSCPickupGenerics
 		+Inventory.NoScreenFlash;
 		+FLOATBOB;
 		Scale 0.8;
-		Height 32;
-		Radius 16;
+		Height 48;
+		Radius 48;
 		Inventory.PickupMessage "";
 		Inventory.PickupSound "DSCItem/Pickup";
 	}

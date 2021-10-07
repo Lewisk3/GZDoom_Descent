@@ -21,7 +21,7 @@ class Descent_VulcanCannon : DSCWeapon
 {
 	Default
 	{
-		Weapon.SlotNumber 4;
+		Weapon.SlotNumber 3;
 		Tag "Vulcan";
 		
 		Weapon.AmmoType1 "VulcanAmmo";
@@ -63,9 +63,8 @@ class VulcanBullet : DSCProjectile
 	{	
 		Radius 2;
 		Height 2;
-		Speed 500;
 		Scale 0.65;
-		DamageFunction 8; // 4
+		Damage 4 * DSCDMG;
 		+ROLLSPRITE;
 		DSCProjectile.SetupAmmo "VulcanAmmo", 13; // 12.75 per-shot.
 	}
@@ -77,11 +76,17 @@ class VulcanBullet : DSCProjectile
 	}
 
 	States
-	{
+	{	
+		Spawn:
+			MODL A 0 NoDelay DoHitscan();
+		SpawnLoop:
+			MODL A 1;
+		loop;
+		
 		Death:
 		Crash:
 		XDeath:
-			LS1H ABCDE 3 Bright;
+			LS1H AAABCDE 3 Bright;
 		stop;
 	}
 }

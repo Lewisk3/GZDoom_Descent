@@ -399,6 +399,7 @@ class DescentStatusBar : BaseStatusBar
 		DrawImg("cockpit_lower", cockpitPos, cockpitScale);
 		
 		int shieldImg = 9 - ceil((dscplr.shields / dscplr.default.shields) * 9.);
+		shieldImg = clamp(shieldImg, 0, 9);
 		vector2 shieldPos = cockpitPos+(15,55);
 		DrawImg("shield" .. shieldImg, shieldPos, cockpitScale);
 		
@@ -438,7 +439,7 @@ class DescentStatusBar : BaseStatusBar
 	
 	void DrawCockpitKeys()
 	{	
-		vector2 keyScale = (1.0, 0.8);
+		vector2 keyScale = (-1.0, 0.8);
 		for(let item = dscplr.Inv; item; item = item.Inv)
 		{
 			let keyItem = Key(item);
@@ -447,7 +448,7 @@ class DescentStatusBar : BaseStatusBar
 			string keySpecies = keyItem.Species;
 			if(keySpecies ~== "none") keySpecies = keyItem.GetTag(); 
 			
-			vector2 keypos = (-664,303);
+			vector2 keypos = (624,303);
 			string keyGraphic = "";
 			string keyType = "key";
 
@@ -459,12 +460,12 @@ class DescentStatusBar : BaseStatusBar
 			if(keySpecies.IndexOf("Yellow") > -1) 
 			{
 				keyGraphic = "yellow";
-				keypos += (-5, 95);
+				keypos += (5, 95);
 			}
 			if(keySpecies.IndexOf("Red") > -1) 
 			{	
 				keyGraphic = "red";
-				keypos += (-10, 138);
+				keypos += (10, 138);
 			}
 			if(keySpecies.IndexOf("Skull")  > -1) keyType    = "skull";
 			keyGraphic = keyGraphic .. keyType;

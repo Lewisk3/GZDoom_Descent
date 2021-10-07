@@ -18,6 +18,7 @@ class SixDoFPlayer : PlayerPawn
     const Friction = 0.90;
 	double viewFriction;
 	vector3 viewAngles;
+	vector3 adjustView;
 	vector3 accel;
 	
     double upMove;
@@ -75,32 +76,11 @@ class SixDoFPlayer : PlayerPawn
 	    if (IsPressed(BT_Jump  )) zMove =  upMove;
         if (IsPressed(BT_Crouch)) zMove =  -upMove;
 
-        if (cmd.forwardMove || cmd.sideMove || zMove)
-        {
-			double fm, sm, um;
-			
-			// Prevent division by zero.
-			if(cmd.forwardMove || cmd.sideMove)
-			{
-				vector2 dir_xy = (cmd.forwardMove, cmd.sideMove).Unit();
-				fm = dir_xy.x   *  Speed;
-				sm = dir_xy.y   *  Speed;
-				
-				/*
-				if(sm)
-				{
-					double tiltView = DSCMath.Sign(sm) * 1.5;
-					ViewRoll += tiltView;
-				}
-				*/
-			}
-			if(zMove) um = zMove;
-			
-            Vector3 forward, right, up;
-            [forward, right, up] = Quaternion.GetActorAxes(self, (1, controlInvert ? -1 : 1,1));
+		vector3 moveInputs = (cmd.forwardMove, cmd.sideMove, zMove);
 
-            Vector3 wishVel = fm * forward + sm * right + um * up;
-			accel += wishVel;
+        if (moveInputs.Length())
+        {
+			DoAccelerate(moveInputs.x, moveInputs.y, moveInputs.z);
            
             if (!(player.cheats & CF_PREDICTING)) PlayRunning();
 
@@ -114,6 +94,27 @@ class SixDoFPlayer : PlayerPawn
 		vel += accel;
 		player.vel = vel.xy;
     }
+	
+	virtual void DoAccelerate(double inputForward, double inputSide, double inputUp)
+	{
+		double fm, sm, um;
+		um = inputUp;
+		
+		// Prevent division by zero.
+		if(inputForward || inputSide)
+		{
+			vector2 dir_xy = (inputForward, inputSide).Unit();
+			
+			fm = dir_xy.x   *  Speed;
+			sm = dir_xy.y   *  Speed;
+		}
+
+		Vector3 forward, right, up;
+		[forward, right, up] = Quaternion.GetActorAxes(self, (1, controlInvert ? -1 : 1,1));
+
+		Vector3 wishVel = fm * forward + sm * right + um * up;
+		accel += wishVel;
+	}
 	
     virtual void CheckQuickTurn()
     {
@@ -135,9 +136,9 @@ class SixDoFPlayer : PlayerPawn
         double cmdYaw = cmd.yaw * 360 / maxYaw;
         double cmdPitch = -cmd.pitch * 360 / maxPitch;
         double cmdRoll = cmd.roll * 360 / maxRoll;
-		cmdYaw += viewAngles.x;
+		cmdYaw   += viewAngles.x;
 		cmdPitch += viewAngles.y;
-		cmdRoll += viewAngles.z;
+		cmdRoll  += viewAngles.z;
 		
 		if(controlInvert) cmdPitch *= -1;
 		

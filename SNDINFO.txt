@@ -18,6 +18,14 @@ $volume SpreadFire/Fire 0.5;
 VulcanCannon/Fire "Sounds/Weapons/VulcanCannon.wav"
 $volume VulcanCannon/Fire 0.6;
 
+HelixCannon/Fire "Sounds/Weapons/HelixCannon.wav"
+$volume HelixCannon/Fire 0.5;
+
+GaussCannon/Fire "Sounds/Weapons/GaussCannon.wav"
+$volume GaussCannon/Fire 0.5;
+
+OmegaCannon/Fire "Sounds/Weapons/OmegaCannon.wav"
+PhoenixCannon/Fire "Sounds/Weapons/PhoenixCannon.wav"
 PlasmaCannon/Fire "Sounds/Weapons/PlasmaCannon.wav"
 FusionCannon/Fire "Sounds/Weapons/FusionCannon.wav"
 FusionCannon/Charge "Sounds/Weapons/FusionCharge.wav"

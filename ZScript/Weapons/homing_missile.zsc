@@ -80,7 +80,7 @@ class DSCProj_HomMissile : DSCProj_ConMissile
 		DSCProjectile.FireSound "HomingMissile/Fire";
 	}
 	
-	void TrackTracer(double maxturn = 4)
+	void TrackTracer(double maxturn = 2)
 	{
 		if(!tracer) return;
 		if(tracer.health <= 0 || tracer.bCORPSE) 
@@ -92,8 +92,8 @@ class DSCProj_HomMissile : DSCProj_ConMissile
 		vector3 trackAngles = level.SphericalCoords(pos, (tracer.pos.xy, tracer.pos.z+tracer.height*0.5), (angle, pitch));
 		if(abs(trackAngles.x) > maxturn) trackAngles.x = maxturn*DSCMath.Sign(trackAngles.x); 
 		if(abs(trackAngles.y) > maxturn) trackAngles.y = maxturn*DSCMath.Sign(trackAngles.y);
-		angle -= trackAngles.x;
-		pitch -= trackAngles.y;
+		A_SetAngle(angle - trackAngles.x, SPF_INTERPOLATE);
+		A_SetPitch(pitch - trackAngles.y, SPF_INTERPOLATE);
 		
 		// Modify velocity
 		vel = DSCMath.V3Offset(angle,pitch,roll, 1,0,0, vel.Length());
@@ -108,8 +108,8 @@ class DSCProj_HomMissile : DSCProj_ConMissile
 		{
 			let act = it.thing;
 			int dist = Distance3DSquared(act);
-			if(dist < mindist) continue;
-			if(dist > closest) continue;
+			if(dist < mindist**2) continue;
+			if(dist > closest**2) continue;
 			if(act == self || act == target) continue;
 			if(!act.bSHOOTABLE || !act.bISMONSTER) continue;
 			if (act.bKILLED) continue;        
@@ -123,7 +123,9 @@ class DSCProj_HomMissile : DSCProj_ConMissile
 	override void Tick()
 	{
 		super.Tick();
-		if(GetAge() < (trackTime * 35.0) || trackTime <= 0) FindTarget();
+		if(GetAge() > 5 && (GetAge() < (trackTime * 35.0) || trackTime <= 0)) 
+			FindTarget();
+			
 		TrackTracer();
 	}
 }

@@ -46,6 +46,17 @@ class MissileExplosion : Actor
 	}
 }
 
+class PyroGZ_Explosion : MissileExplosion
+{	
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay A_StartSound("MegaMissile/Explode", CHAN_BODY, CHANF_OVERLAP);
+			EXDR ABCDEFGHIJKLMNOPQR 2 Bright;
+		stop;
+	}
+}
+
 class MegaMissileExplosion : MissileExplosion
 {
 	Default

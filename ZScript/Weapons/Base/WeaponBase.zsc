@@ -97,7 +97,9 @@ class DSCWeapon : Weapon abstract
 	
 	clearscope virtual string GetUIDescription()
 	{
-		return String.Format("\c[DarkGreen]%s\n\c[DarkGreen]LVL: %d", GetTag().MakeUpper(), curLevel+1);
+		if(maxLevel > 0)
+			return String.Format("\c[DarkGreen]%s\n\c[DarkGreen]LVL: %d", GetTag().MakeUpper(), curLevel+1);
+		return String.Format("\c[DarkGreen]%s", GetTag().MakeUpper());
 	}
 	
 	override void DoEffect()
@@ -269,7 +271,59 @@ class DSCSpecialWeapon : Inventory abstract
 	}
 }
 
-class DSCProjectile : FastProjectile
+class DSCHitscanBullet : FastProjectile
+{
+	Default
+	{
+		Radius 5;
+		Height 5;
+		Damage 0;
+		Speed 500;
+		Projectile;
+	}
+	
+	override void PostBeginPlay()
+	{
+		super.PostBeginPlay();
+		if(!master) return;
+		
+		master.vel *= 0;
+		master.bMISSILE = false;
+		master.bSOLID = false;
+	}
+	
+	override int SpecialMissileHit(Actor victim)
+	{
+		if(victim != target && victim.bSHOOTABLE) 
+		{
+			victim.DamageMobJ(
+				master, master.target, 
+				master.damage, master.DamageType, 
+				0, victim.AngleTo(self)
+			);
+			Spawn("ImpactExplosion", pos);
+		}
+		return super.SpecialMissileHit(victim);
+	}
+	
+	States
+	{
+		Crash:
+		Death:
+		XDeath:
+			TNT1 A 1
+			{
+				if(master) 
+				{
+					master.SetOrigin(pos, true);
+					master.SetState(master.FindState("XDeath", true));
+				}
+			}
+		stop;
+	}
+}
+
+class DSCProjectile : Actor
 {
 	double energyUse;
 	Sound fireSound;
@@ -286,9 +340,10 @@ class DSCProjectile : FastProjectile
 	{	
 		Radius 5;
 		Height 5;
-		Speed 40;
+		Speed 1;
 		Damage 0;
 		Projectile;
+		+INTERPOLATEANGLES;
 	}
 		
 	override void PostBeginPlay()
@@ -311,8 +366,24 @@ class DSCProjectile : FastProjectile
 		
 		if(!bMISSILE) return; // Collided.
 		// Accelerate in relative direction.
-		vector3 worldAccel = DSCMath.V3Offset(angle,pitch,roll, localAccel.x,localAccel.y,localAccel.z, 1.0);
-		SetOrigin(level.vec3offset(pos, worldAccel), true);
+		if(localAccel.Length())
+		{
+			vector3 worldAccel = DSCMath.V3Offset(angle,pitch,roll, localAccel.x,localAccel.y,localAccel.z, 1.0);
+			SetOrigin(level.vec3offset(pos, worldAccel), true);
+		}
+	}
+	
+	DSCHitscanBullet DoHitscan()
+	{
+		let hitscan = DSCHitscanBullet(Spawn("DSCHitscanBullet", pos));
+		if(hitscan) 
+		{
+			hitscan.vel = vel.Unit() * hitscan.Speed;
+			hitscan.A_SetSize(radius, height);
+			hitscan.target = target;
+			hitscan.master = self;
+		}
+		return hitscan;
 	}
 	
 	Actor DoMissileExplosion(double dam = -1, double dist = -1, double scale = -1, uint flags = XF_HURTSOURCE, class<Actor> type = "MissileExplosion")

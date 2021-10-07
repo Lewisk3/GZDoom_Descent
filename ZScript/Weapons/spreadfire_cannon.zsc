@@ -41,11 +41,6 @@ class Descent_SpreadFire : DSCWeapon
 		}
 	}
 	
-	override string GetUIDescription()
-	{
-		return String.Format("\c[DarkGreen]%s", GetTag().MakeUpper());
-	}
-	
 	States
 	{
 		Ready:

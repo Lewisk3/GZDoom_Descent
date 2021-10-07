@@ -128,6 +128,7 @@ class PowerCloak : PowerInvisibility
 {
 	Default
 	{
+		+CANTSEEK;
 		Powerup.Duration -30;
 	}
 }

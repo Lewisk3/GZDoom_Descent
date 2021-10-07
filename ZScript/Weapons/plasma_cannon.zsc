@@ -2,16 +2,11 @@ class Descent_PlasmaCannon : DSCWeapon
 {
 	Default
 	{
-		Weapon.SlotNumber 3;
+		Weapon.SlotNumber 4;
 		Tag "Plasma";
 		DSCWeapon.WeaponName "Plasma Cannon";
 		DSCWeapon.DisplayGraphic "WeapPlasma";
 		DSCWeapon.SetupCrosshairs "Crosshair/weapon1", "Crosshair/weapon0";
-	}
-	
-	override string GetUIDescription()
-	{
-		return String.Format("\c[DarkGreen]%s", GetTag().MakeUpper());
 	}
 	
 	action void A_FirePlasmaCannon()

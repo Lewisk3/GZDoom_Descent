@@ -34,3 +34,9 @@ const DSCDMG = 2.0; // Damage Scale
 #include "ZScript/Weapons/vulcan_cannon.zsc"
 #include "ZScript/Weapons/fusion_cannon.zsc"
 #include "ZScript/Weapons/proximity_bomb.zsc"
+
+// Descent 2 Weapons
+#include "ZScript/Weapons/helix_cannon.zsc"
+#include "ZScript/Weapons/gauss_cannon.zsc"
+#include "ZScript/Weapons/phoenix_cannon.zsc"
+#include "ZScript/Weapons/omega_cannon.zsc"

@@ -1,0 +1,160 @@
+class Descent_OmegaCannon : DSCWeapon
+{
+	double charge;
+	double drain;
+	
+	Property Drain : drain;
+	Property StartCharge : charge;
+
+	Default
+	{
+		Weapon.SlotNumber 7;
+		Tag "Omega";
+		DSCWeapon.WeaponName "Omega Cannon";
+		DSCWeapon.DisplayGraphic "WeapOmegaCannon";
+		DSCWeapon.SetupCrosshairs "Crosshair/weapon1", "Crosshair/weapon0";
+		Descent_OmegaCannon.StartCharge 100;
+		Descent_OmegaCannon.Drain 3;
+	}
+		
+	action Actor FindTarget(double minDist = 0, double maxDist = 2048)
+	{
+		let it = BlockThingsIterator.Create(self, maxDist);
+		Actor act;
+		
+		maxDist = maxDist**2;
+		minDist = minDist**2;
+		
+		int closest = tracer ? Distance3DSquared(tracer) : int.max;
+		while (it.Next())
+		{
+			let act = it.thing;
+			int dist = Distance3DSquared(act);
+			if(dist < mindist) continue;
+			if(dist > closest) continue;
+			if(act == self || act == target) continue;
+			if(!act.bSHOOTABLE || !act.bISMONSTER) continue;
+			if (act.bCORPSE) continue;        
+			LookExParams look;
+			look.FOV = 60;
+			if(!IsVisible(act, false, look)) continue; // Actor is behind wall.     
+			tracer = act;
+			closest = dist;
+		}
+		return tracer;
+	}
+		
+	action void A_FireOmega(double dmg, double maxDist = 2048)
+	{
+		// Autoaim
+		vector3 offs = (10, -20, 0); 
+		vector3 aim = (angle, pitch, roll);
+		vector3 worldOffs = DSCMath.V3Offset(aim.x,aim.y,aim.z, offs.x,offs.y,offs.z, 1.0);
+		vector3 firePos = level.vec3offset((pos.xy, player.viewz), worldOffs); 
+	
+		FindTarget();
+		if(tracer)
+		{
+			let toAim = level.SphericalCoords(firePos, (tracer.pos.xy, tracer.height*0.5), aim.xy);
+			aim.x -= toAim.x;
+			aim.y -= toAim.y;
+		}
+		
+		// Actually fire the thing
+		FLineTraceData lt;
+		LineTrace(aim.x, maxDist, aim.y, TRF_ABSPOSITION, firePos.z, firepos.x, firepos.y, lt);
+		
+		double step = 50;
+		double biri = 5;
+		double biriMax = 30 + frandom[OmegaBiri](0,30);
+		double biriAngle = frandom[BiriAngle](0,360);
+		for(double i = 0; i < lt.Distance; i += step)
+		{	
+			double biriMove = biriMax * (i/(lt.Distance*0.5));
+			double distMult = clamp( i / (lt.Distance*0.9), 0, 1.0 );
+			double biriMult = 1.0 - distMult;
+			if(!tracer) biriMult = 0.5;
+			double finalMove = biriMove * biriMult;
+			vector2 offs = (0, finalMove); 
+			offs = RotateVector(offs, biriAngle);
+			
+			vector2 posOffs = (
+				frandom[OmegaPos](-1,1),
+				frandom[OmegaPos](-1,1)
+			) * 2;
+			
+			vector3 biriOffs = DSCMath.V3Offset(aim.x,aim.y,aim.z, 0,offs.x+posOffs.x,offs.y+posOffs.y, 1.0);
+			vector3 dir = DSCMath.V3Offset(aim.x,aim.y,aim.z, 1,0,0, i);
+			dir = level.vec3offset(dir, biriOffs);
+			
+			vector3 trailPos = level.vec3offset(firePos, dir);
+			Spawn("OmegaRailGraphic", trailPos);
+		}
+		
+		if(tracer) tracer.DamageMobJ(self, self, dmg, "Plasma", angle: tracer.AngleTo(self));
+		invoker.charge -= invoker.drain;
+	}
+	
+	override string GetUIDescription()
+	{
+		return String.Format("\c[DarkGreen]%s\n\c[Red]%.3d", GetTag().MakeUpper(), charge);
+	}
+	
+	override void UpdateWeapon()
+	{
+		charge = clamp(charge, 0, 100);
+		if(Owner.tracer && !Owner.tracer.bSHOOTABLE) Owner.tracer = null;
+	}
+	
+	States
+	{
+		Ready:
+			TNT1 A 1 
+			{
+				let plr = DescentPlayer(self);
+				if(plr.energy > 0 && invoker.charge < 100)
+				{
+					invoker.charge += 0.7;
+					plr.energy -= 0.025;
+				}
+				A_WeaponReady();
+			}
+		Loop;
+		
+		NoCharge:
+			TNT1 A 2 A_StopSound(CHAN_WEAPON);
+		goto Ready;
+		
+		Fire:
+			TNT1 A 1 A_JumpIf(invoker.charge < (invoker.drain*2), "NoCharge");
+			TNT1 A 1 
+			{	
+				A_StartSound("OmegaCannon/Fire", CHAN_WEAPON, CHANF_OVERLAP | CHANF_LOOPING);
+				A_FireOmega(45 * DSCDMG);
+			}
+			TNT1 A 0 A_ReFire();
+		Goto NoCharge;
+		
+		Spawn:
+			PLAS ABCDEFGHIJKLMNO 5;
+		loop;
+	}
+}
+
+class OmegaRailGraphic : Actor
+{
+	Default
+	{	
+		+INTERPOLATEANGLES;
+		+NOINTERACTION;
+		
+		Scale 0.45;
+	}
+	
+	States
+	{
+		Spawn:
+			OMEG ABC 1 Bright;
+		stop;
+	}
+}
