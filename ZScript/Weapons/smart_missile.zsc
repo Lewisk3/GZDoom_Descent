@@ -39,6 +39,7 @@ class DSCProj_SmartMissile : DSCProj_ConMissile
 	Default
 	{
 		DSCProjectile.FireSound "SmartMissile/Fire";
+		DSCProjectile.SetMissileCamera true;
 	}
 	
 	override void DoPayload() 

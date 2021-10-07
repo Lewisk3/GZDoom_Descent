@@ -40,3 +40,4 @@ const DSCDMG = 2.0; // Damage Scale
 #include "ZScript/Weapons/gauss_cannon.zsc"
 #include "ZScript/Weapons/phoenix_cannon.zsc"
 #include "ZScript/Weapons/omega_cannon.zsc"
+#include "ZScript/Weapons/guided_missile.zsc"

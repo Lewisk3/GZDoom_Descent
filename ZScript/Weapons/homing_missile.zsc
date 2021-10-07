@@ -78,6 +78,7 @@ class DSCProj_HomMissile : DSCProj_ConMissile
 		DSCProj_HomMissile.TargetFindTime 1.0;
 		DSCProj_HomMissile.TrackingRanges 128, 512;
 		DSCProjectile.FireSound "HomingMissile/Fire";
+		DSCProjectile.SetMissileCamera true;
 	}
 	
 	void TrackTracer(double maxturn = 2)

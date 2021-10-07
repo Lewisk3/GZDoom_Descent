@@ -327,6 +327,10 @@ class DSCProjectile : Actor
 {
 	double energyUse;
 	Sound fireSound;
+	bool setCamera;
+	bool guided;
+	Quaternion guidedRotation;
+	
 	
 	class<Ammo> ammoType;
 	double ammoUse;
@@ -335,6 +339,9 @@ class DSCProjectile : Actor
 	Property FireSound : fireSound;
 	Property EnergyUse : energyUse;
 	Property SetupAmmo : ammoType, ammoUse;
+	Property SetMissileCamera : setCamera;
+	Property GuidedMissile : guided;
+	
 	
 	Default
 	{	
@@ -344,13 +351,24 @@ class DSCProjectile : Actor
 		Damage 0;
 		Projectile;
 		+INTERPOLATEANGLES;
+		DSCProjectile.SetMissileCamera false;
+		DSCProjectile.GuidedMissile false;
 	}
-		
+			
 	override void PostBeginPlay()
 	{
 		super.PostBeginPlay();
 		
+		guidedRotation.FromEulerAngle(angle, pitch, roll);
 		A_StartSound(FireSound, CHAN_VOICE, CHANF_OVERLAP);
+		
+		let plr = DescentPlayer(target);
+		if(!plr) return;
+		if(setCamera && target) plr.missileCam = self;
+		if(guided) 
+		{
+			plr.GuidingMissile = self;
+		}
 	}
 	
 	override int SpecialMissileHit(Actor victim)
@@ -359,12 +377,16 @@ class DSCProjectile : Actor
 		return super.SpecialMissileHit(victim);
 	}
 	
+	
 	override void Tick()
 	{
 		super.Tick();
 		if(isFrozen()) return;
 		
-		if(!bMISSILE) return; // Collided.
+		if(!bMISSILE) return; // Collided
+		
+		if(guided) DoGuidedMovement();
+		
 		// Accelerate in relative direction.
 		if(localAccel.Length())
 		{
@@ -407,6 +429,46 @@ class DSCProjectile : Actor
 			trail.vel = DSCMath.V3Offset(angle,pitch,roll, 1,0,0, spd*0.8);
 		}
 		return trail;
+	}
+	
+	void DoGuidedMovement()
+	{
+		let plr = DescentPlayer(target);
+		if(!plr) return;
+		
+        UserCmd cmd = plr.player.cmd;
+        double cmdYaw = cmd.yaw * 360 / plr.maxYaw;
+        double cmdPitch = -cmd.pitch * 360 / plr.maxPitch;
+        double cmdRoll = cmd.roll * 360 / plr.maxRoll;
+		cmdYaw   += plr.viewAngles.x;
+		cmdPitch += plr.viewAngles.y;
+		cmdRoll  += plr.viewAngles.z;
+		
+		if(plr.controlInvert) cmdPitch *= -1;
+		
+		if(cmdYaw)
+		{
+			cmdRoll -= (cmdYaw * 0.5);
+		}
+
+        Quaternion input;
+        input.FromEulerAngle(cmdYaw, cmdPitch, cmdRoll);
+        Quaternion.Multiply(guidedRotation, guidedRotation, input);
+
+        // Interpolate to it
+        Quaternion r;
+        r.FromEulerAngle(angle, pitch, roll);
+
+        Quaternion.Slerp(r, r, guidedRotation, 0.2);
+
+        double newAngle, newPitch, newRoll;
+        [newAngle, newPitch, newRoll] = r.ToEulerAngle();
+
+        A_SetAngle(newAngle, SPF_Interpolate);
+        A_SetPitch(newPitch, SPF_Interpolate);
+        A_SetRoll(newRoll, SPF_Interpolate);
+		
+        vel = DSCMath.V3Offset(angle,pitch,roll, 1,0,0, vel.Length());
 	}
 	
 	States

@@ -155,6 +155,20 @@ Model DSCProj_SmartMissile
 	FrameIndex MODL A 0 0
 }
 
+// Descent 2 
+Model DSCProj_GuidedMissile
+{
+	Path "models"
+	Model 0 "Weapons/guided_missile.md3"
+	Scale 10.0 10.0 10.0
+	SurfaceSkin 0 0 "Textures/rbot085.png"
+	SurfaceSkin 0 1 "Textures/glow04.png"
+	USEACTORPITCH
+	USEACTORROLL
+
+	FrameIndex MODL A 0 0
+}
+
 // Player
 Model DescentPlayer 
 {

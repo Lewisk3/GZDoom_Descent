@@ -16,6 +16,7 @@ class SixDoFPlayer : PlayerPawn
     const maxPitch = 65536.0;
     const maxRoll = 65536.0;
     const Friction = 0.90;
+	double lookMod;
 	double viewFriction;
 	vector3 viewAngles;
 	vector3 adjustView;
@@ -25,10 +26,12 @@ class SixDoFPlayer : PlayerPawn
     Quaternion targetRotation;
 	
 	Property ViewFriction : viewFriction;
+	Property LookSpeed : lookMod;
 	
 	Default
 	{
 		SixDoFPlayer.ViewFriction 0.90;
+		SixDoFPlayer.LookSpeed 1.0;
 	}
 
 
@@ -139,6 +142,10 @@ class SixDoFPlayer : PlayerPawn
 		cmdYaw   += viewAngles.x;
 		cmdPitch += viewAngles.y;
 		cmdRoll  += viewAngles.z;
+		
+		cmdYaw *= lookMod;
+		cmdPitch *= lookMod;
+		cmdRoll *= lookMod;
 		
 		if(controlInvert) cmdPitch *= -1;
 		

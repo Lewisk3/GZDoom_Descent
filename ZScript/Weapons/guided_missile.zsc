@@ -1,0 +1,81 @@
+class Descent_GuidedMissile : DSCSpecialWeapon
+{
+	bool fireLeft;
+
+	Default
+	{
+		DSCSpecialWeapon.Tag "GUIDED\n\c[DarkGreen]MISSILE";
+		DSCSpecialWeapon.WeaponName "Guided Missile";
+		DSCSpecialWeapon.DisplayGraphic "guidedMissile";
+		DSCSpecialWeapon.SetupCrosshairs "Crosshair/missile2", "Crosshair/missile0";
+		DSCSpecialWeapon.SlotNumber 6;
+		Inventory.MaxAmount 40;
+	}
+	
+	override void EjectSpecialWeapon()
+	{
+		if(amount <= 3) return;
+		
+		int trueamount = amount-3;
+		int bundles = floor(trueamount / 4.0);
+		int remaining = trueamount - (bundles*4);
+		for(int i = 0; i < bundles; i++)
+			DSCEffects.EjectItem("Descent_GuidedMissileBundle", Owner.pos, frandom(0,360), frandom(-90,90), 5);
+		
+		for(int i = 0; i < remaining; i++)
+			DSCEffects.EjectItem("Descent_GuidedMissile", Owner.pos, frandom(0,360), frandom(-90,90), 5);
+		
+		amount = 3;
+	}
+	
+	override bool Fire()
+	{
+		if(cooldown || raiseY < 1.0) return false;
+		if(amount <= 0) return false;
+		
+		if(ShootProjectile("DSCProj_GuidedMissile", offs:(10,fireLeft ? -15 : 15, 0)))
+		{
+			fireLeft = !fireLeft;
+			OnCrosshair = fireLeft ? "Crosshair/missile1" : "Crosshair/missile2";
+			cooldown = 10;
+			Deplete();
+		}
+		
+		return true;
+	}
+	
+	States
+	{
+		Spawn:
+			GMIS ABCDEFGHIJKLMNO 5;
+		loop;
+	}
+}
+
+class Descent_GuidedMissileBundle : DSCMissilePickup
+{
+	Default
+	{
+		DSCMissilePickup.Setup "Descent_GuidedMissile", 4;
+	}
+	
+	States
+	{
+		Spawn:
+			GMS4 ABCDEFGHIJKLMNO 5;
+		loop;
+	}
+}
+
+class DSCProj_GuidedMissile : DSCProj_ConMissile
+{
+	Default
+	{
+		Scale 1.25;
+		Speed 15;
+		DamageFunction 49 * DSCDMG;
+		DSCProjectile.FireSound "GuidedMissile/Fire";
+		DSCProjectile.SetMissileCamera true;
+		DSCProjectile.GuidedMissile true;
+	}
+}

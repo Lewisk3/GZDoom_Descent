@@ -74,6 +74,7 @@ class PowerupAnimator ui
 class AnimatedImage ui
 {
 	string graphic;
+	double totaltime;
 	double timer;
 	double animrate;
 	uint frame;
@@ -93,17 +94,18 @@ class AnimatedImage ui
 	
 	void Reset()
 	{	
-		timer = frame = 0;
+		totaltime = timer = frame = 0;
 	}
 	
 	string GetImage(double dT)
 	{	
 		timer += dT;
+		totaltime += dT;
 		if(timer > animrate)
 		{
 			timer = 0;
 			frame++;
-			if(frame > maxframe) frame = 0;
+			if(frame > maxframe) frame = 1;
 		}
 		return String.Format("%s%d", graphic, frame);
 	}
@@ -136,17 +138,20 @@ class DescentStatusBar : BaseStatusBar
 	double weapFade; // Fade for switching weapons.
 	double specWeapFade;
 	double curScore;
-	
+	bool missileCamActive;
+
 	// Powerups
 	PowerupAnimator cloakPowerup;
 	PowerupAnimator invulPowerup;
 	AnimatedImage invulGraphic;
+	AnimatedImage camstaticGraphic;
 	
 	// Helper functions
-	void DrawImg(String graphic, vector2 pos, vector2 scale = (1.0,1.0), double alpha = 1.0, double rotation = 0)
+	void DrawImg(String graphic, vector2 pos, vector2 scale = (1.0,1.0), double alpha = 1.0, double rotation = 0, bool fullpath = false)
 	{
 		scale = ApplyScale(scale);
-		DescentDraw.DrawImage("Graphics/HUD/" .. graphic .. ".png",pos, DescentDraw.SS_SCREEN_CENTER | DescentDraw.SS_NOASPECTCORRECTION, alpha, scale, 0);
+		if(!fullpath) graphic ="Graphics/HUD/" .. graphic .. ".png";
+		DescentDraw.DrawImage(graphic,pos, DescentDraw.SS_SCREEN_CENTER | DescentDraw.SS_NOASPECTCORRECTION, alpha, scale, 0);
 	}
 	
 	void ClipImage(vector2 pos, vector2 imgOffs, vector2 size, bool visualize = false)
@@ -238,6 +243,7 @@ class DescentStatusBar : BaseStatusBar
 		cloakPowerup = new("PowerupAnimator");
 		invulPowerup = new("PowerupAnimator");
 		invulGraphic = AnimatedImage.Create("Invuln", 10, 10);
+		camstaticGraphic = AnimatedImage.Create("camstatic", 4, 3);
 		SetSize(0, baseRes.x, baseRes.y);
 	}
 	
@@ -331,6 +337,8 @@ class DescentStatusBar : BaseStatusBar
 		weapFade = clamp(weapFade, 0, 1.0);
 		
 		// Draw Special Weapon
+		if(missileCamActive) return; // Do not draw if missile camera is active.
+		
 		let specWeap = DSCSpecialWeapon(dscplr.ReadySpecial);
 		let specPendWeap = DSCSpecialWeapon(dscplr.PendingSpecial);
 		if(!specWeap) specWeap = specPendWeap;
@@ -349,7 +357,7 @@ class DescentStatusBar : BaseStatusBar
 			specWeapFade -= 0.1 * deltaTime;
 		}
 		specWeapFade = clamp(specWeapFade, 0, 1.0);
-		
+			
 	}
 	
 	void DrawCrosshair(double scale = 1.0)
@@ -385,6 +393,35 @@ class DescentStatusBar : BaseStatusBar
 		DrawImg(xhairWeap, (0,18), xScale);
 	}
 	
+	void DrawMissileCamera(vector2 camPos)
+	{
+		// Missile view
+		String missileText = "Missile";
+		let mcam = dscplr.missileCam;
+		if(mcam) 
+		{
+			missileCamActive = true;
+		}
+		else if(missileCamActive)
+		{
+			DrawImg(camstaticGraphic.GetImage(deltaTime), camPos, (1.0,0.8));
+			if(camstaticGraphic.totaltime > 60) 
+			{
+				missileCamActive = false;
+				camstaticGraphic.Reset();
+			}
+		}
+		if(mcam)
+		{
+			if(dscplr.GuidingMissile == mcam) missileText = "Guided Missile";
+			// Draw target camera
+			TexMan.SetCameraToTexture(mcam,"MissileCamera",90.0);
+			DrawImg("MissileCamera", camPos, (1.0,0.8), fullpath:true);
+			DrawStr(missileText, camPos - (0,-150), flags:DescentDraw.SS_TEXT_CENTER, scale:(1.25,1.5));
+		}
+	
+	}
+	
 	void DrawPrimaryHUD()
 	{
 		if(dscplr.rearView)
@@ -396,7 +433,21 @@ class DescentStatusBar : BaseStatusBar
 		vector2 cockpitPos = (0,360);
 		vector2 cockpitScale = (1.0,0.80);
 		DrawImg("cockpit_upper", (0,0));
+		
+		// Draw LCD then lower cockpit.
+		vector2 lcdPos = (443,426);
+		
+		DrawImg("cockpit_lcd", lcdPos, cockpitScale);
+		DrawMissileCamera(lcdPos);
+		
 		DrawImg("cockpit_lower", cockpitPos, cockpitScale);
+		
+		if(missileCamActive && !camstaticGraphic.totaltime)
+		{
+			String missileText = "Missile";
+			if(dscplr.GuidingMissile) missileText = "Guided Missile";
+			DrawStr(missileText.MakeUpper(), lcdPos - (0,95), Font.CR_DarkGreen, flags:DescentDraw.SS_TEXT_CENTER, scale:(1.25,1.0));
+		}
 		
 		int shieldImg = 9 - ceil((dscplr.shields / dscplr.default.shields) * 9.);
 		shieldImg = clamp(shieldImg, 0, 9);

@@ -1,5 +1,6 @@
 class DescentPlayer : SixDoFPlayer
 {
+	Actor CockpitCamera;
 	int scorePts;
 	bool waitingRespawn;
 	double shields, energy;
@@ -15,6 +16,9 @@ class DescentPlayer : SixDoFPlayer
 	DSCSpecialWeapon PendingSpecial;
 	DSCSpecialWeapon ReadySpecial;
 	
+	// Missiles 
+	Actor missileCam;
+	DSCProjectile GuidingMissile;
 	
 	Property Shield : shields, maxShield;
 	Property Energy : energy, maxEnergy;
@@ -124,7 +128,18 @@ class DescentPlayer : SixDoFPlayer
 	override void Tick()
 	{
 		super.Tick();
+		
 		if(checkVoodoo() || health <= 0) return;
+		
+		if(GuidingMissile) 
+		{
+			player.cheats |= CF_INTERPVIEW;
+			lookMod = 0;
+		}
+		else 
+		{
+			lookMod = 1.0;
+		}
 		
 		// Height is set here so that voodoo scripts do not break.
 		if(height != 28) A_SetSize(16,28);
