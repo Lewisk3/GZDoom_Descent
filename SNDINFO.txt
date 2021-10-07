@@ -5,21 +5,21 @@ Laser/LV3/Fire "Sounds/Weapons/LaserLV3.wav"
 Laser/LV4/Fire "Sounds/Weapons/LaserLV4.wav"
 Laser/LV5/Fire "Sounds/Weapons/LaserLV5.wav"
 Laser/LV6/Fire "Sounds/Weapons/LaserLV6.wav"
-$volume Laser/LV1/Fire 0.5;
-$volume Laser/LV2/Fire 0.5;
-$volume Laser/LV3/Fire 0.5;
-$volume Laser/LV4/Fire 0.5;
-$volume Laser/LV5/Fire 0.5;
-$volume Laser/LV6/Fire 0.5;
+$volume Laser/LV1/Fire 0.35;
+$volume Laser/LV2/Fire 0.35;
+$volume Laser/LV3/Fire 0.35;
+$volume Laser/LV4/Fire 0.35;
+$volume Laser/LV5/Fire 0.35;
+$volume Laser/LV6/Fire 0.35;
 
 SpreadFire/Fire "Sounds/Weapons/SpreadFire.wav"
-$volume SpreadFire/Fire 0.5;
+$volume SpreadFire/Fire 0.35;
 
 VulcanCannon/Fire "Sounds/Weapons/VulcanCannon.wav"
 $volume VulcanCannon/Fire 0.6;
 
 HelixCannon/Fire "Sounds/Weapons/HelixCannon.wav"
-$volume HelixCannon/Fire 0.5;
+$volume HelixCannon/Fire 0.2; // Why are you soo loud?
 
 GaussCannon/Fire "Sounds/Weapons/GaussCannon.wav"
 $volume GaussCannon/Fire 0.5;
@@ -31,6 +31,8 @@ FusionCannon/Fire "Sounds/Weapons/FusionCannon.wav"
 FusionCannon/Charge "Sounds/Weapons/FusionCharge.wav"
 FusionCannon/ChargeLoop "Sounds/Weapons/FusionChargeLoop.wav"
 
+MercuryMissile/Fire "Sounds/Weapons/MercuryMissile.wav"
+GuidedMissile/Fire "Sounds/Weapons/MissileFire.wav"
 ConcussionMissile/Fire "Sounds/Weapons/MissileFire.wav"
 HomingMissile/Fire "Sounds/Weapons/MissileFire.wav"
 SmartMissile/Fire "Sounds/Weapons/MissileFire.wav"

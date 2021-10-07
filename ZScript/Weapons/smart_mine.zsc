@@ -1,0 +1,88 @@
+class Descent_SmartMine : DSCSpecialWeapon
+{
+	Default
+	{
+		DSCSpecialWeapon.Tag "SMART\n\c[DarkGreen]MINE";
+		DSCSpecialWeapon.WeaponName "Smart Mine";
+		DSCSpecialWeapon.DisplayGraphic "smartMine";
+		DSCSpecialWeapon.SetupCrosshairs "Crosshair/rocket1", "Crosshair/rocket0";
+		DSCSpecialWeapon.SlotNumber 8;
+		Inventory.Amount 4;
+		Inventory.MaxAmount 15 * DSCMAXAMMO;  
+	}
+	
+	override bool Fire()
+	{
+		if(cooldown || raiseY < 1.0) return false;
+		if(amount <= 0) return false;
+		
+		if(ShootProjectile("DSCProj_SmartMine", offs:(-30,0,-10), setCamera:false))
+		{
+			cooldown = 20;
+			Deplete();
+		}
+		
+		return true;
+	}
+	
+	States
+	{
+		Spawn:
+			SBMS ABCDEFGHIJ 5;
+		loop;
+	}
+}
+
+class DSCProj_SmartMineTracker : DSCProj_SmartTracker
+{
+	Default
+	{
+		Scale 0.75;
+		Speed 3;
+		DamageFunction 25 * DSCDMG;
+	}
+	
+	States
+	{
+		Spawn:
+			STRK A 1 Bright;
+		loop;
+		
+		Crash:
+		Death:
+		XDeath:
+			STRK A 1 Bright DoMissileExplosion(64,128,0.8);
+		stop;
+	}
+}
+
+class DSCProj_SmartMine : DSCProj_ProxMine
+{	
+	States
+	{
+		Spawn:
+			SBOM ABCDE 5;
+		loop;	
+		
+		Explode:
+			TNT1 A 1 DoMissileExplosion(29 * DSCDMG, 128, scale:0.6);
+			TNT1 A 0
+			{
+				for(int i = 0; i < 6; i++)
+				{
+					vector3 views = (
+						 frandom[SmartMines](-90,90) + 180,
+						-pitch + frandom[SmartMines](-30,30), 
+						 roll
+					);
+					DSCEffects.ShootProjectile(self, "DSCProj_SmartMineTracker", false, views.x,views.y,views.z);
+				}
+			}
+		stop;
+		
+		Crash:
+		Death:
+		XDeath:
+		stop;
+	}
+}

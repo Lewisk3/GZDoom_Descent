@@ -7,7 +7,7 @@ class Descent_MegaMissile : DSCSpecialWeapon
 		DSCSpecialWeapon.DisplayGraphic "megaMissile";
 		DSCSpecialWeapon.SetupCrosshairs "Crosshair/rocket1", "Crosshair/rocket0";
 		DSCSpecialWeapon.SlotNumber 4;
-		Inventory.MaxAmount 5;
+		Inventory.MaxAmount 5 * DSCMAXAMMO;
 	}
 	
 	override bool Fire()
@@ -54,7 +54,7 @@ class DSCProj_MegaMissile : DSCProj_HomMissile
 		DSCProj_HomMissile.TargetFindTime 1.0;
 		DSCProj_HomMissile.TrackingRanges 128, 512;
 		DSCProjectile.FireSound "MegaMissile/Fire";
-		DSCProjectile.SetMissileCamera true;
+		Tag "Mega";
 	}
 	
 	States

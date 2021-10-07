@@ -1,0 +1,76 @@
+class Descent_MercMissile : DSCSpecialWeapon
+{
+	bool fireLeft;
+
+	Default
+	{
+		DSCSpecialWeapon.Tag "MERC\n\c[DarkGreen]MISSILE";
+		DSCSpecialWeapon.WeaponName "Mercury Missile";
+		DSCSpecialWeapon.DisplayGraphic "mercMissile";
+		DSCSpecialWeapon.SetupCrosshairs "Crosshair/missile2", "Crosshair/missile0";
+		DSCSpecialWeapon.SlotNumber 7;
+		DSCSpecialWeapon.AmmoBundle "Descent_MercMissileBundle";
+		Inventory.MaxAmount 10 * DSCMAXAMMO;
+	}
+	
+	override bool Fire()
+	{
+		if(cooldown || raiseY < 1.0) return false;
+		if(amount <= 0) return false;
+		
+		if(ShootProjectile("DSCProj_MercMissile", offs:(10,fireLeft ? -15 : 15, -10)))
+		{
+			fireLeft = !fireLeft;
+			OnCrosshair = fireLeft ? "Crosshair/missile1" : "Crosshair/missile2";
+			cooldown = 20;
+			Deplete();
+		}
+		
+		return true;
+	}
+	
+	States
+	{
+		Spawn:
+			FMIS ABCDEFGHIJKLMNO 5;
+		loop;
+	}
+}
+
+class Descent_MercMissileBundle : DSCMissilePickup
+{
+	Default
+	{
+		DSCMissilePickup.Setup "Descent_MercMissile", 4;
+	}
+	
+	States
+	{
+		Spawn:
+			FMS4 ABCDEFGHIJKLMNO 5;
+		loop;
+	}
+}
+
+class DSCProj_MercMissile : DSCProj_ConMissile
+{
+	Default
+	{
+		Scale 1.25;
+		Speed 35;
+		DamageFunction 42 * DSCDMG;
+		DSCProjectile.FireSound "MercuryMissile/Fire";
+		Tag "Mercury";
+	}
+
+	States
+	{
+		Spawn:
+			MODL A 1 
+			{
+				SpawnTrail();
+				Spawn("MiniExplosion", pos);
+			}
+		loop;	
+	}
+}

@@ -8,7 +8,7 @@ class Descent_ProxMine : DSCSpecialWeapon
 		DSCSpecialWeapon.SetupCrosshairs "Crosshair/rocket1", "Crosshair/rocket0";
 		DSCSpecialWeapon.SlotNumber 5;
 		Inventory.Amount 4;
-		Inventory.MaxAmount 10;
+		Inventory.MaxAmount 10 * DSCMAXAMMO;
 	}
 	
 	override bool Fire()
@@ -16,7 +16,7 @@ class Descent_ProxMine : DSCSpecialWeapon
 		if(cooldown || raiseY < 1.0) return false;
 		if(amount <= 0) return false;
 		
-		if(ShootProjectile("DSCProj_ProxMine", offs:(-30,0,-10)))
+		if(ShootProjectile("DSCProj_ProxMine", offs:(-30,0,-10), setCamera:false))
 		{
 			cooldown = 20;
 			Deplete();
@@ -43,7 +43,7 @@ class DSCProj_ProxMine : DSCProjectile
 		Height 28;
 		Scale 0.8;
 		DSCProjectile.FireSound "ProximityMine/Drop";
-
+		
 		+SHOOTABLE;
 		-MISSILE;
 		-NOBLOCKMAP;

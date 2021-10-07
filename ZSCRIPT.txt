@@ -1,6 +1,7 @@
 version "4.5"
 
 const DSCDMG = 2.0; // Damage Scale
+const DSCMAXAMMO = 2.0; // Max Ammo Scale
 
 // Full Credit to: dodopod ( https://gitlab.com/dodopod/6dof-player )
 #include "ZScript/6dof/quaternion.zs"
@@ -41,3 +42,5 @@ const DSCDMG = 2.0; // Damage Scale
 #include "ZScript/Weapons/phoenix_cannon.zsc"
 #include "ZScript/Weapons/omega_cannon.zsc"
 #include "ZScript/Weapons/guided_missile.zsc"
+#include "ZScript/Weapons/mercury_missile.zsc"
+#include "ZScript/Weapons/smart_mine.zsc"

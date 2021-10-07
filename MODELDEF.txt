@@ -168,6 +168,20 @@ Model DSCProj_GuidedMissile
 
 	FrameIndex MODL A 0 0
 }
+Model DSCProj_MercMissile
+{
+	Path "models"
+	Model 0 "Weapons/mercury_missile.md3"
+	Scale 10.0 10.0 10.0
+	SurfaceSkin 0 0 "Textures/glow04.png"
+	SurfaceSkin 0 1 "Textures/rbot096.png"
+	USEACTORPITCH
+	USEACTORROLL
+
+	FrameIndex MODL A 0 0
+}
+
+
 
 // Player
 Model DescentPlayer 

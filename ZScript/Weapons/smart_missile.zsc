@@ -9,7 +9,7 @@ class Descent_SmartMissile : DSCSpecialWeapon
 		DSCSpecialWeapon.DisplayGraphic "smartMissile";
 		DSCSpecialWeapon.SetupCrosshairs "Crosshair/rocket1", "Crosshair/rocket0";
 		DSCSpecialWeapon.SlotNumber 3;
-		Inventory.MaxAmount 5;
+		Inventory.MaxAmount 5 * DSCMAXAMMO;
 	}
 	
 	override bool Fire()
@@ -40,6 +40,7 @@ class DSCProj_SmartMissile : DSCProj_ConMissile
 	{
 		DSCProjectile.FireSound "SmartMissile/Fire";
 		DSCProjectile.SetMissileCamera true;
+		Tag "Smart";
 	}
 	
 	override void DoPayload() 
@@ -71,7 +72,7 @@ class DSCProj_SmartTracker : DSCProj_HomMissile
 		Speed 5;
 		DamageFunction 35 * DSCDMG;
 		DSCProj_HomMissile.TargetFindTime 0; // Infinite
-		DSCProj_HomMissile.TrackingRanges 128, 512;
+		DSCProj_HomMissile.TrackingRanges 0, 512;
 		DSCProjectile.FireSound "";
 	}
 	

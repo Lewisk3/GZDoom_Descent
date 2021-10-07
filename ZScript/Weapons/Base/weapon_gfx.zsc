@@ -46,6 +46,21 @@ class MissileExplosion : Actor
 	}
 }
 
+class MiniExplosion : MissileExplosion
+{
+	Default
+	{
+		Scale 0.5;
+	}
+
+	States
+	{
+		Spawn:
+			EXD3 AAABCDE 2 Bright;
+		stop;
+	}
+}
+
 class PyroGZ_Explosion : MissileExplosion
 {	
 	States

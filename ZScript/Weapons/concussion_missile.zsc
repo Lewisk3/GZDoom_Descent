@@ -9,7 +9,7 @@ class Descent_ConMissile : DSCSpecialWeapon
 		DSCSpecialWeapon.DisplayGraphic "concussionMissile";
 		DSCSpecialWeapon.SetupCrosshairs "Crosshair/missile2", "Crosshair/missile0";
 		DSCSpecialWeapon.SlotNumber 1;
-		Inventory.MaxAmount 20;
+		Inventory.MaxAmount 20 * DSCMAXAMMO;
 	}
 	
 	override void EjectSpecialWeapon()
@@ -75,6 +75,7 @@ class DSCProj_ConMissile : DSCProjectile
 		Speed 20;
 		DamageFunction 20 * DSCDMG;
 		DSCProjectile.FireSound "ConcussionMissile/Fire";
+		Tag "Concussion";
 	}
 			
 	// Used for custom missile payloads.

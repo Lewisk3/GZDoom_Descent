@@ -65,12 +65,11 @@ class Descent_OmegaCannon : DSCWeapon
 		LineTrace(aim.x, maxDist, aim.y, TRF_ABSPOSITION, firePos.z, firepos.x, firepos.y, lt);
 		
 		double step = 50;
-		double biri = 5;
-		double biriMax = 30 + frandom[OmegaBiri](0,30);
+		double biriMax = 50 + frandom[OmegaBiri](0,30);
 		double biriAngle = frandom[BiriAngle](0,360);
 		for(double i = 0; i < lt.Distance; i += step)
 		{	
-			double biriMove = biriMax * (i/(lt.Distance*0.5));
+			double biriMove = biriMax * (i/(lt.Distance*(0.5+frandom[OmegaBiri](-0.05,0.05))));
 			double distMult = clamp( i / (lt.Distance*0.9), 0, 1.0 );
 			double biriMult = 1.0 - distMult;
 			if(!tracer) biriMult = 0.5;
@@ -130,7 +129,7 @@ class Descent_OmegaCannon : DSCWeapon
 			TNT1 A 1 
 			{	
 				A_StartSound("OmegaCannon/Fire", CHAN_WEAPON, CHANF_OVERLAP | CHANF_LOOPING);
-				A_FireOmega(45 * DSCDMG);
+				A_FireOmega(18 * DSCDMG);
 			}
 			TNT1 A 0 A_ReFire();
 		Goto NoCharge;
