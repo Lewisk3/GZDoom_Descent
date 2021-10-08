@@ -43,4 +43,5 @@ const DSCMAXAMMO = 2.0; // Max Ammo Scale
 #include "ZScript/Weapons/omega_cannon.zsc"
 #include "ZScript/Weapons/guided_missile.zsc"
 #include "ZScript/Weapons/mercury_missile.zsc"
+#include "ZScript/Weapons/flash_missile.zsc"
 #include "ZScript/Weapons/smart_mine.zsc"

@@ -93,6 +93,54 @@ class MegaMissileExplosion : MissileExplosion
 	}
 }
 
+class FlashExplosion : MissileExplosion
+{
+	Default
+	{
+		Scale 4.5;
+	}
+	
+	void DoFlash()
+	{
+		// Check for nearby players
+		let it = BlockThingsIterator.Create(self, 1024);
+		while(it.Next())
+		{
+			let act = it.Thing;
+			double dist = Distance3D(act);
+			if(!act.bSHOOTABLE) continue;
+			if(act.health <= 0) continue;
+			if(!IsVisible(act, true)) continue;
+			if(dist > 360) continue; // Range of blast
+			
+			// Flash player(s) screen.
+			let plr = DescentPlayer(act);
+			if(plr)
+			{
+				DSCEffects.ScreenFlash(plr, "White", plr.screen_fade+0.8);
+				continue;
+			}			
+			
+			act.GiveInventory("Effect_BlindMe", 1);
+		}
+	}
+	
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay
+			{
+				DoFlash();
+				DSCEffects.ParticlesFX(self, "#C45632", amt:60, 5, 8, (100,100,100),(40,40));
+				A_StartSound("FlashMissile/Explode", CHAN_BODY, CHANF_OVERLAP);
+				A_SetRoll(frandom(-90,90));
+			}
+			EXD6 ABCDEFGHIJKL 2 Bright;
+		stop;
+	}
+}
+
+
 class ImpactExplosion : MissileExplosion
 {	
 	Default

@@ -31,6 +31,7 @@ FusionCannon/Fire "Sounds/Weapons/FusionCannon.wav"
 FusionCannon/Charge "Sounds/Weapons/FusionCharge.wav"
 FusionCannon/ChargeLoop "Sounds/Weapons/FusionChargeLoop.wav"
 
+FlashMissile/Fire "Sounds/Weapons/FlashMissile.wav"
 MercuryMissile/Fire "Sounds/Weapons/MercuryMissile.wav"
 GuidedMissile/Fire "Sounds/Weapons/MissileFire.wav"
 ConcussionMissile/Fire "Sounds/Weapons/MissileFire.wav"
@@ -40,6 +41,7 @@ MegaMissile/Fire "Sounds/Weapons/MegaMissileFire.wav"
 Missile/Explode "Sounds/Weapons/explode.wav"
 MegaMissile/Explode "Sounds/Weapons/MegaImpact.wav"
 SmartMissile/Explode "Sounds/Weapons/SmartImpact.wav"
+FlashMissile/Explode "Sounds/Weapons/FlashImpact.wav";
 ProximityMine/Drop "Sounds/Weapons/dropbomb.wav"
 
 // Item Sounds

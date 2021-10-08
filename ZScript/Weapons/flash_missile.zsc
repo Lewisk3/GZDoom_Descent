@@ -1,0 +1,77 @@
+class Descent_FlashMissile : DSCSpecialWeapon
+{
+	bool fireLeft;
+
+	Default
+	{
+		DSCSpecialWeapon.Tag "FLASH\n\c[DarkGreen]MISSILE";
+		DSCSpecialWeapon.WeaponName "Flash Missile";
+		DSCSpecialWeapon.DisplayGraphic "flashMissile";
+		DSCSpecialWeapon.SetupCrosshairs "Crosshair/missile2", "Crosshair/missile0";
+		DSCSpecialWeapon.AmmoBundle "Descent_FlashMissileBundle";
+		DSCSpecialWeapon.SlotNumber 9;
+		Inventory.MaxAmount 10 * DSCMAXAMMO;
+	}
+		
+	override bool Fire()
+	{
+		if(cooldown || raiseY < 1.0) return false;
+		if(amount <= 0) return false;
+		
+		if(ShootProjectile("DSCProj_FlashMissile", offs:(10,fireLeft ? -15 : 15, 0)))
+		{
+			fireLeft = !fireLeft;
+			OnCrosshair = fireLeft ? "Crosshair/missile1" : "Crosshair/missile2";
+			cooldown = 10;
+			Deplete();
+		}
+		
+		return true;
+	}
+	
+	States
+	{
+		Spawn:
+			LMIS ABCDEFGHIJKLMNO 5;
+		loop;
+	}
+}
+
+class Descent_FlashMissileBundle : DSCMissilePickup
+{
+	Default
+	{
+		DSCMissilePickup.Setup "Descent_FlashMissile", 4;
+	}
+	
+	States
+	{
+		Spawn:
+			LMS4 ABCDEFGHIJKLMNO 5;
+		loop;
+	}
+}
+
+class DSCProj_FlashMissile : DSCProj_ConMissile
+{
+	Default
+	{
+		Scale 1.25;
+		Speed 20;
+		DamageFunction 9 * DSCDMG;
+		DSCProjectile.FireSound "flashMissile/Fire";
+		Tag "Flash";
+	}
+	
+	States
+	{
+		Crash:
+		Death:
+		XDeath:
+			TNT1 A 1 
+			{
+				DoMissileExplosion(0,0,0.8,type:"FlashExplosion");
+			}
+		stop;
+	}
+}

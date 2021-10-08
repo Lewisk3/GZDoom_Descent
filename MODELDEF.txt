@@ -180,6 +180,18 @@ Model DSCProj_MercMissile
 
 	FrameIndex MODL A 0 0
 }
+Model DSCProj_FlashMissile
+{
+	Path "models"
+	Model 0 "Weapons/flash_missile.md3"
+	Scale 10.0 10.0 10.0
+	SurfaceSkin 0 0 "Textures/rbot088.png"
+	SurfaceSkin 0 1 "Textures/glow04.png"
+	USEACTORPITCH
+	USEACTORROLL
+
+	FrameIndex MODL A 0 0
+}
 
 
 
