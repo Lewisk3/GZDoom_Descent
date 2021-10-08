@@ -99,7 +99,7 @@ class DescentPlayer : SixDoFPlayer
 		if(source is "DescentPlayer") 
 			trueDamage /= DSCDMG;
 		else 
-			trueDamage *= 0.25;
+			trueDamage *= DMGTAKEN;
 		
 		if(!shields)
 		{

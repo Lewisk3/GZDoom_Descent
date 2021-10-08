@@ -1,0 +1,155 @@
+class TargetDummy : Actor
+{
+	States
+	{
+		Spawn:
+			TNT1 A 35;
+		stop;
+	}
+}
+
+class Effect_Confused : Actor
+{
+	Default
+	{
+		Scale 0.25;
+		+NOINTERACTION;
+	}
+
+	override void Tick()
+	{
+		super.Tick();
+		if(!target || !target.FindInventory("Effect_BlindMe")) 
+		{
+			Destroy();
+			return;
+		}
+		
+		vector3 toPosXY = (
+			cos(target.angle + angle),
+			sin(target.angle + angle),
+			-sin(pitch)
+		) * 30;
+		vector3 enemyPos = (target.pos.xy,target.pos.z+target.height * 0.9);
+		
+		SetOrigin(level.vec3offset(toPosXY, enemyPos), true);
+		angle += 20;
+		pitch = cos(angle) * 10;
+	}
+
+	States
+	{	
+		Spawn:
+			ENRG ABCDEFHIJKLMNO 3 Bright;
+		loop;
+	}
+}
+
+class Effect_BlindMe : Inventory
+{
+	State defaultState;
+	int effect_timer;
+	double effect_lifetime;
+	bool init;
+	bool attacking;
+	State OwnerSee;
+	Actor dummy;
+	
+	Property Duration : effect_lifetime;
+
+	Default
+	{
+		Effect_BlindMe.Duration 10;
+		Inventory.MaxAmount 1;
+	}
+	
+	void EndEffect()
+	{
+		if(!Owner) return;
+		if(Owner.health > 0)
+			Owner.SetState(defaultState);
+		else
+			Owner.SetState(Owner.FindState("Death"));
+			
+		Owner.RemoveInventory(Self);
+		GoAwayAndDie();
+	}
+	
+	override void DoEffect()
+	{
+		super.DoEffect();
+		
+		if(!Owner || Owner.health <= 0)
+		{
+			EndEffect();
+			return;
+		}
+		
+		if(!init)
+		{
+			let confusedAnim = Spawn("Effect_Confused", Owner.pos);
+			if(confusedAnim) confusedAnim.target = Owner;
+			
+			defaultState = Owner.CurState;
+			OwnerSee = Owner.FindState("See", true);
+			Owner.SetState(FindState("MoveAimlessly"));
+			SetState(FindState("Animate"));
+			init = true;
+		}
+		
+		if(attacking && !Owner.InStateSequence(Owner.CurState, Owner.FindState("Melee")))
+		{	
+			Owner.SetState(FindState("MoveAimlessly"));
+			SetState(FindState("Animate"));
+			attacking = false;
+		}
+		
+		if(random[BlindAttack](0,200) == 200 && !attacking && Owner.FindState("Melee"))
+		{
+			vector3 randpos = (
+				cos(Owner.angle),
+				sin(Owner.angle),
+				0
+			) * frandom(-300,300);
+			dummy = Spawn("TargetDummy", level.vec3offset(Owner.pos, randpos));
+		
+			Owner.SetState(Owner.FindState("Melee"));
+			SetState(FindState("Pause"));
+			attacking = true;
+		}
+		
+		effect_timer++;
+		
+		if(effect_timer > effect_lifetime*35) EndEffect();
+	}
+	
+	States
+	{
+		MoveAimlessly:
+			"####" "#" 4 A_Wander();
+		loop;
+		
+		Animate:
+			TNT1 A 4
+			{
+				if(OwnerSee && Owner)
+				{
+					Owner.sprite = OwnerSee.sprite;
+					Owner.frame = OwnerSee.frame;
+					A_SetTics(OwnerSee.tics);
+					if(OwnerSee.NextState) 
+						OwnerSee = OwnerSee.NextState;
+					else
+						OwnerSee = Owner.FindState("See");
+				}
+			}
+		loop;
+		
+		Pause:
+			TNT1 A 1
+			{
+				if(Owner) Owner.target = dummy;
+			}
+		loop;
+	}
+}

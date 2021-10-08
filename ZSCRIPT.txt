@@ -1,7 +1,8 @@
 version "4.5"
 
-const DSCDMG = 2.0; // Damage Scale
-const DSCMAXAMMO = 2.0; // Max Ammo Scale
+const DMGTAKEN   = 0.15; // Damage received multiplier.
+const DSCDMG     = 3.00; // Damage dealt muiltiplier
+const DSCMAXAMMO = 2.00; // Max Ammo Scale
 
 // Full Credit to: dodopod ( https://gitlab.com/dodopod/6dof-player )
 #include "ZScript/6dof/quaternion.zs"
@@ -17,6 +18,7 @@ const DSCMAXAMMO = 2.0; // Max Ammo Scale
 #include "ZScript/descent_pickups.zsc"
 #include "ZScript/descent_animators.zsc"
 #include "ZScript/descent_events.zsc"
+#include "ZScript/descent_effectItems.zsc"
 
 // SBS
 #include "ZScript/SBS/dsc_sbs_base.zsc"

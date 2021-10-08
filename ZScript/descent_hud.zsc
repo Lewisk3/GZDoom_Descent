@@ -167,6 +167,7 @@ class DescentStatusBar : BaseStatusBar
 	
 	void DrawStr(String txt, vector2 pos, uint fontcol = Font.CR_UNTRANSLATED, uint flags = 0, double alpha = 1.0, vector2 scale = (1.0,1.0))
 	{	
+		scale *= 0.65; // Scale for DscBigFont.
 		DescentDraw.DrawString(fnt, txt, pos, DescentDraw.SS_SCREEN_CENTER | DescentDraw.SS_NOASPECTCORRECTION | flags, fontcol, alpha, scale, linespacing:15);
 	}
 	
@@ -197,7 +198,7 @@ class DescentStatusBar : BaseStatusBar
 		
 	void PushMessage(String msg)
 	{
-		vector2 msgscale = (1.0, 1.5);
+		vector2 msgscale = (0.7, 0.8);
 		uint count = messages.Size()-1;
 		// Generate
 		let msg = DescentMessage.CreateMessage(fnt, msg.MakeUpper(), msgscale);
@@ -236,7 +237,7 @@ class DescentStatusBar : BaseStatusBar
 		if(CPlayer) dscplr = DescentPlayer(CPlayer.mo);
 		
 		// Create the font used for the fullscreen HUD
-		fnt = "DescFont";
+		fnt = "DSCBIGFONT"; //"DescFont";
 		mHUDFont = HUDFont.Create(fnt);
 		baseRes = (1920, 1080);
 		baseScale = (6.0,5.5);
@@ -461,7 +462,7 @@ class DescentStatusBar : BaseStatusBar
 		if(!cloakPowerup.CheckActive(dscplr, "PowerCloak", deltaTime)) 
 			DrawImg("ship", shieldPos, cockpitScale);
 		
-		DrawStr(String.Format("%d", floor(dscplr.shields)), shieldPos+(0,-110), Font.CR_LightBlue, flags:DescentDraw.SS_TEXT_CENTER, scale:(1.5*cockpitScale.x,1.7*cockpitScale.y));
+		DrawStr(String.Format("%d", floor(dscplr.shields)), shieldPos+(0,-115), Font.CR_LightBlue, flags:DescentDraw.SS_TEXT_CENTER, scale:(1.5*cockpitScale.x,1.7*cockpitScale.y));
 		
 		DrawWeapons(cockpitPos, cockpitScale);
 		DrawCockpitKeys();

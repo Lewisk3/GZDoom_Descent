@@ -55,7 +55,7 @@ class Descent_OmegaCannon : DSCWeapon
 		FindTarget();
 		if(tracer)
 		{
-			let toAim = level.SphericalCoords(firePos, (tracer.pos.xy, tracer.height*0.5), aim.xy);
+			let toAim = level.SphericalCoords(firePos, (tracer.pos.xy, tracer.pos.z+tracer.height*0.5), aim.xy);
 			aim.x -= toAim.x;
 			aim.y -= toAim.y;
 		}
@@ -135,7 +135,7 @@ class Descent_OmegaCannon : DSCWeapon
 		Goto NoCharge;
 		
 		Spawn:
-			PLAS ABCDEFGHIJKLMNO 5;
+			OMGA ABCDEFGHIJKLMNO 5;
 		loop;
 	}
 }

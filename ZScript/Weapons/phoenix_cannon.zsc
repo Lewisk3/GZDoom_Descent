@@ -26,7 +26,7 @@ class Descent_PhoenixCannon : DSCWeapon
 		Goto Ready;
 		
 		Spawn:
-			PLAS ABCDEFGHIJKLMNO 5;
+			PNIX ABCDEFGHIJKLMNO 5;
 		loop;
 	}
 }

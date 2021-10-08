@@ -31,7 +31,7 @@ FusionCannon/Fire "Sounds/Weapons/FusionCannon.wav"
 FusionCannon/Charge "Sounds/Weapons/FusionCharge.wav"
 FusionCannon/ChargeLoop "Sounds/Weapons/FusionChargeLoop.wav"
 
-FlashMissile/Fire "Sounds/Weapons/FlashMissile.wav"
+FlashMissile/Fire "Sounds/Weapons/MissileFire.wav"
 MercuryMissile/Fire "Sounds/Weapons/MercuryMissile.wav"
 GuidedMissile/Fire "Sounds/Weapons/MissileFire.wav"
 ConcussionMissile/Fire "Sounds/Weapons/MissileFire.wav"
