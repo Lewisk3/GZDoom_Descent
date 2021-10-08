@@ -3,24 +3,24 @@
 pointlight GreenPointLight
 {
     color 0.0 1.0 0.0
-    size 26
+    size 65
 }
 pulselight YellowLight
 {
 	color 0.96 0.92 0
-	size 30    
+	size 65    
 	secondarySize 16
     interval 0.5
 }
 pointlight DarkRedPointLight
 {
     color 0.5 0.0 0.0
-    size 45
+    size 65
 }
 pointlight RedPointLight
 {
     color 1.0 0.0 0.0
-    size 45
+    size 65
 }
 pointlight RedPointLightSmall
 {
@@ -30,12 +30,12 @@ pointlight RedPointLightSmall
 pointlight OrangePointLight
 {
     color 1.0 0.5 0.0
-    size 45
+    size 65
 }
 pointlight BluePointLight
 {
     color 0.0 0.0 4.0
-    size 45
+    size 65
 }
 pointlight PurplePointLight
 {
@@ -62,6 +62,11 @@ pointlight BlueBrightLight
     color 0.0 0.0 1.0
     size 32
 }
+pointlight StupidlyBrightAndHUGELight
+{
+	color 5.0 5.0 5.0
+    size 69420
+}
 
 pulselight BluePulseLight
 {
@@ -73,46 +78,132 @@ pulselight BluePulseLight
 
 object DSCProj_LaserLV1 
 {
-	frame MODL { light RedPointLightSmall }
+	frame MODL { light RedPointLight }
+}
+object DSCProj_LaserLV2 
+{
+	frame MODL { light PurplePointLight }
+}
+object DSCProj_LaserLV3 
+{
+	frame MODL { light BluePointLight }
+}
+object DSCProj_LaserLV4 
+{
+	frame MODL { light GreenPointLight }
+}
+object DSCProj_LaserLV5 
+{
+	frame MODL { light YellowPointLight }
+}
+object DSCProj_LaserLV6 
+{
+	frame MODL { light WhitePointLight }
+}
+
+object GaussBullet
+{
+	frame EXD3 { light RedPointLightSmall }
 }
 
 object MissileExplosion
 {
 	frame EXD6 { light YellowPointLight }
 }
+object MiniExplosion
+{
+	frame EXD3 { light YellowPointLight }
+}
 object MegaMissileExplosion
 {
 	frame EXDV { light WhitePointLight }
 }
+object FlashExplosion
+{
+	frame EXD6 { light WhitePointLight }
+}
+object EarthshakerChildExplosion
+{
+	frame EXDZ { light WhitePointLight }
+}
+object EarthshakerExplosion
+{
+	frame EXDZ { light WhitePointLight }
+}
+object PyroGZ_Explosion
+{
+	frame EXDR { light RedPointLight }
+}
 
 object DSCProj_ConMissile
 {
-	frame MODL { light YellowSmallLight }
+	frame MODL { light YellowPointLight }
 }
 object DSCProj_HomMissile
 {
-	frame MODL { light YellowSmallLight }
+	frame MODL { light YellowPointLight }
 }
 object DSCProj_SmartMissile
 {
-	frame MODL { light YellowSmallLight }
+	frame MODL { light YellowPointLight }
 }
 object DSCProj_MegaMissile
 {
-	frame MODL { light YellowSmallLight }
+	frame MODL { light YellowPointLight }
+}
+object DSCProj_ShakerMissile
+{
+	frame MODL { light YellowPointLight }
+}
+object DSCProj_FlashMissile
+{
+	frame MODL { light WhitePointLight }
+}
+object DSCProj_MercMissile
+{
+	frame MODL { light RedPointLight }
+}
+object DSCProj_GuidedMissile
+{
+	frame MODL { light YellowPointLight }
 }
 
 object DSCProj_Spreadfire
 {
 	frame SPRD { light BlueBrightLight }
 }
-
 object DSCProj_Plasma
 {
 	frame PLSB { light GreenPointLight }
 }
+object DSCProj_FusionPlasma
+{
+	frame MODL { light PurplePointLight }
+}
+object DSCProj_Phoenix
+{
+	frame PHNX { light RedPointLight }
+}
+object DSCProj_Helix
+{
+	frame SHLX { light GreenPointLight }
+}
+object OmegaRailGraphic
+{
+	frame OMEG { light WhitePointLight }
+}
+
+
 object DSCProj_SmartTracker
 {
 	frame PLSB { light GreenPointLight }
+}
+object DSCProj_ShakerMissile
+{
+	frame BOOM { light StupidlyBrightAndHUGELight }
+}
+object DSCProj_ShakerTracker
+{
+	frame BOOM { light StupidlyBrightAndHUGELight }
 }
 

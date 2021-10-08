@@ -103,7 +103,7 @@ class DescentPlayer : SixDoFPlayer
 		
 		if(!shields)
 		{
-			health -= trueDamage;
+			health -= ceil(trueDamage);
 		}
 		else
 		{
@@ -251,7 +251,7 @@ class DescentPlayer : SixDoFPlayer
 			}
 			if(!result)
 			{
-				desiredSlot = 9;
+				desiredSlot = 10;
 				for(let item = Inv; item; item = item.Inv)
 				{
 					let spec = DSCSpecialWeapon(item);

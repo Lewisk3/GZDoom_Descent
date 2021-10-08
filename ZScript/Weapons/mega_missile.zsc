@@ -62,7 +62,7 @@ class DSCProj_MegaMissile : DSCProj_HomMissile
 		Crash:
 		Death:
 		XDeath:
-			TNT1 A 1 Bright DoMissileExplosion(350, 1024, 4.5, 0, "MegaMissileExplosion");
+			TNT1 A 1 Bright DoMissileExplosion(300 * DSCDMG, 1024, 4.5, 0, "MegaMissileExplosion");
 		stop;
 	}
 }

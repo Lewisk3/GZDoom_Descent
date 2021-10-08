@@ -38,7 +38,6 @@ class DSCProj_SmartMineTracker : DSCProj_SmartTracker
 	Default
 	{
 		Scale 0.75;
-		Speed 3;
 		DamageFunction 25 * DSCDMG;
 	}
 	

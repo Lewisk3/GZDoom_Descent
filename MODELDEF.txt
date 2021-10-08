@@ -192,7 +192,30 @@ Model DSCProj_FlashMissile
 
 	FrameIndex MODL A 0 0
 }
+Model DSCProj_ShakerMissile
+{
+	Path "models"
+	Model 0 "Weapons/earthshaker_missile.md3"
+	Scale 10.0 10.0 10.0
+	SurfaceSkin 0 1 "Textures/rbot092.png"
+	SurfaceSkin 0 0 "Textures/glow04.png"
+	USEACTORPITCH
+	USEACTORROLL
 
+	FrameIndex MODL A 0 0
+}
+Model DSCProj_ShakerTracker
+{
+	Path "models"
+	Model 0 "Weapons/earthshaker_child.md3"
+	Scale 40.0 40.0 40.0
+	SurfaceSkin 0 1 "Textures/rbot092.png"
+	SurfaceSkin 0 0 "Textures/glow04.png"
+	USEACTORPITCH
+	USEACTORROLL
+
+	FrameIndex MODL A 0 0
+}
 
 
 // Player

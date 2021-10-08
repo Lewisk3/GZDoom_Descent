@@ -413,6 +413,26 @@ class DSCProjectile : Actor
 		}
 	}
 	
+	void A_ExplodeEx(double pow, double dist, double dmgmod = 1.0, bool damageSelf = false, bool damageBosses = true)
+	{
+		let it = ThinkerIterator.Create("Actor");
+		Actor act;
+		while(act = Actor(it.Next()))
+		{
+			if(!act.bSHOOTABLE) continue;
+			if(!damageSelf && act == target) continue;
+			if(!damageBosses && act.bBOSS) continue; 
+			double todist = Distance3DSquared(act);
+			double dmgfalloff = pow * (1. - (1./(todist - (dist*dist))));
+			if(todist > dist*dist) continue; 
+			dmgfalloff *= dmgmod;
+			
+			if(dmgfalloff > 0)
+				act.DamageMobJ(self, target, dmgfalloff, "Explosive", 0, angle); 
+		}
+	}
+	
+	
 	override int SpecialMissileHit(Actor victim)
 	{
 		if(victim != target && victim.bSHOOTABLE) Spawn("ImpactExplosion", pos);

@@ -289,7 +289,7 @@ class DSCProj_LaserLV6 : DSCProj_Laser {
 	Default {	
 		DamageFunction 15 * DSCDMG;
 		DSCProj_Laser.LaserColor "White";
-		DSCProj_Laser.CoreColor "#000000";
+		DSCProj_Laser.CoreColor "White"; // "Black"
 		DSCProjectile.energyUse 0.2;
 	}
 }

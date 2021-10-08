@@ -93,6 +93,43 @@ class MegaMissileExplosion : MissileExplosion
 	}
 }
 
+
+class EarthshakerExplosion : MissileExplosion
+{
+	Default
+	{
+		Scale 10.0;
+	}
+	
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay
+			{
+				S_StartSound("Earthshaker/Explode", CHAN_BODY, CHANF_OVERLAP);
+				A_SetRoll(frandom(-90,90));
+			}
+			EXDZ ABCDEFGHIJKLM 2 Bright;
+		stop;
+	}
+}
+class EarthshakerChildExplosion : EarthshakerExplosion
+{	
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay
+			{
+				S_StartSound("Missile/Explode", CHAN_BODY, CHANF_OVERLAP);
+				DSCEffects.ParticlesFX(self, "#C45632", amt:60, 5, 8, (100,100,100),(40,40));
+				A_SetRoll(frandom(-90,90));
+			}
+			EXDZ ABCDEFGHIJKLM 2 Bright;
+		stop;
+	}
+}
+
+
 class FlashExplosion : MissileExplosion
 {
 	Default
