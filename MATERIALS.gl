@@ -13,6 +13,8 @@ material texture models/Textures/glow04.png {
 	brightness 1.0
 }
 
+material texture models/Textures/sky_sphere.png { shader "shaders/simsun.fp" }
+material texture models/Textures/asteroids.png { shader "shaders/simsun.fp" }
 material texture models/Textures/ship1-1.png { shader "shaders/simsun.fp" }
 material texture models/Textures/ship1-2.png { shader "shaders/simsun.fp" }
 material texture models/Textures/ship1-3.png { shader "shaders/simsun.fp" }

@@ -217,6 +217,80 @@ Model DSCProj_ShakerTracker
 	FrameIndex MODL A 0 0
 }
 
+// Title
+Model SpaceBox
+{
+	Path "models"
+	Model 0 "Title/sky_sphere.obj"
+	Scale 200.0 200.0 200.0
+	SurfaceSkin 0 0 "Textures/sky_sphere.png"
+	USEACTORPITCH
+	USEACTORROLL
+
+	FrameIndex MODL A 0 0
+}
+Model SpaceAsteroid_01
+{
+	Path "models"
+	Model 0 "Title/rock01.obj"
+	Skin 0 "Textures/asteroids.png"
+	Scale 30.0 30.0 30.0
+	
+	USEACTORPITCH
+	USEACTORROLL
+
+	FrameIndex MODL A 0 0
+}
+Model SpaceAsteroid_02
+{
+	Path "models"
+	Model 0 "Title/rock02.obj"
+	Skin 0 "Textures/asteroids.png"
+	Scale 30.0 30.0 30.0
+	
+	USEACTORPITCH
+	USEACTORROLL
+
+	FrameIndex MODL A 0 0
+}
+Model SpaceAsteroid_03
+{
+	Path "models"
+	Model 0 "Title/rock03.obj"
+	Skin 0 "Textures/asteroids.png"
+	Scale 30.0 30.0 30.0
+	
+	USEACTORPITCH
+	USEACTORROLL
+
+	FrameIndex MODL A 0 0
+}
+Model SpaceAsteroid_04
+{
+	Path "models"
+	Model 0 "Title/rock04.obj"
+	Skin 0 "Textures/asteroids.png"
+	Scale 30.0 30.0 30.0
+	
+	USEACTORPITCH
+	USEACTORROLL
+
+	FrameIndex MODL A 0 0
+}
+Model SpaceAsteroid_05
+{
+	Path "models"
+	Model 0 "Title/rock05.obj"
+	Skin 0 "Textures/asteroids.png"
+	Scale 30.0 30.0 30.0
+	
+	USEACTORPITCH
+	USEACTORROLL
+
+	FrameIndex MODL A 0 0
+}
+
+
 
 // Player
 Model DescentPlayer 

@@ -48,3 +48,9 @@ const DSCMAXAMMO = 2.00; // Max Ammo Scale
 #include "ZScript/Weapons/flash_missile.zsc"
 #include "ZScript/Weapons/earthshaker_missile.zsc"
 #include "ZScript/Weapons/smart_mine.zsc"
+
+// Title
+#include "ZScript/Title/Base/dscmenu_elements.zsc"
+#include "ZScript/Title/Base/dscmenu_base.zsc"
+#include "ZScript/Title/title_objects.zsc"
+#include "ZScript/Title/title.zsc"

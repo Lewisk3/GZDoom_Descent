@@ -1,0 +1,143 @@
+class SpaceBox : Actor
+{
+	Default
+	{
+		+NOINTERACTION;
+	}
+	
+	States
+	{
+		Spawn:
+			MODL A -1;
+		stop;
+	}
+} 
+
+class SpaceAsteroidBase : Actor
+{
+	vector3 angVel;
+	vector3 curAngles;
+
+	Default
+	{
+		Radius 2;
+		Height 2;
+		Scale 0.25;
+		
+		+SOLID;
+		+NOGRAVITY;
+		+INTERPOLATEANGLES;
+		+Missile;
+		
+		BounceType "Hexen";
+		+USEBOUNCESTATE;
+	}
+	
+	
+	override bool CanCollideWith(Actor other, bool passive)
+	{
+		// Find angle of collision
+		if(GetAge() > 10)
+		{
+			vector3 colang = level.SphericalCoords(pos, other.pos, (angle,pitch));
+			vector3 pushback = (
+				cos(angle - colang.x),
+				sin(angle - colang.x),
+				-sin(pitch - colang.y)
+			) * (other.vel.Length()*0.25);
+			
+ 			vel -= pushback;
+			RandomizeAngles(pushback.Length() * 0.25);
+		}
+		
+		return super.CanCollideWith(Other, passive);
+	}
+	
+	virtual void RandomizeAngles(double spd = 0.5)
+	{
+		angVel = (
+			frandom(-1, 1),
+			frandom(-1, 1),
+			frandom(-1, 1)
+		) * spd;
+	}
+	
+	override void PostBeginPlay()
+	{
+		super.PostBeginPlay();
+		
+		A_SetScale(frandom(0.35,1.5)*Scale.X);
+		curAngles.x = frandom(0,360);
+		curAngles.y = frandom(-90,90);
+		curAngles.z = frandom(0,180);
+		speed = frandom(-0.015,0.015) * (1.0 / Scale.X);
+		angVel = (
+			frandom(-1, 1),
+			frandom(-1, 1),
+			frandom(-1, 1)
+		) * (0.18 * (1.0 / Scale.X));
+		
+		vel = DSCMath.V3Offset(angle, pitch, roll, 1,0,0, speed);
+	}
+	
+	
+	override void Tick()
+	{
+		super.Tick();
+		
+		curAngles.x += angVel.x;
+		curAngles.y += angVel.y;
+		curAngles.z += angVel.z;
+		
+		A_SetAngle(curAngles.x, SPF_INTERPOLATE);
+		A_SetPitch(curAngles.y, SPF_INTERPOLATE);
+		A_SetRoll(curAngles.z, SPF_INTERPOLATE);
+	}
+	
+	States
+	{	
+		Spawn:
+			MODL A -1;
+		stop;
+		
+		Bounce.Ceiling:
+		Bounce.Floor:
+		Bounce.Actor:
+			MODL "#" 1 RandomizeAngles();
+		goto Spawn;
+	}
+}
+
+class SpaceAsteroid_01 : SpaceAsteroidBase {}
+class SpaceAsteroid_02 : SpaceAsteroidBase {}
+class SpaceAsteroid_03 : SpaceAsteroidBase {}
+class SpaceAsteroid_04 : SpaceAsteroidBase {}
+class SpaceAsteroid_05 : SpaceAsteroidBase {}
+
+
+class AsteroidSpawner : Actor
+{
+	Default
+	{
+		+NOINTERACTION;
+	}
+	
+	States
+	{
+		Spawn:
+			TNT1 A 1 NoDelay
+			{
+				for(int i = 0; i < 120; i++)
+				{
+					String asteroid = String.Format("SpaceAsteroid_0%d", random(1,5)); 
+					vector3 offs = (
+						frandom(-1, 1),
+						frandom(-1, 1),
+						frandom(-0.5, 0.5)
+					) * frandom( 40, 80);
+					Spawn(asteroid, level.vec3offset(pos, offs));
+				}
+			}
+		stop;
+	}
+}

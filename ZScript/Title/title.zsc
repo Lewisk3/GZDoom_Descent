@@ -1,0 +1,323 @@
+class DescentDoom_TitleIntro : DescentMenuBase
+{
+	double fade;
+	
+	override void Init(Menu parent, ListMenuDescriptor desc)
+	{
+		Super.Init(parent, desc);
+		fade = 1.0;
+	}
+	
+	override bool MenuEvent(int mkey, bool fromcontroller)
+	{
+		return false;
+	}
+
+	override void Drawer()
+	{
+		super.Drawer();
+		
+		Close();
+		SetMenu("MainMenu");
+		let mnu = DescentDoom_TitleMenu(GetCurrentMenu());
+		if(mnu)
+		{
+			mnu.fadeIn = 1.0;
+		}
+	}
+}
+
+class CreditsEntry : Object
+{
+	Font fnt;
+	uint fontcolor;
+	vector2 scale;
+	double spacing;
+	String text;
+	
+	static CreditsEntry NewEntry(Font fnt, string txt, vector2 scale, uint fontcolor, double spacing = 60)
+	{
+		let entry = new("CreditsEntry");
+		if(entry)
+		{
+			entry.fnt = fnt;
+			entry.text = txt;
+			entry.scale = scale;
+			entry.spacing = spacing;
+			entry.fontcolor = fontcolor;
+		}
+		return entry;
+	}
+}
+
+class DescentDoom_CreditsMenu : DescentMenuBase
+{
+	double scroll;		
+	vector2 creditsPos;
+
+	Array<CreditsEntry> credits;
+
+	override void Init(Menu parent, ListMenuDescriptor desc)
+	{
+		Super.Init(parent, desc);
+		creditsPos = (960, 200);
+		scroll = 1.0; // 0.5
+		
+		credits.push(CreditsEntry.NewEntry(
+			"DscMenuFont", "DescentGZ Programmers", 
+			(1.5,1.5), Font.CR_Yellow, 70
+		));
+		credits.push(CreditsEntry.NewEntry(
+			"DscMenuFont", "Lewisk3\ndodopod", 
+			(1.0,1.0), Font.CR_Gray, 200
+		));
+		credits.push(CreditsEntry.NewEntry(
+			"DscMenuFont", "Tools", 
+			(1.5,1.5), Font.CR_Yellow, 70
+		));
+		credits.push(CreditsEntry.NewEntry(
+			"DscMenuFont", 
+			( 
+			  "DTX2\n"
+			  "\t\c[DarkGray]Used to gather sounds and sprites from Descent 1/2\n"
+			  "OTVDM\n"
+			  "\t\c[DarkGray]Used to run older 16bit software \"natively\" such as DTX2\n" 
+			  "DesDump\n"
+			  "\t\c[DarkGray]Used to gather models and textures from Descent 1/2"
+			 ), 
+			(1.0,1.0), Font.CR_Gray, 400
+		));
+		credits.push(CreditsEntry.NewEntry(
+			"DscMenuFont", "Asteroid Models and Graphics", 
+			(1.5,1.5), Font.CR_Yellow, 70
+		));
+		credits.push(CreditsEntry.NewEntry(
+			"DscMenuFont", 
+			(
+			  "d880 - Stoney Asteroids\n"
+			  "\c[DarkGray]Licensed under Creative Commons Attribution-NonCommercial"
+			 ), 
+			(1.0,1.0), Font.CR_Gray, 200
+		));
+		credits.push(CreditsEntry.NewEntry(
+			"DscMenuFont", "Title Logo", 
+			(1.5,1.5), Font.CR_Yellow, 70
+		));
+		credits.push(CreditsEntry.NewEntry(
+			"DscMenuFont", "OfficerD\n\t\c[DarkGray]https://www.twitch.tv/officer_d82", 
+			(1.0,1.0), Font.CR_Gray, 150
+		));
+		credits.push(CreditsEntry.NewEntry(
+			"DscMenuFont", "Helpfulness and Early Feedback", 
+			(1.5,1.5), Font.CR_Yellow, 70
+		));
+		credits.push(CreditsEntry.NewEntry(
+			"DscMenuFont", "ZDoom Community Discord\nICARUSLIV3S Community Discord", 
+			(1.0,1.0), Font.CR_Gray, 150
+		));
+		credits.push(CreditsEntry.NewEntry(
+			"DscMenuFont", "Parallax Software (Original Descent 2 Team)", 
+			(1.5,1.5), Font.CR_Yellow, 90
+		));
+		credits.push(CreditsEntry.NewEntry(
+			"DscMenuFont", 
+			(
+			  "\c[Yellow]Designer(s)\n"
+				"\t\tChe-Yuan Wang\n"
+				"\t\tMark Dinse\n"
+				"\t\tJasen Whiteside\n\n"
+			  "\c[Yellow]Artist(s)\n"	
+				"\t\tAdam Pletcher"
+			 ), 
+			(1.0,1.0), Font.CR_Gray, 200
+		));
+	}
+	
+	override bool MenuEvent(int mkey, bool fromcontroller)
+	{
+		switch (mkey)
+		{
+		case MKEY_Back:
+			Close();
+			return true;
+		}
+		return false;
+	}
+
+	override void Drawer()
+	{
+		super.Drawer();
+				
+		vector2 curPos = creditsPos;
+		vector2 lastPos;
+		for(int i = 0; i < credits.Size(); i++)
+		{
+			let credit = credits[i];
+			DescentDraw.DrawString(
+				credit.fnt, credit.text, curPos, 
+				DescentDraw.SS_TEXT_CENTER, credit.fontcolor, 
+				scale:credit.scale
+			);
+			lastPos = curPos;
+			curPos.y += credit.spacing;
+		}
+		creditsPos.y -= scroll * deltaTime;
+		
+		if(lastPos.y <= -400) 
+		{
+			Close();
+			return;
+		}
+	}
+}
+
+class DescentDoom_TitleMenu : DescentMenuBase
+{
+	bool title;
+	double fadeIn;
+	
+	override void Init(Menu parent, ListMenuDescriptor desc)
+	{
+		Super.Init(parent, desc);
+		
+		title = (gamestate == GS_TITLELEVEL);
+		MainBG = MenuTexture.Create("Graphics/Title/Logo.png",(0,-300),(2.5,2.5));
+		mMouse = Mouse.Create("", 0,0,32,16);
+		
+		double btnY = 500; 
+		double btnSpace = 50;
+		
+		TextElement btntxt = newBtnText("NEW GAME", "DscMenuFont");
+		buttons.push(Button.CreateTextButton('NewGame', 960, btnY, 256, 32, btntxt));
+		btnY += btnSpace;
+		
+		if(!title)
+		{
+			btntxt = newBtnText("SAVE GAME", "DscMenuFont");
+			buttons.push(Button.CreateTextButton('SaveGame', 960, btnY, 256, 32, btntxt));
+			btnY += btnSpace;	
+		}
+		
+		btntxt = newBtnText("LOAD GAME...", "DscMenuFont");
+		buttons.push(Button.CreateTextButton('LoadGame', 960, btnY, 256, 32, btntxt));
+		btnY += btnSpace;
+		
+		btntxt = newBtnText("OPTIONS...", "DscMenuFont");
+		buttons.push(Button.CreateTextButton('Options', 960, btnY, 256, 32, btntxt));
+		btnY += btnSpace;
+				
+		btntxt = newBtnText("CREDITS", "DscMenuFont");
+		buttons.push(Button.CreateTextButton('Credits', 960, btnY, 256, 32, btntxt));
+		btnY += btnSpace;
+		
+		btntxt = newBtnText("QUIT", "DscMenuFont");
+		buttons.push(Button.CreateTextButton('Quit', 960, btnY, 256, 32, btntxt));
+
+		mMouse.SetPos(buttons[0].btnrect.pos);
+		btn_selected = 0;
+	}
+	
+	override bool MenuEvent(int mkey, bool fromcontroller)
+	{
+		if(!mMouse) return false;
+		
+		switch (mkey)
+		{
+		case MKEY_Up:
+			btn_selected--;
+			if(btn_selected < 0) btn_selected = buttons.Size()-1;
+			mMouse.SetPos(buttons[btn_selected].btnrect.pos);
+			return true;
+		case MKEY_Down:
+			btn_selected++;
+			if(btn_selected > buttons.Size()-1) btn_selected = 0;
+			mMouse.SetPos(buttons[btn_selected].btnrect.pos);
+			return true;
+		case MKEY_Enter:
+			if(btn_selected >= 0 && btn_selected <= buttons.Size()-1) 
+				buttons[btn_selected].clicked = true;
+			return true;
+		case MKEY_Back:
+			if(gamestate != GS_TITLELEVEL) Close();
+			return true;
+		}
+		return false;
+	}
+
+	override void Drawer()
+	{
+		super.Drawer();
+		mMouse.Draw();
+		
+		vector2 ht_pos = (75,1000);
+		for(int i = 0; i < buttons.Size(); i++)
+		{
+			if(buttons[i].btntext)
+			{
+				if(buttons[i].pressed)
+					buttons[i].btntext.font_color = Font.CR_Yellow;
+				else if(buttons[i].hovered)
+					buttons[i].btntext.font_color = Font.CR_Yellow;
+				else
+					buttons[i].btntext.font_color = Font.CR_DarkGray;
+			}
+		}
+		
+		if(fadeIn > 0)
+		{
+			fadeIn -= 0.008 * deltaTime;
+			Screen.Dim("Black", fadeIn, 0,0, Screen.GetWidth(), Screen.GetHeight());
+		}
+	}
+	
+	override void Ticker()
+	{
+		if(btn_selected != -1) mMouse.left_pressed = true;
+	
+		for(int i = 0; i < buttons.Size(); i++)
+		{
+			buttons[i].Update(mMouse, btn_selected == -1);
+				
+			if(buttons[i].clicked)
+			{
+				MenuSound("Title/Button");
+				buttons[i].clicked = false;
+				
+				Switch(buttons[i].type)
+				{
+					case 'NewGame':	 	// New Game
+						Menu.SetMenu('PlayerClassMenu');
+					break;
+					case 'SaveGame':	// Save Game
+						Menu.SetMenu('SaveGameMenu');
+					break;
+					case 'LoadGame':	// Load Game
+						Menu.SetMenu('LoadGameMenu');
+					break;
+					case 'Options':     // Options
+						Menu.SetMenu('OptionsMenu');
+					break;
+					case 'Credits':     // Credits
+						Menu.SetMenu('CreditsMenu');
+					break;
+					case 'Quit':		// Exit
+						Menu.SetMenu("QuitMenu");
+					break;
+					default:
+					break;
+				}
+			}
+		}
+	}
+}
+
+class ForceTitlemenu abstract
+{
+	// Called by the titlemap ACS
+	// used to immediately open the menu.
+	// Not exactly an "elegant" solution... :/
+	clearscope static void Open(Actor activator)
+	{
+		Menu.SetMenu("IntroMenu");
+	}
+}

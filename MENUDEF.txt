@@ -1,0 +1,14 @@
+AddListMenu "MainMenu" 
+{
+   	class "DescentDoom_TitleMenu"	
+}
+
+ListMenu "IntroMenu"
+{
+	class "DescentDoom_TitleIntro"
+}
+
+ListMenu "CreditsMenu"
+{
+	class "DescentDoom_CreditsMenu"
+}

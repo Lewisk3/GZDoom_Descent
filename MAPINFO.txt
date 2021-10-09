@@ -2,5 +2,17 @@ GameInfo
 {
 	PlayerClasses = "DescentPlayer"
 	AddEventHandlers = "SDOF_MovementHandler", "DescentEvents"
-	StatusBarClass = "DescentStatusBar"
+	StatusBarClass = "DescentStatusBar" 
 }	
+
+DoomEdNums 
+{
+	16040 = "SpaceBox"
+	16042 = "AsteroidSpawner"
+}
+
+map Titlemap "Titlemap"
+{
+	levelnum = 1
+	Music = "Music/TITLEMUS.mid"
+}

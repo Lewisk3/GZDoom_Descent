@@ -28,3 +28,15 @@
 	Pitch-Limit Removing 6DOF code
 		dodopod ( https://gitlab.com/dodopod/6dof-player )
 }
+
+* Asteroid Models and Graphics *
+{
+	Licensed under Creative Commons Attribution-NonCommercial (http://creativecommons.org/licenses/by-nc/4.0/).
+	d880 - Stoney Asteroids (https://skfb.ly/KZPD) 
+	
+}
+
+* Title Logo *
+{
+	OfficerD (https://www.twitch.tv/officer_d82)
+}

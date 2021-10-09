@@ -1,0 +1,3 @@
+STARTUPTITLE = "GZDescent - Descent Gameplay in GZDoom"
+STARTUPCOLORS = "840003", "000000"
+STARTUPTYPE = "Hexen"
