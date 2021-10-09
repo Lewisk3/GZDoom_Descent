@@ -153,3 +153,64 @@ class Effect_BlindMe : Inventory
 		loop;
 	}
 }
+
+class HeadLightBase : Spotlight
+{
+	Actor origin;
+	Vector3 offset;  
+	
+	uint8 Red;
+	uint8 Green;
+	uint8 Blue;
+	uint8 Intensity;
+	uint16 InnerAngle;
+	uint16 OuterAngle;
+	Property LightRGB: Red, Green, Blue;
+	Property Intensity:Intensity;
+	Property SpotInnerAngle:InnerAngle;
+	Property SpotOuterAngle:OuterAngle;
+
+	Default
+	{
+		HeadLightBase.LightRGB 0xFF, 0xFF, 0xFF;
+		HeadLightBase.Intensity 215;
+		HeadLightBase.SpotInnerAngle 24; // 16
+		HeadLightBase.SpotOuterAngle 26; // 32
+	}
+   
+	static HeadLightBase AttachTo(Actor to, double forward, double leftright, double updown, class<HeadLightBase> type = "HeadLightBase")
+	{
+		let headlight = HeadLightBase(Spawn(type, to.pos));
+		if(headlight)
+		{
+			headlight.origin = to;
+			headlight.offset = (forward, leftright, updown);
+		}
+		return headlight;
+	}
+   
+	override void Activate(Actor activator) 
+	{
+		args[LIGHT_RED] = Red;
+		args[LIGHT_GREEN] = Green;
+		args[LIGHT_BLUE] = Blue;
+		args[LIGHT_INTENSITY] = Intensity;
+		SpotInnerAngle = InnerAngle;
+		SpotOuterAngle = OuterAngle;
+		super.Activate(activator);       
+	}
+		   
+    override void Tick() 
+	{
+		vector3 originPos = origin.pos;
+		if(origin.player) originPos.z = (origin.player.viewz);
+		
+		vector3 worldOffs = DSCMath.V3Offset(origin.angle, origin.pitch, origin.roll, offset.x, offset.y, offset.z, 1.);
+		Vector3 finalpos = level.Vec3Offset(originPos, worldOffs);
+		A_SetAngle(origin.angle, SPF_INTERPOLATE);
+		A_SetPitch(origin.pitch, SPF_INTERPOLATE);
+		A_SetRoll(origin.roll, SPF_INTERPOLATE);
+        SetOrigin(finalpos, true);
+        Super.Tick();             
+    }
+}

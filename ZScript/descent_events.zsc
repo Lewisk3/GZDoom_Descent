@@ -18,4 +18,32 @@ class DescentEvents : EventHandler
 		vector3 explodePos = level.vec3offset(e.Thing.pos, (0,0,e.Thing.Height*0.5));
 		Actor.Spawn("EnemyExplosion", explodePos);
 	}
+	
+	override void NetworkProcess(ConsoleEvent e)
+    {
+		let dscplr = DescentPlayer(players[e.Player].mo);
+			
+		// Controls
+		if(dscplr)
+		{
+			if(e.name ~== "rearview") dscplr.rearview = !dscplr.rearview;
+		
+			// Powerups 
+			if(e.Name ~== "toggleheadlight") 
+			{
+				let headlights = PyroGX_Headlight(dscplr.FindInventory("PyroGX_Headlight"));
+				if(headlights) headlights.Toggle();
+			}
+			if(e.Name ~== "+convertenergy") 
+			{
+				let converter = EnergyConvertDevice(dscplr.FindInventory("EnergyConvertDevice"));
+				if(converter) converter.BeginConvert();
+			}
+			if(e.Name ~== "-convertenergy") 
+			{
+				let converter = EnergyConvertDevice(dscplr.FindInventory("EnergyConvertDevice"));
+				if(converter) converter.StopConvert();
+			}
+		}	
+	}
 }

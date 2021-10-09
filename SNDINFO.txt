@@ -12,45 +12,51 @@ $volume Laser/LV4/Fire 0.35;
 $volume Laser/LV5/Fire 0.35;
 $volume Laser/LV6/Fire 0.35;
 
-SpreadFire/Fire "Sounds/Weapons/SpreadFire.wav"
+SpreadFire/Fire   "Sounds/Weapons/SpreadFire.wav"
 $volume SpreadFire/Fire 0.35;
 
 VulcanCannon/Fire "Sounds/Weapons/VulcanCannon.wav"
 $volume VulcanCannon/Fire 0.6;
 
-HelixCannon/Fire "Sounds/Weapons/HelixCannon.wav"
+HelixCannon/Fire  "Sounds/Weapons/HelixCannon.wav"
 $volume HelixCannon/Fire 0.2; // Why are you soo loud?
 
-GaussCannon/Fire "Sounds/Weapons/GaussCannon.wav"
+GaussCannon/Fire  "Sounds/Weapons/GaussCannon.wav"
 $volume GaussCannon/Fire 0.5;
 
-OmegaCannon/Fire "Sounds/Weapons/OmegaCannon.wav"
-PhoenixCannon/Fire "Sounds/Weapons/PhoenixCannon.wav"
-PlasmaCannon/Fire "Sounds/Weapons/PlasmaCannon.wav"
-FusionCannon/Fire "Sounds/Weapons/FusionCannon.wav"
-FusionCannon/Charge "Sounds/Weapons/FusionCharge.wav"
+OmegaCannon/Fire 	    "Sounds/Weapons/OmegaCannon.wav"
+PhoenixCannon/Fire 	    "Sounds/Weapons/PhoenixCannon.wav"
+PlasmaCannon/Fire 	    "Sounds/Weapons/PlasmaCannon.wav"
+FusionCannon/Fire 	    "Sounds/Weapons/FusionCannon.wav"
+FusionCannon/Charge     "Sounds/Weapons/FusionCharge.wav"
 FusionCannon/ChargeLoop "Sounds/Weapons/FusionChargeLoop.wav"
 
-Earthshaker/Fire "Sounds/Weapons/EarthshakerMissile.wav"
-FlashMissile/Fire "Sounds/Weapons/MissileFire.wav"
-MercuryMissile/Fire "Sounds/Weapons/MercuryMissile.wav"
-GuidedMissile/Fire "Sounds/Weapons/MissileFire.wav"
+Earthshaker/Fire       "Sounds/Weapons/EarthshakerMissile.wav"
+FlashMissile/Fire      "Sounds/Weapons/MissileFire.wav"
+MercuryMissile/Fire    "Sounds/Weapons/MercuryMissile.wav"
+GuidedMissile/Fire 	   "Sounds/Weapons/MissileFire.wav"
 ConcussionMissile/Fire "Sounds/Weapons/MissileFire.wav"
-HomingMissile/Fire "Sounds/Weapons/MissileFire.wav"
-SmartMissile/Fire "Sounds/Weapons/MissileFire.wav"
-MegaMissile/Fire "Sounds/Weapons/MegaMissileFire.wav"
-Missile/Explode "Sounds/Weapons/explode.wav"
-MegaMissile/Explode "Sounds/Weapons/MegaImpact.wav"
-SmartMissile/Explode "Sounds/Weapons/SmartImpact.wav"
-FlashMissile/Explode "Sounds/Weapons/FlashImpact.wav";
-Earthshaker/Explode "Sounds/Weapons/EarthshakerImpact01.wav"
-Earthshaker/Quake "Sounds/Weapons/EarthshakerImpact02.wav"
-ProximityMine/Drop "Sounds/Weapons/dropbomb.wav"
+HomingMissile/Fire     "Sounds/Weapons/MissileFire.wav"
+SmartMissile/Fire      "Sounds/Weapons/MissileFire.wav"
+MegaMissile/Fire       "Sounds/Weapons/MegaMissileFire.wav"
+Missile/Explode        "Sounds/Weapons/explode.wav"
+MegaMissile/Explode    "Sounds/Weapons/MegaImpact.wav"
+SmartMissile/Explode   "Sounds/Weapons/SmartImpact.wav"
+FlashMissile/Explode   "Sounds/Weapons/FlashImpact.wav";
+Earthshaker/Explode    "Sounds/Weapons/EarthshakerImpact01.wav"
+Earthshaker/Quake      "Sounds/Weapons/EarthshakerImpact02.wav"
+ProximityMine/Drop     "Sounds/Weapons/dropbomb.wav"
 
 // Item Sounds
 DSCItem/Pickup "Sounds/Items/pickup.wav"
+Cloak/Enable   "Sounds/Items/cloakon.wav"
+Cloak/Disable  "Sounds/Items/cloakoff.wav"
+Invuln/Enable   "Sounds/Items/invon.wav"
+Invuln/Disable  "Sounds/Items/invoff.wav"
+EnergyConverter/Convert "Sounds/Items/convert.wav"
 
 // Cockpit sounds
-Player/TakingDamage "Sounds/Cockpit/takedmg.wav"
-Cockpit/WeaponCycle "Sounds/Cockpit/change1.wav"
+Player/TakingDamage  "Sounds/Cockpit/takedmg.wav"
+Cockpit/WeaponCycle  "Sounds/Cockpit/change1.wav"
 Cockpit/MissileCycle "Sounds/Cockpit/change2.wav"
+

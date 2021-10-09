@@ -14,6 +14,21 @@ AddMenuKey "Rear View" rearview
 Alias rearview "netevent rearview"
 DefaultBind R rearview
 
+AddMenuKey "Toggle Headlight" toggleHeadlights
+Alias toggleHeadlights "netevent toggleheadlight"
+DefaultBind H toggleHeadlights;
+
+AddMenuKey "Energy -> Shield" +convertEnergy
+Alias +convertEnergy "netevent +convertenergy"
+Alias -convertEnergy "netevent -convertenergy"
+DefaultBind T +convertEnergy;
+
+AddMenuKey "Next Missile" +user1
+DefaultBind mouse4 +user1
+AddMenuKey "Previous Missile" +user2
+DefaultBind mouse5 +user2
+
+
 // Weapon binds
-AddMenuKey "Fire Secondary" +altattack
+AddMenuKey "Fire Missile" +altattack
 DefaultBind mouse2 +altattack

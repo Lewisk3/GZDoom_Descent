@@ -28,6 +28,15 @@ class DSCMissilePickup : DSCItemPickup
 		
 		return pickupmsg;
 	}
+	
+	action bool A_CheckAmmoCapacity()
+	{
+		let curAmmo = FindInventory(invoker.missType);
+		if(!curAmmo) return true;
+		if(curAmmo.amount < curAmmo.maxamount) return true;
+		
+		return (curAmmo.amount + invoker.amt) < curAmmo.maxamount;
+	}
 		
 	States
 	{
@@ -36,8 +45,13 @@ class DSCMissilePickup : DSCItemPickup
 		loop;
 	
 		Pickup:
+			TNT1 A 0 A_JumpIf(!A_CheckAmmoCapacity(), "PickupFail");
 			TNT1 A 0 A_GiveInventory(invoker.missType, invoker.amt);
 		goto Done;
+		
+		PickupFail:
+			TNT1 A 1;
+		fail;
 	}
 }
 
@@ -122,7 +136,6 @@ class ExtraLife : DSCItemPickup
 	}
 }
 
-
 // Powerups
 class PowerCloak : PowerInvisibility 
 {
@@ -130,6 +143,12 @@ class PowerCloak : PowerInvisibility
 	{
 		+CANTSEEK;
 		Powerup.Duration -30;
+	}
+	
+	override void EndEffect()
+	{
+		super.EndEffect();
+		Owner.A_StartSound("Cloak/Disable", flags:CHANF_OVERLAP);
 	}
 }
 class CloakDevice : DSCItemPickup
@@ -147,7 +166,11 @@ class CloakDevice : DSCItemPickup
 		loop;
 		
 		Pickup:
-			TNT1 A 0 A_GiveInventory("PowerCloak", 1);
+			TNT1 A 0 
+			{
+				A_StartSound("Cloak/Enable", flags:CHANF_OVERLAP);
+				A_GiveInventory("PowerCloak", 1);
+			}
 		goto Done;
 	}
 }
@@ -156,6 +179,12 @@ class PowerInvuln : PowerInvulnerable
 	Default
 	{
 		Powerup.Duration -30;
+	}
+	
+	override void EndEffect()
+	{
+		super.EndEffect();
+		Owner.A_StartSound("Invuln/Disable", flags:CHANF_OVERLAP);
 	}
 }
 class Invulnerability : DSCItemPickup
@@ -173,10 +202,279 @@ class Invulnerability : DSCItemPickup
 		loop;
 		
 		Pickup:
-			TNT1 A 0 A_GiveInventory("PowerInvuln", 1);
+			TNT1 A 0 
+			{
+				A_StartSound("Invuln/Enable", flags:CHANF_OVERLAP);
+				A_GiveInventory("PowerInvuln", 1);
+			}
 		goto Done;
 	}
 }
+class DescentFullmap : DSCItemPickup
+{
+	Default
+	{
+		Scale 0.45;
+		Inventory.PickupMessage "Fullmap!";
+	}
+	
+	States
+	{
+		Spawn:
+			FMAP ABCDEFGHIJKLMNOP 3 Bright;
+		loop;
+		
+		Pickup:
+			TNT1 A 0 A_GiveInventory("allmap", 1);
+		goto Done;
+	}
+}
+
+
+// Ammo Boost
+class AmmoBooster : Inventory
+{
+	Default
+	{
+		Inventory.MaxAmount 1;
+	}
+	
+	override void DoEffect()
+	{
+		super.DoEffect();
+		
+		// Continually make sure all ammunition items are boosted to 2x 
+		// Max Capacity.
+		for(let item = Owner.Inv; item; item = item.Inv)
+		{
+			let weapAmmo = Ammo(item);
+			let specWeap = DSCSpecialWeapon(item);
+			if( !weapAmmo && !specWeap ) continue;
+			
+			if(weapAmmo) 
+				weapAmmo.maxamount = weapAmmo.default.maxamount * 2.0;
+			else if(specWeap)
+				specWeap.maxamount = specWeap.default.maxamount * 2.0;
+		}
+	}
+}
+class AmmoRack : DSCItemPickup
+{
+	Default
+	{
+		Scale 0.45;
+		Inventory.PickupMessage "Ammo Rack (2x Ammo Capacity)!";
+	}
+	
+	States
+	{
+		Spawn:
+			AMMB ABCDEFGHIJKLMNOP 3 Bright;
+		loop;
+		
+		Pickup:
+			TNT1 A 0 A_JumpIf(FindInventory("AmmoBooster"), "PickupFail");
+			TNT1 A 0 A_GiveInventory("AmmoBooster", 1);
+		goto Done;
+		
+		PickupFail:
+			TNT1 A 0;
+		fail; 
+	}
+}
+
+// Headlight
+class PyroGX_HeadLight : Inventory 
+{
+	double minEnergy;
+	double energyDrain; // Energy drain per second.
+	bool lights_on;
+	HeadLightBase headlight_left;
+	HeadLightBase headlight_right;
+	Sound snd_on, snd_off;
+	
+	Property SetupEnergy : minEnergy, energyDrain;
+	Property SFX : snd_on, snd_off;
+	
+	
+	Default
+	{
+		PyroGX_HeadLight.SetupEnergy 10, 0.36;
+		PyroGX_HeadLight.SFX "Headlights/ON", "Headlights/OFF";
+		Inventory.MaxAmount 1;
+	}
+	
+	virtual void Toggle()
+	{
+		let dscplr = DescentPlayer(Owner);
+		if(!dscplr) return;
+		
+		lights_on = !lights_on;
+		if(dscplr.energy < minEnergy) 
+		{
+			lights_on = false;
+			Inventory.PrintPickupMessage(Owner.CheckLocalView(), "More energy required!");
+			return;
+		}
+		
+		if(lights_on) 
+			OnEnable();
+		else 
+			OnDisable();
+	}
+	
+	virtual void OnEnable()
+	{
+		A_StartSound(snd_on, flags:CHANF_OVERLAP);
+		headlight_left = HeadLightBase.AttachTo(Owner, 40,-40,-15);
+		headlight_right = HeadLightBase.AttachTo(Owner, 40,40,-15);
+		headlight_left.Activate(Owner);
+		headlight_right.Activate(Owner);
+	}
+	virtual void OnDisable()
+	{
+		A_StartSound(snd_off, flags:CHANF_OVERLAP);
+		headlight_left.Deactivate(Owner);
+		headlight_right.Deactivate(Owner);
+		headlight_left.Destroy();
+		headlight_right.Destroy();
+	}
+	
+	override void DoEffect()
+	{
+		super.DoEffect();
+		
+		if(!headlight_left || !headlight_right) return;
+		
+		let dscplr = DescentPlayer(Owner);
+		if(!dscplr) return;
+		
+		if(dscplr.energy < minEnergy && lights_on)
+		{
+			lights_on = false;
+			OnDisable();
+			return;
+		}
+		
+		if(lights_on)
+		{
+			dscplr.energy -= (energyDrain / 35.0);
+		}
+	}
+}
+class ShipHeadlights : DSCItemPickup
+{
+	Default
+	{
+		Scale 0.45;
+		Inventory.PickupMessage "Headlights!";
+	}
+	
+	States
+	{
+		Spawn:
+			HLIT ABCDEFGHIJKLMNO 3 Bright;
+		loop;
+		
+		Pickup:
+			TNT1 A 0 A_JumpIf(FindInventory("PyroGX_HeadLight"), "PickupFail");
+			TNT1 A 0 A_GiveInventory("PyroGX_HeadLight", 1);
+		goto Done;
+		
+		PickupFail:
+			TNT1 A 0;
+		fail; 
+	}
+}
+
+
+// Energy -> Shield Converter
+class EnergyConvertDevice : Inventory
+{
+	bool converting;
+	Default
+	{
+		Inventory.MaxAmount 1;
+	}
+	
+	virtual void BeginConvert()
+	{
+		if(!converting)
+		{
+			SetState(FindState("DoConvert"));
+			converting = true;
+		}
+	}
+	virtual void StopConvert()
+	{
+		if(converting)
+		{
+			SetState(FindState("StopConvert"));
+			converting = false;
+		}
+	}
+	virtual state HaltConvert()
+	{
+		converting = false;
+		return ResolveState("StopConvert");
+	}
+	
+	States
+	{
+		DoConvert:
+			TNT1 A 5
+			{
+				let dscplr = DescentPlayer(Owner);
+				if(!dscplr) return HaltConvert();
+				
+				double energymiddle = floor(dscplr.maxEnergy * 0.5);
+				if(dscplr.energy < energymiddle) 
+				{
+					String convertFail = String.Format("Need more than %d energy to enable transfer.", energymiddle);
+					Inventory.PrintPickupMessage(Owner.CheckLocalView(), convertFail);
+					return HaltConvert();
+				}
+					
+				if(dscplr.shields >= dscplr.maxShield) 
+				{
+					Inventory.PrintPickupMessage(Owner.CheckLocalView(), "No Transfer: Shields already at max!");
+					return HaltConvert();
+				}
+				
+				Owner.A_StartSound("EnergyConverter/Convert", flags:CHANF_OVERLAP|CHANF_NOSTOP);
+				dscplr.energy -= 1;
+				dscplr.shields += 0.5;
+				
+				return ResolveState(null);
+			}
+		loop;
+		
+		StopConvert:
+			TNT1 A 1;
+		loop;
+	}
+}
+class EnergyConverter : DSCItemPickup
+{
+	Default
+	{
+		Scale 0.45;
+		Inventory.PickupMessage "Energy to Shield Converter!";
+	}
+	
+	States
+	{
+		Spawn:
+			ENCV ABCDEFGHIJKLMNO 3 Bright;
+		loop;
+		
+		Pickup:
+
+			TNT1 A 0 A_GiveInventory("EnergyConvertDevice", 1);
+		goto Done;
+	}
+}
+
 
 // Tokens
 class Token_ExtraLife : Inventory

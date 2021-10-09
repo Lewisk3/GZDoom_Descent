@@ -22,15 +22,11 @@ class SDOF_MovementHandler : EventHandler
     override void NetworkProcess(ConsoleEvent e)
     {
 		let dscplr = DescentPlayer(players[e.Player].mo);
+		if(!dscplr) return;
 		
 		bool rollRight = e.name ~== "+rollleft"  || e.name ~== "-rollright";
 		bool rollLeft  = e.name ~== "+rollright" || e.name ~== "-rollleft";
         if (rollRight) dscplr.adjustView.z -= rollAmount;
-        if (rollLeft ) dscplr.adjustView.z += rollAmount;
-		
-		if(dscplr)
-		{
-			if(e.name ~== "rearview") dscplr.rearview = !dscplr.rearview;
-		}
+		if (rollLeft ) dscplr.adjustView.z += rollAmount;
     }
 }
