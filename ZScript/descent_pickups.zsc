@@ -387,7 +387,6 @@ class ShipHeadlights : DSCItemPickup
 	}
 }
 
-
 // Energy -> Shield Converter
 class EnergyConvertDevice : Inventory
 {
@@ -475,6 +474,82 @@ class EnergyConverter : DSCItemPickup
 	}
 }
 
+class AfterBurner : Inventory
+{
+	bool boosting;
+	double energyUse;
+	double charge;
+	double on_time;
+	double recharge_time;
+	
+	Property Setup: on_time, recharge_time, energyUse;
+	
+	Default
+	{
+		AfterBurner.Setup 2.0, 4.0, 9; // 4, 8, 10
+		Inventory.MaxAmount 1;
+	}
+	
+	virtual void Enable()
+	{
+		boosting = true;
+	}
+	
+	virtual void Disable()
+	{
+		let dscplr = DescentPlayer(Owner);
+		if(dscplr) dscplr.forceInput.x = 0;
+		
+		Owner.A_StartSound("AfterBurner/Disable", CHAN_5);
+		boosting = false;
+	}
+	
+	override void DoEffect()
+	{
+		super.DoEffect();
+				
+		let dscplr = DescentPlayer(Owner);
+		if(!dscplr) return;
+		
+		if(charge <= 0) Disable();
+		
+		if(boosting)
+		{
+			Owner.A_StartSound("AfterBurner/Enable", CHAN_5, flags:CHANF_OVERLAP|CHANF_NOSTOP);
+			charge -= 1.0 / (on_time * 35);
+			dscplr.forceInput.x = 1.0;
+			dscplr.DoAccelerate(1.0,0,0);
+		}
+		else if(dscplr.energy > 0 && charge < 1.0)
+		{
+			double rechargeTics = recharge_time * 35.0;
+			double drainTics = energyUse * 35.0;
+			charge += 1.0 / rechargeTics;
+			charge = clamp(charge, 0, 1.0);
+			dscplr.energy -= energyuse * (1.0 / rechargeTics);
+		}
+	}
+}
+class AfterBurnerPickup : DSCItemPickup 
+{	
+	Default
+	{
+		Scale 0.45;
+		Inventory.PickupMessage "Afterburner!";
+	}
+	
+	States
+	{
+		Spawn:
+			AFBR ABCDEFGHIJKLMNO 3 Bright;
+		loop;
+		
+		Pickup:
+
+			TNT1 A 0 A_GiveInventory("AfterBurner", 1);
+		goto Done;
+	}
+}
 
 // Tokens
 class Token_ExtraLife : Inventory

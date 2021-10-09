@@ -44,6 +44,17 @@ class DescentEvents : EventHandler
 				let converter = EnergyConvertDevice(dscplr.FindInventory("EnergyConvertDevice"));
 				if(converter) converter.StopConvert();
 			}
+			if(e.Name ~== "+boost") 
+			{
+				let jets = AfterBurner(dscplr.FindInventory("AfterBurner"));
+				if(jets) jets.Enable();
+			}
+			if(e.Name ~== "-boost") 
+			{
+				let jets = AfterBurner(dscplr.FindInventory("AfterBurner"));
+				if(jets) jets.Disable();
+			}
+			
 		}	
 	}
 }

@@ -23,6 +23,11 @@ Alias +convertEnergy "netevent +convertenergy"
 Alias -convertEnergy "netevent -convertenergy"
 DefaultBind T +convertEnergy;
 
+AddMenuKey "Afterburner" +boost
+Alias +boost "netevent +boost"
+Alias -boost "netevent -boost"
+DefaultBind leftshift +boost;
+
 AddMenuKey "Next Missile" +user1
 DefaultBind mouse4 +user1
 AddMenuKey "Previous Missile" +user2

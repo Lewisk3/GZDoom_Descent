@@ -53,6 +53,8 @@ Cloak/Enable   "Sounds/Items/cloakon.wav"
 Cloak/Disable  "Sounds/Items/cloakoff.wav"
 Invuln/Enable   "Sounds/Items/invon.wav"
 Invuln/Disable  "Sounds/Items/invoff.wav"
+AfterBurner/Enable "Sounds/Items/afbron.wav"
+AfterBurner/Disable "Sounds/Items/afbroff.wav"
 EnergyConverter/Convert "Sounds/Items/convert.wav"
 
 // Cockpit sounds

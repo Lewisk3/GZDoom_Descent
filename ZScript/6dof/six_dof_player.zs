@@ -18,6 +18,7 @@ class SixDoFPlayer : PlayerPawn
     const Friction = 0.90;
 	double lookMod;
 	double viewFriction;
+	vector3 forceInput;
 	vector3 viewAngles;
 	vector3 adjustView;
 	vector3 accel;
@@ -80,6 +81,9 @@ class SixDoFPlayer : PlayerPawn
         if (IsPressed(BT_Crouch)) zMove =  -upMove;
 
 		vector3 moveInputs = (cmd.forwardMove, cmd.sideMove, zMove);
+		if(forceInput.x) moveInputs.x = forceInput.x; 
+		if(forceInput.y) moveInputs.y = forceInput.y;
+		if(forceInput.z) moveInputs.z = forceInput.z;
 
         if (moveInputs.Length())
         {
@@ -98,7 +102,7 @@ class SixDoFPlayer : PlayerPawn
 		player.vel = vel.xy;
     }
 	
-	virtual void DoAccelerate(double inputForward, double inputSide, double inputUp)
+	virtual void DoAccelerate(double inputForward, double inputSide, double inputUp, double fw_mod = 1.0, double lr_mod = 1.0)
 	{
 		double fm, sm, um;
 		um = inputUp;
@@ -108,8 +112,8 @@ class SixDoFPlayer : PlayerPawn
 		{
 			vector2 dir_xy = (inputForward, inputSide).Unit();
 			
-			fm = dir_xy.x   *  Speed;
-			sm = dir_xy.y   *  Speed;
+			fm = dir_xy.x   *  (Speed * fw_mod);
+			sm = dir_xy.y   *  (Speed * lr_mod);
 		}
 
 		Vector3 forward, right, up;

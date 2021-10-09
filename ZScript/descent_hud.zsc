@@ -448,7 +448,7 @@ class DescentStatusBar : BaseStatusBar
 			let mcam = DSCProjectile(dscplr.missileCam);
 			if(mcam) DrawStr(mcam.GetCameraName(), lcdPos - (0,95), Font.CR_DarkGreen, flags:DescentDraw.SS_TEXT_CENTER, scale:(1.25,1.0));
 		}
-		
+				
 		int shieldImg = 9 - ceil((dscplr.shields / dscplr.default.shields) * 9.);
 		shieldImg = clamp(shieldImg, 0, 9);
 		vector2 shieldPos = cockpitPos+(15,55);
@@ -471,6 +471,17 @@ class DescentStatusBar : BaseStatusBar
 		vector2 leftEnergyBarPos  = cockpitPos + (-735, -101);
 		vector2 rightEnergyBarPos = cockpitPos + ( 370, -101);
 		
+		// Afterburner
+		let afburner = AfterBurner(dscplr.FindInventory("AfterBurner"));
+		if(afburner)
+		{
+			vector2 meterPos = leftEnergyBarPos + (72, 172);
+			double drain = 25 * (1.0 - afburner.charge);
+			ClipImage(meterPos, (6,12 - drain), (12,25));
+			DrawImg("AfterBurnMeter", meterPos, cockpitScale); 
+			DescentDraw.ClearClipRect();
+		}
+		
 		double energyPerc = clamp(dscplr.energy / dscplr.default.energy, 0, 1.0);
 		
 		ClipImage(rightEnergyBarPos, (32,4), (64 * energyPerc, 8)); 
@@ -483,7 +494,7 @@ class DescentStatusBar : BaseStatusBar
 		DescentDraw.ClearClipRect();
 		
 		DrawStr(String.Format("%d", floor(dscplr.energy)), rightEnergyBarPos+(-352,-15), Font.CR_Gold, flags:DescentDraw.SS_TEXT_CENTER, scale:(1.5*cockpitScale.x,1.7*cockpitScale.y));
-		
+				
 		// Should be always drawn on top.
 		DrawCrosshair(1.0);
 	}	
