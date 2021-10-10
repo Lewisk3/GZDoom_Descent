@@ -182,8 +182,8 @@ class DescentDoom_TitleMenu : DescentMenuBase
 		Super.Init(parent, desc);
 		
 		title = (gamestate == GS_TITLELEVEL);
-		MainBG = MenuTexture.Create("Graphics/Title/Logo.png",(0,-300),(2.5,2.5));
-		logoShip = MenuTexture.Create("Graphics/Title/ship.png",(0,-180),(2.5,2.5));
+		MainBG = MenuTexture.Create("Graphics/Title/LogoTop.png",(0,-300),(2.5,2.5));
+		logoShip = MenuTexture.Create("Graphics/Title/ship_glow.png",(0,-200),(2.0,2.0));
 		mMouse = Mouse.Create("", 0,0,32,16);
 		
 		double btnY = 500; 
@@ -248,9 +248,9 @@ class DescentDoom_TitleMenu : DescentMenuBase
 
 	override void Drawer()
 	{
+		if(logoShip) logoShip.Draw();
 		super.Drawer();
 		mMouse.Draw();
-		logoShip.Draw();
 		
 		vector2 ht_pos = (75,1000);
 		for(int i = 0; i < buttons.Size(); i++)
