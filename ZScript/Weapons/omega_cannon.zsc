@@ -96,7 +96,7 @@ class Descent_OmegaCannon : DSCWeapon
 	
 	override string GetUIDescription()
 	{
-		return String.Format("\c[DarkGreen]%s\n\c[Red]%.3d", GetTag().MakeUpper(), charge);
+		return String.Format("\c[DarkGreen]%s\n\n\c[Red]%.3d", GetTag().MakeUpper(), charge);
 	}
 	
 	override void UpdateWeapon()

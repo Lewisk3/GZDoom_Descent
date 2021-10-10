@@ -65,71 +65,71 @@ class DescentDoom_CreditsMenu : DescentMenuBase
 		
 		credits.push(CreditsEntry.NewEntry(
 			"DscMenuFont", "DescentGZ Programmers", 
-			(1.5,1.5), Font.CR_Yellow, 70
+			(1.5,1.5), Font.CR_Sapphire, 70
 		));
 		credits.push(CreditsEntry.NewEntry(
 			"DscMenuFont", "Lewisk3\ndodopod", 
-			(1.0,1.0), Font.CR_Gray, 200
+			(1.0,1.0), Font.CR_Yellow, 200
 		));
 		credits.push(CreditsEntry.NewEntry(
 			"DscMenuFont", "Tools", 
-			(1.5,1.5), Font.CR_Yellow, 70
+			(1.5,1.5), Font.CR_Sapphire, 70
 		));
 		credits.push(CreditsEntry.NewEntry(
 			"DscMenuFont", 
 			( 
 			  "DTX2\n"
-			  "\t\c[DarkGray]Used to gather sounds and sprites from Descent 1/2\n"
+			  "\t\c[Black]Used to gather sounds and sprites from Descent 1/2\n"
 			  "OTVDM\n"
-			  "\t\c[DarkGray]Used to run older 16bit software \"natively\" such as DTX2\n" 
+			  "\t\c[Black]Used to run older 16bit software \"natively\" such as DTX2\n" 
 			  "DesDump\n"
-			  "\t\c[DarkGray]Used to gather models and textures from Descent 1/2"
+			  "\t\c[Black]Used to gather models and textures from Descent 1/2"
 			 ), 
-			(1.0,1.0), Font.CR_Gray, 400
+			(1.0,1.0), Font.CR_Yellow, 400
 		));
 		credits.push(CreditsEntry.NewEntry(
 			"DscMenuFont", "Asteroid Models and Graphics", 
-			(1.5,1.5), Font.CR_Yellow, 70
+			(1.5,1.5), Font.CR_Sapphire, 70
 		));
 		credits.push(CreditsEntry.NewEntry(
 			"DscMenuFont", 
 			(
 			  "d880 - Stoney Asteroids\n"
-			  "\c[DarkGray]Licensed under Creative Commons Attribution-NonCommercial"
+			  "\c[Black]Licensed under Creative Commons Attribution-NonCommercial"
 			 ), 
-			(1.0,1.0), Font.CR_Gray, 200
+			(1.0,1.0), Font.CR_Yellow, 200
 		));
 		credits.push(CreditsEntry.NewEntry(
 			"DscMenuFont", "Title Logo", 
-			(1.5,1.5), Font.CR_Yellow, 70
+			(1.5,1.5), Font.CR_Sapphire, 70
 		));
 		credits.push(CreditsEntry.NewEntry(
-			"DscMenuFont", "OfficerD\n\t\c[DarkGray]https://www.twitch.tv/officer_d82", 
-			(1.0,1.0), Font.CR_Gray, 150
+			"DscMenuFont", "Officer D\n\t\c[Black]https://www.youtube.com/user/OfficerD82", 
+			(1.0,1.0), Font.CR_Yellow, 150
 		));
 		credits.push(CreditsEntry.NewEntry(
 			"DscMenuFont", "Helpfulness and Early Feedback", 
-			(1.5,1.5), Font.CR_Yellow, 70
+			(1.5,1.5), Font.CR_Sapphire, 70
 		));
 		credits.push(CreditsEntry.NewEntry(
 			"DscMenuFont", "ZDoom Community Discord\nICARUSLIV3S Community Discord", 
-			(1.0,1.0), Font.CR_Gray, 150
+			(1.0,1.0), Font.CR_Yellow, 150
 		));
 		credits.push(CreditsEntry.NewEntry(
 			"DscMenuFont", "Parallax Software (Original Descent 2 Team)", 
-			(1.5,1.5), Font.CR_Yellow, 90
+			(1.5,1.5), Font.CR_Sapphire, 90
 		));
 		credits.push(CreditsEntry.NewEntry(
 			"DscMenuFont", 
 			(
-			  "\c[Yellow]Designer(s)\n"
+			  "\c[Sapphire]Designer(s)\n"
 				"\t\tChe-Yuan Wang\n"
 				"\t\tMark Dinse\n"
 				"\t\tJasen Whiteside\n\n"
-			  "\c[Yellow]Artist(s)\n"	
+			  "\c[Sapphire]Artist(s)\n"	
 				"\t\tAdam Pletcher"
 			 ), 
-			(1.0,1.0), Font.CR_Gray, 200
+			(1.0,1.0), Font.CR_Yellow, 200
 		));
 	}
 	
@@ -175,6 +175,7 @@ class DescentDoom_TitleMenu : DescentMenuBase
 {
 	bool title;
 	double fadeIn;
+	MenuTexture logoShip;
 	
 	override void Init(Menu parent, ListMenuDescriptor desc)
 	{
@@ -182,6 +183,7 @@ class DescentDoom_TitleMenu : DescentMenuBase
 		
 		title = (gamestate == GS_TITLELEVEL);
 		MainBG = MenuTexture.Create("Graphics/Title/Logo.png",(0,-300),(2.5,2.5));
+		logoShip = MenuTexture.Create("Graphics/Title/ship.png",(0,-180),(2.5,2.5));
 		mMouse = Mouse.Create("", 0,0,32,16);
 		
 		double btnY = 500; 
@@ -248,6 +250,7 @@ class DescentDoom_TitleMenu : DescentMenuBase
 	{
 		super.Drawer();
 		mMouse.Draw();
+		logoShip.Draw();
 		
 		vector2 ht_pos = (75,1000);
 		for(int i = 0; i < buttons.Size(); i++)

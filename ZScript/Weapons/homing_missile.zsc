@@ -102,6 +102,7 @@ class DSCProj_HomMissile : DSCProj_ConMissile
 			if(!act.bSHOOTABLE || !act.bISMONSTER) continue;
 			if (act.bKILLED) continue;        
 			if(!IsVisible(act, false)) continue; // Actor is behind wall.     
+			if(target && !target.IsVisible(act, false)) continue;
 			tracer = act;
 			closest = dist;
 		}

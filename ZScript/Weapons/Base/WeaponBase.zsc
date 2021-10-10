@@ -229,7 +229,7 @@ class DSCSpecialWeapon : Inventory abstract
 	
 	clearscope virtual string GetUIDescription()
 	{
-		return String.Format("\c[DarkGreen]%s\n  \c[DarkRed]%.3d", displayName, Owner.countinv(getClass()));
+		return String.Format("\c[DarkGreen]%s\n\n  \c[DarkRed]%.3d", displayName, Owner.countinv(getClass()));
 	}
 	
 	DSCProjectile ShootProjectile(class<DSCProjectile> proj, Sound fireSound = "", bool useammo = true, double angle = 0, double pitch = 0, double roll = 0, vector3 offs = (0,0,0), double speed = 0, bool setCamera = true)
