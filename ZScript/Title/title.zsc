@@ -195,13 +195,17 @@ class DescentDoom_TitleMenu : DescentMenuBase
 		
 		if(!title)
 		{
-			btntxt = newBtnText("SAVE GAME", "DscMenuFont");
+			btntxt = newBtnText("SAVE GAME...", "DscMenuFont");
 			buttons.push(Button.CreateTextButton('SaveGame', 960, btnY, 256, 32, btntxt));
 			btnY += btnSpace;	
 		}
 		
 		btntxt = newBtnText("LOAD GAME...", "DscMenuFont");
 		buttons.push(Button.CreateTextButton('LoadGame', 960, btnY, 256, 32, btntxt));
+		btnY += btnSpace;
+		
+		btntxt = newBtnText("CONTROLS...", "DscMenuFont");
+		buttons.push(Button.CreateTextButton('Controls', 960, btnY, 256, 32, btntxt));
 		btnY += btnSpace;
 		
 		btntxt = newBtnText("OPTIONS...", "DscMenuFont");
@@ -296,6 +300,9 @@ class DescentDoom_TitleMenu : DescentMenuBase
 					break;
 					case 'LoadGame':	// Load Game
 						Menu.SetMenu('LoadGameMenu');
+					break;
+					case 'Controls':
+						Menu.SetMenu("GZDescentControlsMenu");
 					break;
 					case 'Options':     // Options
 						Menu.SetMenu('OptionsMenu');

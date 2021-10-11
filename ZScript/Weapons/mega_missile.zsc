@@ -52,7 +52,7 @@ class DSCProj_MegaMissile : DSCProj_HomMissile
 		Speed 15;
 		DamageFunction 350 * DSCDMG;
 		DSCProj_HomMissile.TargetFindTime 1.0;
-		DSCProj_HomMissile.TrackingRanges 128, 512;
+		DSCProj_HomMissile.TrackingRanges 0, 512;
 		DSCProjectile.FireSound "MegaMissile/Fire";
 		Tag "Mega";
 	}

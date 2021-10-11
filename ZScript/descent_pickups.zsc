@@ -519,6 +519,12 @@ class AfterBurner : Inventory
 			charge -= 1.0 / (on_time * 35);
 			dscplr.forceInput.x = 1.0;
 			dscplr.DoAccelerate(1.0,0,0);
+			
+			// Spawn effects
+			vector3 worldOffs_Left  = DSCMath.V3Offset(dscplr.angle, dscplr.pitch, dscplr.roll, -40, -8, -12, 1.0);
+			vector3 worldOffs_Right = DSCMath.V3Offset(dscplr.angle, dscplr.pitch, dscplr.roll, -40,  8, -12, 1.0);
+			Spawn("MiniExplosion", level.vec3offset((dscplr.pos.xy, dscplr.player.viewz), worldOffs_Left));
+			Spawn("MiniExplosion", level.vec3offset((dscplr.pos.xy, dscplr.player.viewz), worldOffs_Right));
 		}
 		else if(dscplr.energy > 0 && charge < 1.0)
 		{

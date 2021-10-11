@@ -1,4 +1,4 @@
-AddKeySection "6DoF Controls" 6DoFControls
+AddKeySection "GZDescent Controls" GZDescentControls
 
 AddMenuKey "Roll Left" +rollleft
 Alias +rollleft "netevent +rollleft"

@@ -64,6 +64,11 @@ class DescentEvents : EventHandler
 			e.Replacement = replacements[random[DSCReplacement](0,1)];
 		}
 		
+		if( (e.Replacee is "CellPack") && random[DSCReplacement](0,100) == 100)
+		{
+			e.Replacement = "Descent_EarthshakerMissile";
+			return;
+		}
 		if(e.Replacee is "ClipBox" || e.Replacee is "ShellBox" || e.Replacee is "CellPack")
 		{
 			string replacements[] = {

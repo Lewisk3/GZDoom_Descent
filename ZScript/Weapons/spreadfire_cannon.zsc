@@ -10,23 +10,7 @@ class Descent_SpreadFire : DSCWeapon
 		DSCWeapon.DisplayGraphic "WeapSpreadFire";
 		DSCWeapon.SetupCrosshairs "Crosshair/weapon1", "Crosshair/weapon0";
 	}
-	
-	/*
-	action void A_FireSpread()
-	{
-		double soffs = -6;
-		for(int i = 0; i < 5; i++)
-		{
-			vector2 spread = (soffs, 0);
-			spread = RotateVector(spread, invoker.fireAngle);
-			
-			let proj = DSCProjectile(A_ShootProjectile("DSCProj_Spreadfire", "SpreadFire/Fire", true, 0,0,0, (20,0,-10)));
-			if(proj) proj.localAccel = (0,spread.x,spread.y + 1);
-			soffs += 3;
-		}
-	}
-	*/
-	
+		
 	action void A_FireSpread()
 	{
 		double soffs = -3;
