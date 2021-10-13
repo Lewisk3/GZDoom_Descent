@@ -1,3 +1,5 @@
+const MenuFont = "Fonts/DscMenuFont.fon2";
+
 class DescentDoom_TitleIntro : DescentMenuBase
 {
 	double fade;
@@ -64,19 +66,19 @@ class DescentDoom_CreditsMenu : DescentMenuBase
 		scroll = 1.0; // 0.5
 		
 		credits.push(CreditsEntry.NewEntry(
-			"DscMenuFont", "DescentGZ Programmers", 
+			MenuFont, "DescentGZ Programmers", 
 			(1.5,1.5), Font.CR_Sapphire, 70
 		));
 		credits.push(CreditsEntry.NewEntry(
-			"DscMenuFont", "Lewisk3\ndodopod", 
+			MenuFont, "Lewisk3\ndodopod", 
 			(1.0,1.0), Font.CR_Yellow, 200
 		));
 		credits.push(CreditsEntry.NewEntry(
-			"DscMenuFont", "Tools", 
+			MenuFont, "Tools", 
 			(1.5,1.5), Font.CR_Sapphire, 70
 		));
 		credits.push(CreditsEntry.NewEntry(
-			"DscMenuFont", 
+			MenuFont, 
 			( 
 			  "DTX2\n"
 			  "\t\c[Black]Used to gather sounds and sprites from Descent 1/2\n"
@@ -88,11 +90,11 @@ class DescentDoom_CreditsMenu : DescentMenuBase
 			(1.0,1.0), Font.CR_Yellow, 400
 		));
 		credits.push(CreditsEntry.NewEntry(
-			"DscMenuFont", "Asteroid Models and Graphics", 
+			MenuFont, "Asteroid Models and Graphics", 
 			(1.5,1.5), Font.CR_Sapphire, 70
 		));
 		credits.push(CreditsEntry.NewEntry(
-			"DscMenuFont", 
+			MenuFont, 
 			(
 			  "d880 - Stoney Asteroids\n"
 			  "\c[Black]Licensed under Creative Commons Attribution-NonCommercial"
@@ -100,27 +102,27 @@ class DescentDoom_CreditsMenu : DescentMenuBase
 			(1.0,1.0), Font.CR_Yellow, 200
 		));
 		credits.push(CreditsEntry.NewEntry(
-			"DscMenuFont", "Title Logo", 
+			MenuFont, "Title Logo", 
 			(1.5,1.5), Font.CR_Sapphire, 70
 		));
 		credits.push(CreditsEntry.NewEntry(
-			"DscMenuFont", "Officer D\n\t\c[Black]https://www.youtube.com/user/OfficerD82", 
+			MenuFont, "Officer D\n\t\c[Black]https://www.youtube.com/user/OfficerD82", 
 			(1.0,1.0), Font.CR_Yellow, 150
 		));
 		credits.push(CreditsEntry.NewEntry(
-			"DscMenuFont", "Helpfulness and Early Feedback", 
+			MenuFont, "Helpfulness and Early Feedback", 
 			(1.5,1.5), Font.CR_Sapphire, 70
 		));
 		credits.push(CreditsEntry.NewEntry(
-			"DscMenuFont", "ZDoom Community Discord\nICARUSLIV3S Community Discord", 
+			MenuFont, "ZDoom Community Discord\nICARUSLIV3S Community Discord", 
 			(1.0,1.0), Font.CR_Yellow, 150
 		));
 		credits.push(CreditsEntry.NewEntry(
-			"DscMenuFont", "Parallax Software (Original Descent 2 Team)", 
+			MenuFont, "Parallax Software (Original Descent 2 Team)", 
 			(1.5,1.5), Font.CR_Sapphire, 90
 		));
 		credits.push(CreditsEntry.NewEntry(
-			"DscMenuFont", 
+			MenuFont, 
 			(
 			  "\c[Sapphire]Designer(s)\n"
 				"\t\tChe-Yuan Wang\n"
@@ -189,34 +191,34 @@ class DescentDoom_TitleMenu : DescentMenuBase
 		double btnY = 500; 
 		double btnSpace = 50;
 		
-		TextElement btntxt = newBtnText("NEW GAME", "DscMenuFont");
+		TextElement btntxt = newBtnText("NEW GAME", MenuFont);
 		buttons.push(Button.CreateTextButton('NewGame', 960, btnY, 256, 32, btntxt));
 		btnY += btnSpace;
 		
 		if(!title)
 		{
-			btntxt = newBtnText("SAVE GAME...", "DscMenuFont");
+			btntxt = newBtnText("SAVE GAME...", MenuFont);
 			buttons.push(Button.CreateTextButton('SaveGame', 960, btnY, 256, 32, btntxt));
 			btnY += btnSpace;	
 		}
 		
-		btntxt = newBtnText("LOAD GAME...", "DscMenuFont");
+		btntxt = newBtnText("LOAD GAME...", MenuFont);
 		buttons.push(Button.CreateTextButton('LoadGame', 960, btnY, 256, 32, btntxt));
 		btnY += btnSpace;
 		
-		btntxt = newBtnText("CONTROLS...", "DscMenuFont");
+		btntxt = newBtnText("CONTROLS...", MenuFont);
 		buttons.push(Button.CreateTextButton('Controls', 960, btnY, 256, 32, btntxt));
 		btnY += btnSpace;
 		
-		btntxt = newBtnText("OPTIONS...", "DscMenuFont");
+		btntxt = newBtnText("OPTIONS...", MenuFont);
 		buttons.push(Button.CreateTextButton('Options', 960, btnY, 256, 32, btntxt));
 		btnY += btnSpace;
 				
-		btntxt = newBtnText("CREDITS", "DscMenuFont");
+		btntxt = newBtnText("CREDITS", MenuFont);
 		buttons.push(Button.CreateTextButton('Credits', 960, btnY, 256, 32, btntxt));
 		btnY += btnSpace;
 		
-		btntxt = newBtnText("QUIT", "DscMenuFont");
+		btntxt = newBtnText("QUIT", MenuFont);
 		buttons.push(Button.CreateTextButton('Quit', 960, btnY, 256, 32, btntxt));
 
 		mMouse.SetPos(buttons[0].btnrect.pos);

@@ -1,3 +1,5 @@
+const MainFont = "Fonts/DscBigFont.fon2";
+
 class DescentMessage ui
 {
 	Font fnt;
@@ -237,7 +239,7 @@ class DescentStatusBar : BaseStatusBar
 		if(CPlayer) dscplr = DescentPlayer(CPlayer.mo);
 		
 		// Create the font used for the fullscreen HUD
-		fnt = "DSCBIGFONT"; //"DescFont";
+		fnt = MainFont; //"DescFont";
 		mHUDFont = HUDFont.Create(fnt);
 		baseRes = (1920, 1080);
 		baseScale = (6.0,5.5);
