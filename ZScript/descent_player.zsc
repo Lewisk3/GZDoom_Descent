@@ -29,6 +29,7 @@ class DescentPlayer : SixDoFPlayer
 		Mass 3000;
 		Health 1;
 		Player.MaxHealth 1;
+		Player.ViewBob 0;
 		
 		DescentPlayer.Shield 100, 200;
 		DescentPlayer.Energy 99, 200;
@@ -38,12 +39,6 @@ class DescentPlayer : SixDoFPlayer
 		Player.StartItem "Descent_ConMissile", 3;
 		Player.StartItem "Token_ExtraLife", 2;
 	}	
-	
-	
-	clearscope bool checkVoodoo() 
-	{ 
-		return (!player || !player.mo || player.mo != self);
-	}
 	
 	override bool OnGiveSecret(bool printmsg, bool playsound) 
 	{ 
@@ -87,14 +82,8 @@ class DescentPlayer : SixDoFPlayer
 	
 	override int DamageMobJ(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
 	{	
-		if(checkVoodoo()) 
-			return super.DamageMobJ(inflictor, source, damage, mod, flags, angle);
-				
 		if(bInvulnerable) return 0;
-		
-		A_StartSound("Player/TakingDamage", flags:CHANF_OVERLAP);
-		DSCEffects.ScreenFlash(self, "Red", 0.35);
-		
+				
 		double trueDamage = damage;
 		if(source is "DescentPlayer") 
 			trueDamage /= DSCDMG;
@@ -111,7 +100,16 @@ class DescentPlayer : SixDoFPlayer
 			if(shields < 0) shields = 0;
 		}
 	
-		if(health <= 0) GiveInventory("DeathAnimator", 1);
+		if(!checkVoodoo())
+		{
+			A_StartSound("Player/TakingDamage", flags:CHANF_OVERLAP);
+			DSCEffects.ScreenFlash(self, "Red", 0.35);
+			if(health <= 0) GiveInventory("DeathAnimator", 1);
+		}
+		else if(health <= 0)
+		{
+			Die(inflictor, source, flags, mod);
+		}
 		
 		return floor(trueDamage);
 	}
@@ -129,7 +127,11 @@ class DescentPlayer : SixDoFPlayer
 	{
 		super.Tick();
 		
-		if(checkVoodoo() || health <= 0) return;
+		if(checkVoodoo() || health <= 0) 
+		{
+			bNOGRAVITY = false;
+			return;
+		}
 		
 		if(GuidingMissile) 
 		{

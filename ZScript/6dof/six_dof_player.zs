@@ -3,15 +3,6 @@ class SixDoFPlayer : PlayerPawn
 	bool controlInvert;
     Property UpMove : upMove;
 
-    Default
-    {
-        Speed 0.24;
-        SixDoFPlayer.UpMove 0.12;
-
-        +NoGravity
-        +RollSprite
-    }
-
     const maxYaw = 65536.0;
     const maxPitch = 65536.0;
     const maxRoll = 65536.0;
@@ -22,7 +13,7 @@ class SixDoFPlayer : PlayerPawn
 	vector3 viewAngles;
 	vector3 adjustView;
 	vector3 accel;
-	
+
     double upMove;
     Quaternion targetRotation;
 	
@@ -31,10 +22,19 @@ class SixDoFPlayer : PlayerPawn
 	
 	Default
 	{
+		Gravity 0;
+		Speed 0.20;
 		SixDoFPlayer.ViewFriction 0.90;
 		SixDoFPlayer.LookSpeed 1.0;
+        SixDoFPlayer.UpMove 0.10;
+        +RollSprite;
+		+SlidesOnWalls;
 	}
 
+	clearscope bool checkVoodoo() 
+	{ 
+		return (!player || !player.mo || player.mo != self);
+	}
 
     override void PostBeginPlay()
     {
@@ -53,7 +53,7 @@ class SixDoFPlayer : PlayerPawn
 	}
 
     override void HandleMovement()
-    {
+    {				
         if (reactionTime) --reactionTime;   // Player is frozen
         else
         {
@@ -67,7 +67,7 @@ class SixDoFPlayer : PlayerPawn
     override void CheckPitch() {}
 
     override void MovePlayer()
-    {
+    {	
         UserCmd cmd = player.cmd;
 
 		viewAngles *= viewFriction;			
@@ -75,6 +75,8 @@ class SixDoFPlayer : PlayerPawn
 		accel *= Friction;
 		ViewRoll *= 0.90;
 		ViewRoll = clamp(ViewRoll, -30, 30);
+		
+		// player.onground = (pos.z <= floorz) || bOnMobj || bMBFBouncer || (player.cheats & CF_NOCLIP2);
 
 		double zMove = 0;
 	    if (IsPressed(BT_Jump  )) zMove =  upMove;
@@ -176,6 +178,17 @@ class SixDoFPlayer : PlayerPawn
         A_SetRoll(newRoll, SPF_Interpolate);
     }
 
+
+	override void CalcHeight()
+	{
+		double bob_angle = Level.maptime / (120 * TICRATE / 35.) * 360.;
+		double bob = (0.06 * sin(bob_angle));
+		
+		vector3 worldOffs = DSCMath.V3Offset(angle, pitch, roll, 0,0,bob, 0.25);
+		vel += worldOffs;
+		
+		player.viewz = (pos.Z + vel.z) + ViewHeight;
+	}
 
     bool IsPressed(int bt)
     {
