@@ -185,6 +185,7 @@ class DescentPlayer : SixDoFPlayer
 			{
 				let spec = DSCSpecialWeapon(item);
 				if(!spec) continue;
+				if(spec.amount <= 0) continue;
 				result = spec;
 				break;
 			}
@@ -197,6 +198,7 @@ class DescentPlayer : SixDoFPlayer
 			{
 				let spec = DSCSpecialWeapon(item);
 				if(!spec || spec == ReadySpecial) continue;
+				if(spec.amount <= 0) continue;
 				int slotDiff = abs(desiredSlot-spec.slot);
 				if(slotDiff < closestSlot && spec.slot >= desiredSlot) 
 				{
@@ -211,6 +213,7 @@ class DescentPlayer : SixDoFPlayer
 				{
 					let spec = DSCSpecialWeapon(item);
 					if(!spec || spec == ReadySpecial) continue;
+					if(spec.amount <= 0) continue;
 					int slotDiff = abs(desiredSlot-spec.slot);
 					if(slotDiff < closestSlot) 
 					{
@@ -232,6 +235,7 @@ class DescentPlayer : SixDoFPlayer
 			{
 				let spec = DSCSpecialWeapon(item);
 				if(!spec) continue;
+				if(spec.amount <= 0) continue;
 				result = spec;
 				break;
 			}
@@ -244,6 +248,7 @@ class DescentPlayer : SixDoFPlayer
 			{
 				let spec = DSCSpecialWeapon(item);
 				if(!spec || spec == ReadySpecial) continue;
+				if(spec.amount <= 0) continue;
 				int slotDiff = abs(desiredSlot-spec.slot);
 				if(slotDiff < closestSlot && spec.slot <= desiredSlot) 
 				{
@@ -258,6 +263,7 @@ class DescentPlayer : SixDoFPlayer
 				{
 					let spec = DSCSpecialWeapon(item);
 					if(!spec || spec == ReadySpecial) continue;
+					if(spec.amount <= 0) continue;
 					int slotDiff = abs(desiredSlot-spec.slot);
 					if(slotDiff < closestSlot) 
 					{

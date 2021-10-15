@@ -80,7 +80,7 @@ class VulcanBullet : DSCProjectile
 		Spawn:
 			MODL A 0 NoDelay DoHitscan();
 		SpawnLoop:
-			MODL A 1;
+			TNT1 A 1;
 		loop;
 		
 		Death:

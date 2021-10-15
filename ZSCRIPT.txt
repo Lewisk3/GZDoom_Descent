@@ -18,6 +18,7 @@ const DSCMAXAMMO = 2.00; // Max Ammo Scale
 #include "ZScript/descent_pickups.zsc"
 #include "ZScript/descent_animators.zsc"
 #include "ZScript/descent_events.zsc"
+#include "ZScript/descent_spawners.zsc"
 #include "ZScript/descent_effectItems.zsc"
 
 // SBS
