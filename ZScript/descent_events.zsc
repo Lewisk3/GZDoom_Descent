@@ -91,6 +91,7 @@ class DescentEvents : EventHandler
 		}
 		if(e.Replacee is "Clip" || e.Replacee is "Shell" || e.Replacee is "Cell")
 		{
+			e.Replacement = "Actor";
 			if(random[DSCReplacement](0,4)==4)
 				e.Replacement = "EnergyBoost";
 		}
@@ -115,6 +116,7 @@ class DescentEvents : EventHandler
 		}
 		if(e.Replacee is "RocketAmmo")
 		{
+			e.Replacement = "Actor";
 			if(random[DSCReplacement](0,4)==4)
 				e.Replacement = "Descent_ProxMine";
 			if(random[DSCReplacement](0,10)==10)
@@ -132,6 +134,7 @@ class DescentEvents : EventHandler
 		}
 		if(e.Replacee is "HealthBonus" || e.Replacee is "ArmorBonus")
 		{
+			e.Replacement = "Actor";
 			if(random[DSCReplacement](0,5)==5)
 				e.Replacement = "ShieldsBoost";
 		}
