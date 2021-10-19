@@ -5,6 +5,7 @@ class DSCWeapon : Weapon abstract
 	string Fullname;
 	int curLevel;
 	int maxLevel;
+	double energyGive;
 
 	string OnCrosshair, OffCrosshair;
 		
@@ -12,6 +13,7 @@ class DSCWeapon : Weapon abstract
 	Property DisplayGraphic : HUDGraphic;
 	Property WeaponName : Fullname;
 	Property MaximumLevel : maxLevel;
+	Property EnergyGive : energyGive;
 	
 	mixin DSCPickupGenerics;
 	
@@ -32,10 +34,24 @@ class DSCWeapon : Weapon abstract
 		GoAwayAndDie();
 	}
 	
+	virtual string energyGiveMsg(double curEnergy)
+	{
+		// String.Format("Energy boosted to %d", curEnergy + energyGive);
+		return "";
+	}
+	
 	override bool TryPickup (in out Actor toucher)
 	{
 		let hasItem = DSCWeapon(toucher.FindInventory(getClass()));
 		if(!hasItem) return super.TryPickup(toucher);
+		
+		let plr = DescentPlayer(toucher);
+		if(plr && energyGive) 
+		{
+			string energyMsg = energyGiveMsg(plr.energy);
+			if(energyMsg != "") Inventory.PrintPickupMessage(toucher.CheckLocalView(), energyMsg);
+			plr.energy += energyGive;
+		}
 		
 		string pickupMsg = hasItem.DoLevelup();
 		Inventory.PrintPickupMessage(toucher.CheckLocalView(), pickupMsg);

@@ -10,6 +10,7 @@ class Descent_FusionCannon : DSCWeapon
 		DSCWeapon.WeaponName "Fusion Cannon";
 		DSCWeapon.DisplayGraphic "WeapFusion";
 		DSCWeapon.SetupCrosshairs "Crosshair/weapon1", "Crosshair/weapon0";
+		DSCWeapon.EnergyGive 12;
 	}
 	
 	action void A_FireFusion(double fw, double lr, double ud)

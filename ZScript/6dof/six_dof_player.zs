@@ -6,7 +6,7 @@ class SixDoFPlayer : PlayerPawn
     const maxYaw = 65536.0;
     const maxPitch = 65536.0;
     const maxRoll = 65536.0;
-    const Friction = 0.90;
+    const Friction = DSCMOVEFRICT;
 	double lookMod;
 	double viewFriction;
 	vector3 forceInput;
@@ -23,7 +23,7 @@ class SixDoFPlayer : PlayerPawn
 	Default
 	{
 		Gravity 0;
-		Speed 0.20;
+		Speed DSCMOVESPEED; // 0.18
 		SixDoFPlayer.ViewFriction 0.90;
 		SixDoFPlayer.LookSpeed 1.0;
         SixDoFPlayer.UpMove 0.10;

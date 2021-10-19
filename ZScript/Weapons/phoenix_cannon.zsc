@@ -7,6 +7,7 @@ class Descent_PhoenixCannon : DSCWeapon
 		DSCWeapon.WeaponName "Phoenix Cannon";
 		DSCWeapon.DisplayGraphic "WeapPhoenix";
 		DSCWeapon.SetupCrosshairs "Crosshair/weapon1", "Crosshair/weapon0";
+		DSCWeapon.EnergyGive 8;
 	}
 		
 	action void A_FirePhoenixCannon()

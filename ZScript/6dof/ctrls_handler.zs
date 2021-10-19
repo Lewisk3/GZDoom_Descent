@@ -6,6 +6,7 @@ class SDOF_MovementHandler : EventHandler
     {
         for(int i = 0; i < MAXPLAYERS; i++)
 		{
+			if(!PlayerInGame[i]) continue;
 			PlayerInfo plr = players[i];
 			if(!plr) continue;
 			

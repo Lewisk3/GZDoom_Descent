@@ -1,8 +1,10 @@
 version "4.5"
 
-const DMGTAKEN   = 0.15; // Damage received multiplier.
-const DSCDMG     = 3.00; // Damage dealt muiltiplier
-const DSCMAXAMMO = 2.00; // Max Ammo Scale
+const DMGTAKEN     = 0.15; // Damage received multiplier.
+const DSCDMG       = 3.00; // Damage dealt muiltiplier
+const DSCMAXAMMO   = 2.00; // Max Ammo Scale
+const DSCMOVESPEED = 0.22; // Move Speed
+const DSCMOVEFRICT = 0.88; // Movement Friction
 
 // Full Credit to: dodopod ( https://gitlab.com/dodopod/6dof-player )
 #include "ZScript/6dof/quaternion.zs"

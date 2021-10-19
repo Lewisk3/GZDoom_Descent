@@ -9,6 +9,7 @@ class Descent_SpreadFire : DSCWeapon
 		DSCWeapon.WeaponName "Spreadfire Cannon";
 		DSCWeapon.DisplayGraphic "WeapSpreadFire";
 		DSCWeapon.SetupCrosshairs "Crosshair/weapon1", "Crosshair/weapon0";
+		DSCWeapon.EnergyGive 6;
 	}
 		
 	action void A_FireSpread()

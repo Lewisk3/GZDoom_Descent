@@ -10,6 +10,7 @@ class Descent_Laser : DSCWeapon
 		DSCWeapon.DisplayGraphic "WeapLaser";
 		DSCWeapon.SetupCrosshairs "Crosshair/weapon1", "Crosshair/weapon0";
 		DSCWeapon.MaximumLevel 4;
+		DSCWeapon.EnergyGive 4;
 	}
 	
 	override void EjectWeapon()
