@@ -50,7 +50,7 @@ class DSCProj_SmartMineTracker : DSCProj_SmartTracker
 		Crash:
 		Death:
 		XDeath:
-			STRK A 1 Bright DoMissileExplosion(64,128,0.8);
+			STRK A 1 Bright DoMissileExplosion(64,128,0.8, XF_HURTSOURCE);
 		stop;
 	}
 }
@@ -64,7 +64,7 @@ class DSCProj_SmartMine : DSCProj_ProxMine
 		loop;	
 		
 		Explode:
-			TNT1 A 1 DoMissileExplosion(29 * DSCDMG, 128, scale:0.6);
+			TNT1 A 1 DoMissileExplosion(29 * DSCDMG, 128, scale:0.6, XF_HURTSOURCE);
 			TNT1 A 0
 			{
 				for(int i = 0; i < 6; i++)

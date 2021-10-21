@@ -61,7 +61,7 @@ class DSCProj_HomMissile : DSCProj_ConMissile
 	Default
 	{
 		Speed 20;
-		DamageFunction 27 *2;
+		DamageFunction 27 * DSCDMG;
 		DSCProj_HomMissile.TargetFindTime 1.0;
 		DSCProj_HomMissile.TrackingRanges 0, 512;
 		DSCProjectile.FireSound "HomingMissile/Fire";

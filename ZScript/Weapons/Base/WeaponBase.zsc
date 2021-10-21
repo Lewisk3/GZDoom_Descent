@@ -486,10 +486,15 @@ class DSCProjectile : Actor
 		return hitscan;
 	}
 	
-	Actor DoMissileExplosion(double dam = -1, double dist = -1, double scale = -1, uint flags = XF_HURTSOURCE, class<Actor> type = "MissileExplosion")
+	Actor DoMissileExplosion(double dam = -1, double dist = -1, double scale = -1, uint flags = 0, class<Actor> type = "MissileExplosion")
 	{
 		if(scale == -1) scale = self.scale.X;
-		A_Explode(dam * DSCDMG, dist, flags);
+		if(dam < 0) 
+		{
+			dam = 128 * DSCDMG;
+			dist = 128;
+		}
+		A_Explode(dam, dist, flags);
 		let expl = Spawn(type, (pos.xy,pos.z+(height*0.5)));
 		if(expl) expl.A_SetScale(scale, scale);
 		return expl;

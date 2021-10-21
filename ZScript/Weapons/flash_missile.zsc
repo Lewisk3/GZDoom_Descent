@@ -70,7 +70,7 @@ class DSCProj_FlashMissile : DSCProj_ConMissile
 		XDeath:
 			TNT1 A 1 
 			{
-				DoMissileExplosion(0,0,0.8,type:"FlashExplosion");
+				DoMissileExplosion(0,0,0.8, XF_HURTSOURCE, type:"FlashExplosion");
 			}
 		stop;
 	}

@@ -97,7 +97,7 @@ class DSCProj_ProxMine : DSCProjectile
 		loop;	
 		
 		Explode:
-			TNT1 A 1 DoMissileExplosion(29 * DSCDMG, 128, scale:0.6);
+			TNT1 A 1 DoMissileExplosion(29 * DSCDMG, 128, scale:0.6, XF_HURTSOURCE);
 		stop;
 		
 		Crash:

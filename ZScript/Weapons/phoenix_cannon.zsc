@@ -49,16 +49,21 @@ class DSCProj_Phoenix : DSCProj_Plasma
 		BounceFactor 1.0;
 		WallBounceFactor 1.0;
 		BounceCount 3;
+		+USEBOUNCESTATE;
 	}
 	
 	States
 	{
 		Spawn:
-			PHNX ABC 3 Bright
+			PHNX ABC 3 Bright;
+		loop;
+		
+		Bounce:
+			TNT1 A 0
 			{
 				bHITOWNER = true;
 			}
-		loop;
+		goto Spawn;
 		
 		Crash:
 		Death:

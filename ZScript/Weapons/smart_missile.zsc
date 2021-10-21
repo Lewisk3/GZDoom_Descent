@@ -91,7 +91,7 @@ class DSCProj_SmartTracker : DSCProj_HomMissile
 		Crash:
 		Death:
 		XDeath:
-			PLSB A 1 Bright DoMissileExplosion(64,128,0.8);
+			PLSB A 1 Bright DoMissileExplosion(64,128,0.8, XF_HURTSOURCE);
 		stop;
 	}
 }
