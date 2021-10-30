@@ -2,7 +2,7 @@ class Descent_GaussCannon : Descent_VulcanCannon
 {
 	Default
 	{
-		Weapon.SlotNumber 6;
+		Weapon.SlotNumber 5;
 		Tag "Gauss";
 				
 		DSCWeapon.WeaponName "Gauss Cannon";

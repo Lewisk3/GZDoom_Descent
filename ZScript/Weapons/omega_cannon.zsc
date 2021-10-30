@@ -8,7 +8,7 @@ class Descent_OmegaCannon : DSCWeapon
 
 	Default
 	{
-		Weapon.SlotNumber 7;
+		Weapon.SlotNumber 9;
 		Tag "Omega";
 		DSCWeapon.WeaponName "Omega Cannon";
 		DSCWeapon.DisplayGraphic "WeapOmegaCannon";

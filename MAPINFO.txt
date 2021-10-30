@@ -9,6 +9,48 @@ DoomEdNums
 {
 	16040 = "SpaceBox"
 	16042 = "AsteroidSpawner"
+	
+	// Primary Weapons
+	16100 = "Descent_Laser"
+	16101 = "Descent_SpreadFire"
+	16102 = "Descent_VulcanCannon"
+	16103 = "Descent_PlasmaCannon"
+	16104 = "Descent_GaussCannon"
+	16105 = "Descent_PhoenixCannon"
+	16106 = "Descent_HelixCannon"
+	16107 = "Descent_FusionCannon"
+	16108 = "Descent_OmegaCannon"
+
+	// Secondary Weapons
+	16109 = "Descent_ConMissile"
+	16110 = "Descent_HomMissile"
+	16111 = "Descent_SmartMissile"
+	16112 = "Descent_MegaMissile"
+	16113 = "Descent_ProxMine"
+	16114 = "Descent_GuidedMissile"
+	16115 = "Descent_MercMissile"
+	16116 = "Descent_SmartMine"
+	16117 = "Descent_FlashMissile"
+	16118 = "Descent_EarthshakerMissile"
+
+	// Bundled Missiles
+	16119 = "Descent_ConMissileBundle"
+	16120 = "Descent_HomMissileBundle"
+	16121 = "Descent_GuidedMissileBundle"
+	16122 = "Descent_MercMissileBundle"
+	16123 = "Descent_FlashMissileBundle"
+
+	// Pickups
+	16201 = "EnergyBoost"
+	16202 = "ShieldsBoost"
+	16203 = "ExtraLife"
+	16204 = "CloakDevice"
+	16205 = "Invulnerability"
+	16206 = "DescentFullmap"
+	16207 = "AmmoRack"
+	16208 = "ShipHeadlights"
+	16209 = "EnergyConverter"
+	16210 = "AfterBurnerPickup"
 }
 
 map Titlemap "Titlemap"

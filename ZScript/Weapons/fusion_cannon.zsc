@@ -5,7 +5,7 @@ class Descent_FusionCannon : DSCWeapon
 	
 	Default
 	{
-		Weapon.SlotNumber 6;
+		Weapon.SlotNumber 8;
 		Tag "Fusion";
 		DSCWeapon.WeaponName "Fusion Cannon";
 		DSCWeapon.DisplayGraphic "WeapFusion";

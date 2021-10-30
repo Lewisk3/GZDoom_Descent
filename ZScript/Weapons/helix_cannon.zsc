@@ -4,7 +4,7 @@ class Descent_HelixCannon : DSCWeapon
 	
 	Default
 	{
-		Weapon.SlotNumber 5;
+		Weapon.SlotNumber 7;
 		Tag "Helix";
 		DSCWeapon.WeaponName "Helix Cannon";
 		DSCWeapon.DisplayGraphic "WeapHelix";

@@ -2,7 +2,7 @@ class Descent_PhoenixCannon : DSCWeapon
 {
 	Default
 	{
-		Weapon.SlotNumber 7;
+		Weapon.SlotNumber 6;
 		Tag "Phoenx";
 		DSCWeapon.WeaponName "Phoenix Cannon";
 		DSCWeapon.DisplayGraphic "WeapPhoenix";
