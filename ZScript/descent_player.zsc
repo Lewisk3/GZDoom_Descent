@@ -175,6 +175,21 @@ class DescentPlayer : SixDoFPlayer
 			
 	}
 	
+	
+	virtual DSCSpecialWeapon GetSpecialWeapon(int slotnum)
+	{
+		for(let item = Inv; item; item = item.Inv)
+		{
+			let spec = DSCSpecialWeapon(item);
+			if(!spec) continue;
+			if(spec.amount <= 0 || spec.slot != slotnum) continue;
+			
+			return spec;
+			break;
+		}
+		return null;
+	}
+	
 	// Messy but idk how to fix currently.
 	virtual DSCSpecialWeapon FindNextSpecial()
 	{

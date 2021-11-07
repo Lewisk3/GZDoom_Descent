@@ -289,6 +289,10 @@ class DSCSpecialWeapon : Inventory abstract
 		let dscplr = DescentPlayer(Owner);
 		if(!dscplr) return;
 		
+		// Cancel invalid switch
+		if(dscplr.PendingSpecial == self && dscplr.ReadySpecial == self)
+			dscplr.PendingSpecial = null;
+		
 		// Handle "switching"
 		let curSpecial = dscplr.ReadySpecial;		
 		if(dscplr.PendingSpecial == self && curSpecial != self) 

@@ -33,7 +33,27 @@ DefaultBind mouse4 +user1
 AddMenuKey "Previous Missile" +user2
 DefaultBind mouse5 +user2
 
-
 // Weapon binds
 AddMenuKey "Fire Missile" +altattack
 DefaultBind mouse2 +altattack
+
+alias selectmissile01 "netevent select_secondary:1"
+alias selectmissile02 "netevent select_secondary:2"
+alias selectmissile03 "netevent select_secondary:3"
+alias selectmissile04 "netevent select_secondary:4"
+alias selectmissile05 "netevent select_secondary:5"
+alias selectmissile06 "netevent select_secondary:6"
+alias selectmissile07 "netevent select_secondary:7"
+alias selectmissile08 "netevent select_secondary:8"
+alias selectmissile09 "netevent select_secondary:9"
+alias selectmissile10 "netevent select_secondary:10"
+AddMenuKey "Missile Slot 1"  selectmissile01
+AddMenuKey "Missile Slot 2"  selectmissile02
+AddMenuKey "Missile Slot 3"  selectmissile03
+AddMenuKey "Missile Slot 4"  selectmissile04
+AddMenuKey "Missile Slot 5"  selectmissile05
+AddMenuKey "Missile Slot 6"  selectmissile06
+AddMenuKey "Missile Slot 7"  selectmissile07
+AddMenuKey "Missile Slot 8"  selectmissile08
+AddMenuKey "Missile Slot 9"  selectmissile09
+AddMenuKey "Missile Slot 10" selectmissile10

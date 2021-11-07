@@ -55,6 +55,20 @@ class DescentEvents : EventHandler
 				if(jets) jets.Disable();
 			}
 			
+			// Weapon systems
+			String cmd = e.Name;
+			Array<String> args;
+			cmd.Split(args, ":");
+			
+			if(args[0] ~== "select_secondary")
+			{
+				int slot = args[1].toInt(10);
+				if(!dscplr.PendingSpecial) 
+				{
+					let weap = dscplr.GetSpecialWeapon(slot);
+					if(weap) dscplr.PendingSpecial = weap;
+				}
+			}
 		}	
 	}
 }

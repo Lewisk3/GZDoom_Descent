@@ -12,7 +12,7 @@ class Descent_PhoenixCannon : DSCWeapon
 		
 	action void A_FirePhoenixCannon()
 	{
-		A_ShootProjectile("DSCProj_Phoenix", "PlasmaCannon/Fire", true, 0,0,0, (10,-10, -5));
+		A_ShootProjectile("DSCProj_Phoenix", "PhoenixCannon/Fire", true, 0,0,0, (10,-10, -5));
 		A_ShootProjectile("DSCProj_Phoenix", useammo:true, 0,0,0, (10, 10, -5));
 	}
 	
