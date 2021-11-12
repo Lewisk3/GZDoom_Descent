@@ -13,9 +13,9 @@ class DescentEvents : EventHandler
 		vector3 explodePos = level.vec3offset(e.Thing.pos, (0,0,e.Thing.Height*0.5));
 		Actor.Spawn("EnemyExplosion", explodePos);
 		
-		if(random[DeathDrops](0,20) == 20)
+		if(random[DeathDrops](0,30) == 0)
 			Actor.Spawn("EnergyBoost", e.Thing.pos);
-		else if(random[DeathDrops](0,50) == 50)
+		else if(random[DeathDrops](0,70) == 0)
 			Actor.Spawn("ShieldsBoost", e.Thing.pos);
 	}
 	
