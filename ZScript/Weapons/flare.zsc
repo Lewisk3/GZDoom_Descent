@@ -1,0 +1,30 @@
+class DSCProj_Flare : DSCProjectile
+{ 	
+	Default
+	{	
+		Radius 3;
+		Height 3;
+		Speed 35;
+		DamageFunction 1;
+		
+		RenderStyle "Add";
+		Scale 1.0;
+		Alpha 0.75;
+		Projectile;
+		
+		DSCProjectile.FireSound "Flare/Fire";
+		DSCProjectile.energyUse 0.5;
+	}
+
+	States
+	{	
+		Death:
+			MODL A 70;
+		stop;
+		
+		XDeath:
+		Crash:
+			MODL A 1;
+		stop;
+	}
+}

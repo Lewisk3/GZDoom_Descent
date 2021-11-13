@@ -13,7 +13,7 @@ class Descent_ProxMine : DSCSpecialWeapon
 	
 	override bool Fire()
 	{
-		if(cooldown || raiseY < 1.0) return false;
+		if(cooldown) return false;
 		if(amount <= 0) return false;
 		
 		if(ShootProjectile("DSCProj_ProxMine", offs:(-30,0,-10), setCamera:false))

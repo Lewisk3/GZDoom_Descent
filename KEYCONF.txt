@@ -36,6 +36,10 @@ DefaultBind mouse5 +user2
 // Weapon binds
 AddMenuKey "Fire Missile" +altattack
 DefaultBind mouse2 +altattack
+AddMenuKey "Fire Flare" +user3
+DefaultBind F +user3
+AddMenuKey "Fire Bomb" +user4
+DefaultBind B +user4
 
 alias selectmissile01 "netevent select_secondary:1"
 alias selectmissile02 "netevent select_secondary:2"

@@ -46,6 +46,7 @@ FlashMissile/Explode   "Sounds/Weapons/FlashImpact.wav";
 Earthshaker/Explode    "Sounds/Weapons/EarthshakerImpact01.wav"
 Earthshaker/Quake      "Sounds/Weapons/EarthshakerImpact02.wav"
 ProximityMine/Drop     "Sounds/Weapons/dropbomb.wav"
+Flare/Fire			   "Sounds/Weapons/flare.wav"
 
 // Item Sounds
 DSCItem/Pickup "Sounds/Items/pickup.wav"

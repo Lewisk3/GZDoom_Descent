@@ -3,6 +3,7 @@ class DescentPlayer : SixDoFPlayer
 	Actor CockpitCamera;
 	int scorePts;
 	bool waitingRespawn;
+	Actor projDanger; // LOCKED indicator.
 	double shields, energy;
 	double maxShield, maxEnergy;
 	bool rearView;
@@ -15,6 +16,7 @@ class DescentPlayer : SixDoFPlayer
 	// Special Weapons
 	DSCSpecialWeapon PendingSpecial;
 	DSCSpecialWeapon ReadySpecial;
+	DSCSpecialWeapon LastBomb;
 	
 	// Missiles 
 	Actor missileCam;
@@ -142,7 +144,7 @@ class DescentPlayer : SixDoFPlayer
 		{
 			lookMod = 1.0;
 		}
-		
+				
 		// Height is set here so that voodoo scripts do not break.
 		if(height != 28) A_SetSize(16,28);
 		
@@ -158,6 +160,7 @@ class DescentPlayer : SixDoFPlayer
 		
 		if(!ReadySpecial && FindNextSpecial()) FindNextSpecial().Select();
 		uint btns = player.cmd.buttons;
+		uint oldbtns = player.oldbuttons;
 		
 		// Handle SpecialWeapon shooting.
 		if( (btns & BT_ALTATTACK) && ReadySpecial )
@@ -165,6 +168,10 @@ class DescentPlayer : SixDoFPlayer
 			SoundAlert(self);
 			ReadySpecial.Fire();
 		}
+		
+		// Handle Flare shooting.
+		if( (btns & BT_USER3) && !(oldbtns & BT_USER3) )
+			DSCEffects.ShootProjectile(self, "DSCProj_Flare", true);
 			
 		// Handle SpecialWeapon switching.
 		if( (btns & BT_USER1) && !PendingSpecial)
@@ -173,8 +180,36 @@ class DescentPlayer : SixDoFPlayer
 		if( (btns & BT_USER2) && !PendingSpecial)
 			PendingSpecial = FindNextSpecial();
 			
+		// Find active Bomb
+		if(!LastBomb) 
+			LastBomb = DSCSpecialWeapon(FindInventory("Descent_ProxMine"));
+		else if( (ReadySpecial is "Descent_ProxMine") && LastBomb != ReadySpecial )
+			LastBomb = ReadySpecial;
+			
+		// Bomb firing hotkey
+		if( (btns & BT_USER4) && LastBomb)
+		{
+			SoundAlert(self);
+			LastBomb.Fire();
+		}
+		
+		// Open Door if colliding with it.
+		FLineTraceData lt;
+		LineTrace(angle, UseRange+radius, pitch, data:lt);
+		if(lt.HitLine) DSCEffects.CanOpenDoor(self, lt.HitLine);
+		
+		// Check for nearby projectiles
+		let pIt = ThinkerIterator.Create();
+		Actor act;
+		double threatDist = 256**2;
+		while(act = Actor(pIt.Next()))
+		{
+			if(!act.bMISSILE) continue;
+			if(Distance3DSquared(act) > threatDist) continue;
+			if( !(act is "Rocket" || act.tracer == self) ) continue;
+			projDanger = act;
+		}
 	}
-	
 	
 	virtual DSCSpecialWeapon GetSpecialWeapon(int slotnum)
 	{

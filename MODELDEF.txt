@@ -105,6 +105,19 @@ Model DSCProj_FusionCore
    FrameIndex MODL A 0 0 
 }
 
+// Flare
+Model DSCProj_Flare
+{ 
+   Path "Models"
+   Skin 0 "Textures/flare.png" 
+   Model 0 "Weapons/Flare.md3" 
+   Scale 8.0 8.0 8.0
+   USEACTORPITCH
+   USEACTORROLL
+   
+   FrameIndex MODL A 0 0 
+}
+
 // Missiles
 Model DSCProj_ConMissile
 {

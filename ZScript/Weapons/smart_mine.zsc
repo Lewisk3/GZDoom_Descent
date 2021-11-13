@@ -1,4 +1,4 @@
-class Descent_SmartMine : DSCSpecialWeapon
+class Descent_SmartMine : Descent_ProxMine
 {
 	Default
 	{
@@ -13,7 +13,7 @@ class Descent_SmartMine : DSCSpecialWeapon
 	
 	override bool Fire()
 	{
-		if(cooldown || raiseY < 1.0) return false;
+		if(cooldown) return false;
 		if(amount <= 0) return false;
 		
 		if(ShootProjectile("DSCProj_SmartMine", offs:(-30,0,-10), setCamera:false))

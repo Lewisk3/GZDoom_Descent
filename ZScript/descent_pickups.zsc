@@ -517,8 +517,13 @@ class AfterBurner : Inventory
 		{
 			Owner.A_StartSound("AfterBurner/Enable", CHAN_5, flags:CHANF_OVERLAP|CHANF_NOSTOP);
 			charge -= 1.0 / (on_time * 35);
-			dscplr.forceInput.x = 1.0;
-			dscplr.DoAccelerate(1.0,0,0);
+			
+			// Force forward movement key to always be on.
+			dscplr.forceInput.x = 1.0; 
+			
+			// Do boost
+			double boostSpeed = 2.0;
+			dscplr.DoAccelerate(1.0,0,0, boostSpeed);
 			
 			// Spawn effects
 			vector3 worldOffs_Left  = DSCMath.V3Offset(dscplr.angle, dscplr.pitch, dscplr.roll, -40, -8, -12, 1.0);

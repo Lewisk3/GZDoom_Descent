@@ -324,10 +324,11 @@ class DescentStatusBar : BaseStatusBar
 		let pendWeap = DSCWeapon(dscplr.player.PendingWeapon);
 		if(!weap) return;
 		vector2 weapPos = origin + (-530,60);
+		vector2 weapScale = (1.25*scale.x,1.60*scale.y);
 		string weapName = weap.GetTag();
 		DrawImg(weap.HUDGraphic, weapPos, scale, 1.0-weapFade);
 		//DrawStr(weapName.MakeUpper(), weapPos+(70,-80), Font.CR_DarkGreen, 1.0-weapFade, scale:(1.5*scale.x,1.25*scale.y));
-		DrawStr(weap.GetUIDescription(), weapPos+(70,-80), alpha:1.0-weapFade, scale:(1.25*scale.x,1.60*scale.y));
+		DrawStr(weap.GetUIDescription(), weapPos+(70,-80), alpha:1.0-weapFade, scale:weapScale);
 		
 		if(pendWeap)
 		{
@@ -339,6 +340,10 @@ class DescentStatusBar : BaseStatusBar
 		}
 		weapFade = clamp(weapFade, 0, 1.0);
 		
+		// Draw bomb count
+		int bombCount = dscplr.LastBomb ? dscplr.LastBomb.amount : 0;
+		DrawStr(String.Format("\c[Red]B: %d", bombCount), origin + (700, 117), scale:weapScale);
+		
 		// Draw Special Weapon
 		if(missileCamActive) return; // Do not draw if missile camera is active.
 		
@@ -349,7 +354,7 @@ class DescentStatusBar : BaseStatusBar
 		weapPos = origin + (530,60);
 		weapName = specWeap.displayName;
 		DrawImg(specWeap.HUDGraphic, weapPos, scale, 1.0-specWeapFade);
-		DrawStr(specWeap.GetUIDescription(), weapPos+(-240,-80), alpha:1.0-specWeapFade, scale:(1.25*scale.x,1.60*scale.y));
+		DrawStr(specWeap.GetUIDescription(), weapPos+(-240,-80), alpha:1.0-specWeapFade, scale:weapScale);
 		
 		if(specPendWeap)
 		{
@@ -360,7 +365,6 @@ class DescentStatusBar : BaseStatusBar
 			specWeapFade -= 0.1 * deltaTime;
 		}
 		specWeapFade = clamp(specWeapFade, 0, 1.0);
-			
 	}
 	
 	void DrawCrosshair(double scale = 1.0)
@@ -435,26 +439,34 @@ class DescentStatusBar : BaseStatusBar
 		
 		vector2 cockpitPos = (0,360);
 		vector2 cockpitScale = (1.0,0.80);
+		vector2 lcdPos = (443,426);
+		vector2 leftEnergyBarPos  = cockpitPos + (-735, -101);
+		vector2 rightEnergyBarPos = cockpitPos + ( 370, -101);
+		
 		DrawImg("cockpit_upper", (0,0));
 		
 		// Draw LCD then lower cockpit.
-		vector2 lcdPos = (443,426);
-		
 		DrawImg("cockpit_lcd", lcdPos, cockpitScale);
+		
+		// Missile Camera
 		DrawMissileCamera(lcdPos);
-		
-		DrawImg("cockpit_lower", cockpitPos, cockpitScale);
-		
 		if(missileCamActive && dscplr.missileCam)
 		{
 			let mcam = DSCProjectile(dscplr.missileCam);
 			if(mcam) DrawStr(mcam.GetCameraName(), lcdPos - (0,95), Font.CR_DarkGreen, flags:DescentDraw.SS_TEXT_CENTER, scale:(1.25,1.0));
 		}
-				
+
+		DrawImg("cockpit_lower", cockpitPos, cockpitScale);
+		
+		// Draw missile locked indicator
+		if(dscplr.projDanger) DrawImg("MissileLocked", cockpitPos + (-860, 100), cockpitScale); 
+		
+		// Shields
 		int shieldImg = 9 - ceil((dscplr.shields / dscplr.default.shields) * 9.);
 		shieldImg = clamp(shieldImg, 0, 9);
 		vector2 shieldPos = cockpitPos+(15,55);
 		DrawImg("shield" .. shieldImg, shieldPos, cockpitScale);
+		DrawStr(String.Format("%d", floor(dscplr.shields)), shieldPos+(0,-115), Font.CR_LightBlue, flags:DescentDraw.SS_TEXT_CENTER, scale:(1.5*cockpitScale.x,1.7*cockpitScale.y));
 		
 		// Check for invulnerability
 		if(invulPowerup.CheckActive(dscplr, "PowerInvuln", deltaTime))
@@ -464,14 +476,9 @@ class DescentStatusBar : BaseStatusBar
 		if(!cloakPowerup.CheckActive(dscplr, "PowerCloak", deltaTime)) 
 			DrawImg("ship", shieldPos, cockpitScale);
 		
-		DrawStr(String.Format("%d", floor(dscplr.shields)), shieldPos+(0,-115), Font.CR_LightBlue, flags:DescentDraw.SS_TEXT_CENTER, scale:(1.5*cockpitScale.x,1.7*cockpitScale.y));
-		
+		// Weapons and Keys
 		DrawWeapons(cockpitPos, cockpitScale);
 		DrawCockpitKeys();
-		
-		// Draw Energy
-		vector2 leftEnergyBarPos  = cockpitPos + (-735, -101);
-		vector2 rightEnergyBarPos = cockpitPos + ( 370, -101);
 		
 		// Afterburner
 		let afburner = AfterBurner(dscplr.FindInventory("AfterBurner"));
@@ -484,6 +491,7 @@ class DescentStatusBar : BaseStatusBar
 			DescentDraw.ClearClipRect();
 		}
 		
+		// Draw Energy				
 		double energyPerc = clamp(dscplr.energy / dscplr.default.energy, 0, 1.0);
 		
 		ClipImage(rightEnergyBarPos, (32,4), (64 * energyPerc, 8)); 
@@ -497,7 +505,7 @@ class DescentStatusBar : BaseStatusBar
 		
 		DrawStr(String.Format("%d", floor(dscplr.energy)), rightEnergyBarPos+(-352,-15), Font.CR_Gold, flags:DescentDraw.SS_TEXT_CENTER, scale:(1.5*cockpitScale.x,1.7*cockpitScale.y));
 				
-		// Should be always drawn on top.
+		// Crosshair, Should be always drawn on top.
 		DrawCrosshair(1.0);
 	}	
 	

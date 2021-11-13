@@ -102,7 +102,6 @@ class DeathAnimator : Inventory
 {
 	DescentPlayer plr;
 	
-	
 	Default
 	{
 		Inventory.MaxAmount 1;
@@ -116,6 +115,8 @@ class DeathAnimator : Inventory
 	
 	override void AttachToOwner(Actor other)
 	{
+		BecomeItem();
+		other.AddInventory (self);
 		Owner = other;
 		plr = DescentPlayer(Owner);
 		if(!plr) 
@@ -141,6 +142,14 @@ class DeathAnimator : Inventory
 		}
 	}
 	
+	override void DoEffect()
+	{
+		super.DoEffect();
+		
+		if( !(plr.player.Camera is "DeathCamera") ) 
+			DeathCamera.ActivateCam(plr);
+	}
+	
 	States
 	{
 		BeginAnimation:
@@ -149,7 +158,6 @@ class DeathAnimator : Inventory
 				plr.player.cheats |= CF_TOTALLYFROZEN;
 				plr.bSHOOTABLE = false;				
 				plr.bSOLID = false;
-				DeathCamera.ActivateCam(plr);
 			}
 		Spin:
 			TNT1 A 1

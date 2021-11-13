@@ -465,7 +465,11 @@ class DSCProjectile : Actor
 		super.Tick();
 		if(isFrozen()) return;
 		
-		if(!bMISSILE) return; // Collided
+		if(!bMISSILE && BlockingLine) 
+		{
+			DSCEffects.CanOpenDoor(target, BlockingLine);
+			return; // Collided
+		}
 		
 		if(guided) DoGuidedMovement();
 		
@@ -475,6 +479,7 @@ class DSCProjectile : Actor
 			vector3 worldAccel = DSCMath.V3Offset(angle,pitch,roll, localAccel.x,localAccel.y,localAccel.z, 1.0);
 			SetOrigin(level.vec3offset(pos, worldAccel), true);
 		}
+		
 	}
 	
 	DSCHitscanBullet DoHitscan()

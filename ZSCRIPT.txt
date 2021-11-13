@@ -1,7 +1,7 @@
 version "4.5"
 
 const DMGTAKEN     = 0.30; // Damage received multiplier.
-const DSCDMG       = 1.50; // Damage dealt muiltiplier
+const DSCDMG       = 1.75; // Damage dealt muiltiplier
 const DSCMAXAMMO   = 2.00; // Max Ammo Scale
 const DSCMOVESPEED = 0.22; // Move Speed
 const DSCMOVEFRICT = 0.88; // Movement Friction
@@ -40,6 +40,7 @@ const DSCMOVEFRICT = 0.88; // Movement Friction
 #include "ZScript/Weapons/vulcan_cannon.zsc"
 #include "ZScript/Weapons/fusion_cannon.zsc"
 #include "ZScript/Weapons/proximity_bomb.zsc"
+#include "ZScript/Weapons/flare.zsc"
 
 // Descent 2 Weapons
 #include "ZScript/Weapons/helix_cannon.zsc"

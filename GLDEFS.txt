@@ -47,6 +47,11 @@ pointlight YellowPointLight
     color 5.0 5.0 0.0
     size 65
 }
+pointlight SmallYellowPointLight
+{
+    color 5.0 5.0 0.0
+    size 40
+}
 pointlight WhitePointLight
 {
     color 5.0 5.0 5.0
@@ -74,6 +79,11 @@ pulselight BluePulseLight
     size 45
     secondarySize 32
     interval 0.5
+}
+
+object DSCProj_Flare
+{
+	frame MODL { light SmallYellowPointLight }
 }
 
 object DSCProj_LaserLV1 
