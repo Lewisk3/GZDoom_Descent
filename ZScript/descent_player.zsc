@@ -1,5 +1,6 @@
 class DescentPlayer : SixDoFPlayer
 {
+	Line BlockingDoor;
 	Actor CockpitCamera;
 	int scorePts;
 	bool waitingRespawn;
@@ -196,7 +197,13 @@ class DescentPlayer : SixDoFPlayer
 		// Open Door if colliding with it.
 		FLineTraceData lt;
 		LineTrace(angle, UseRange+radius, pitch, data:lt);
-		if(lt.HitLine) DSCEffects.CanOpenDoor(self, lt.HitLine);
+		if(lt.HitLine && lt.HitLine != BlockingDoor)  
+		{
+			BlockingDoor = lt.HitLine;
+			DSCEffects.CanOpenDoor(self, lt.HitLine);
+		}
+		else if(!lt.HitLine)
+			BlockingDoor = NULL;
 		
 		// Check for nearby projectiles
 		let pIt = ThinkerIterator.Create();

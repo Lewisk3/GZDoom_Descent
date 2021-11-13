@@ -385,6 +385,7 @@ class DSCProjectile : Actor
 	Sound fireSound;
 	bool setCamera;
 	bool guided;
+	bool dead;
 	Quaternion guidedRotation;
 	
 	
@@ -465,9 +466,12 @@ class DSCProjectile : Actor
 		super.Tick();
 		if(isFrozen()) return;
 		
-		if(!bMISSILE && BlockingLine) 
+		if(!bMISSILE && !dead) 
 		{
-			DSCEffects.CanOpenDoor(target, BlockingLine);
+			FLineTraceData lt;
+			LineTrace(angle, radius*2, pitch, data:lt);
+			if(lt.HitLine) DSCEffects.CanOpenDoor(self, lt.HitLine);
+			dead = true;
 			return; // Collided
 		}
 		
