@@ -73,7 +73,7 @@ class DSCProj_ConMissile : DSCProjectile
 	{
 		Scale 1.25;
 		Speed 20;
-		DamageFunction 20 * DSCDMG;
+		DamageFunction DescentDMG(20);
 		DSCProjectile.FireSound "ConcussionMissile/Fire";
 		Tag "Concussion";
 	}

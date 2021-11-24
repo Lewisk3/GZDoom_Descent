@@ -412,7 +412,12 @@ class DSCProjectile : Actor
 		DSCProjectile.GuidedMissile false;
 		Tag "Missile";
 	}
-		
+	
+	static int DescentDMG(double dmg)
+	{
+		return dmg * DSCDMG * descentServer_outdamagemod;
+	}
+	
 	clearscope virtual string GetCameraName()
 	{
 		return getTag().MakeUpper();
@@ -436,6 +441,7 @@ class DSCProjectile : Actor
 	
 	void A_ExplodeEx(double pow, double dist, double dmgmod = 1.0, bool damageSelf = false, bool damageBosses = true)
 	{
+		pow = DescentDMG(pow);
 		let it = ThinkerIterator.Create("Actor");
 		Actor act;
 		while(act = Actor(it.Next()))
@@ -453,13 +459,11 @@ class DSCProjectile : Actor
 		}
 	}
 	
-	
 	override int SpecialMissileHit(Actor victim)
 	{
 		if(victim != target && victim.bSHOOTABLE) Spawn("ImpactExplosion", pos);
 		return super.SpecialMissileHit(victim);
 	}
-	
 	
 	override void Tick()
 	{
@@ -504,8 +508,13 @@ class DSCProjectile : Actor
 		if(scale == -1) scale = self.scale.X;
 		if(dam < 0) 
 		{
-			dam = 128 * DSCDMG;
+			dam  = DescentDMG(128);
 			dist = 128;
+		}
+		else
+		{
+			// Apply default damage scaling.
+			dam = DescentDMG(dam);
 		}
 		A_Explode(dam, dist, flags);
 		let expl = Spawn(type, (pos.xy,pos.z+(height*0.5)));

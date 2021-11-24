@@ -39,7 +39,7 @@ class DSCProj_Plasma : DSCProjectile
 		Radius 5;
 		Height 5;
 		Speed 30;
-		DamageFunction 11 * DSCDMG;
+		DamageFunction DescentDMG(11);
 		Scale 0.20;
 		DSCProjectile.EnergyUse 0.125;
 		Decal "Scorch";

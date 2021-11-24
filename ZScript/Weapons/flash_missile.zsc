@@ -58,7 +58,7 @@ class DSCProj_FlashMissile : DSCProj_ConMissile
 	{
 		Scale 1.25;
 		Speed 20;
-		DamageFunction 9 * DSCDMG;
+		DamageFunction DescentDMG(9);
 		DSCProjectile.FireSound "flashMissile/Fire";
 		Tag "Flash";
 	}

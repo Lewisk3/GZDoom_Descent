@@ -52,7 +52,7 @@ class DSCProj_Helix : DSCProjectile
 		Radius 5;
 		Height 5;
 		Speed 40;
-		DamageFunction 8 * DSCDMG;
+		DamageFunction DescentDMG(8);
 		Scale 0.12;
 		DSCProjectile.EnergyUse 0.12;
 		Decal "Scorch";

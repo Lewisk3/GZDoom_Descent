@@ -1,6 +1,7 @@
 class Descent_Laser : DSCWeapon
 {
 	bool quadFire;
+	int gattlingPos;
 
 	Default
 	{
@@ -19,15 +20,20 @@ class Descent_Laser : DSCWeapon
 		double upgrades = curLevel;
 		if(curLevel >= 4)
 		{
-			upgrades = curLevel-4;
+			upgrades = (curLevel-4) + 1;
 			laserType = "Descent_SuperLaser";
 		}
-		
+				
 		for(int i = 0; i < upgrades; i++)
-		{
 			DSCEffects.EjectItem(laserType, Owner.pos, frandom(0,360), frandom(-90,90), 5);
-			curLevel--;
+		
+		if(quadFire)
+		{
+			DSCEffects.EjectItem("Descent_QuadLasers", Owner.pos, frandom(0,360), frandom(-90,90), 5);
+			quadFire = false;
 		}
+		
+		curLevel = 0;
 	}
 	
 	override void MakeMaxLevel()
@@ -55,6 +61,8 @@ class Descent_Laser : DSCWeapon
 	{
 		if(curLevel >= 4) 
 			HUDGraphic = "WeapSuperLaser";
+		else
+			HUDGraphic = default.HUDGraphic;
 	}
 	
 	States
@@ -68,6 +76,7 @@ class Descent_Laser : DSCWeapon
 		loop;
 		
 		Fire:
+			TNT1 A 0 A_JumpIf(CVar.GetCVar("descent_gatlinglasers", player).GetBool(), "Fire.Gattling");
 			TNT1 A 8
 			{
 				A_FireLaser(-15, -5);
@@ -76,6 +85,23 @@ class Descent_Laser : DSCWeapon
 				{
 					A_FireLaser(-30, -15, false, false);
 					A_FireLaser( 30, -15, false, false);
+				}
+			}
+		goto Ready;
+		
+		Fire.Gattling:
+			TNT1 A 3
+			{
+				invoker.gattlingPos++;
+				if( invoker.gattlingpos > (invoker.quadFire ? 3 : 1) )
+					invoker.gattlingpos = 0;
+				
+				switch(invoker.gattlingPos)
+				{
+					case 0: A_FireLaser(-15, -5); 		 break;
+					case 1: A_FireLaser( 15, -5,  true); break;
+					case 2: A_FireLaser(-30, -15); 	     break;
+					case 3: A_FireLaser( 30, -15, true); break;
 				}
 			}
 		Goto Ready;
@@ -249,14 +275,14 @@ class DSCProj_Laser : DSCProjectile
 // DSC Numbers - 10, 11, 12, 13
 class DSCProj_LaserLV1 : DSCProj_Laser {
 	Default {	
-		DamageFunction 10 * DSCDMG;
+		DamageFunction DescentDMG(10);
 		DSCProj_Laser.LaserColor "Red";
 		DSCProjectile.energyUse 0.1;
 	}
 }
 class DSCProj_LaserLV2 : DSCProj_Laser {
 	Default {	
-		DamageFunction 11 * DSCDMG;
+		DamageFunction DescentDMG(11);
 		DSCProj_Laser.LaserColor "Purple";
 		DSCProj_Laser.CoreColor "#F580FF";
 		DSCProjectile.energyUse 0.1;
@@ -264,7 +290,7 @@ class DSCProj_LaserLV2 : DSCProj_Laser {
 }
 class DSCProj_LaserLV3 : DSCProj_Laser {
 	Default {	
-		DamageFunction 12 * DSCDMG;
+		DamageFunction DescentDMG(12);
 		DSCProj_Laser.LaserColor "Blue";
 		DSCProj_Laser.CoreColor "#B0B0FF";
 		DSCProjectile.energyUse 0.1;
@@ -272,7 +298,7 @@ class DSCProj_LaserLV3 : DSCProj_Laser {
 }
 class DSCProj_LaserLV4 : DSCProj_Laser {
 	Default {	
-		DamageFunction 13 * DSCDMG;
+		DamageFunction DescentDMG(13);
 		DSCProj_Laser.LaserColor "Green";
 		DSCProj_Laser.CoreColor "#C7F2B8";
 		DSCProjectile.energyUse 0.1;
@@ -280,7 +306,7 @@ class DSCProj_LaserLV4 : DSCProj_Laser {
 }
 class DSCProj_LaserLV5 : DSCProj_Laser {
 	Default {	
-		DamageFunction 14 * DSCDMG;
+		DamageFunction DescentDMG(14);
 		DSCProj_Laser.LaserColor "Yellow";
 		DSCProj_Laser.CoreColor "#FFFFFF";
 		DSCProjectile.energyUse 0.2;
@@ -288,7 +314,7 @@ class DSCProj_LaserLV5 : DSCProj_Laser {
 }
 class DSCProj_LaserLV6 : DSCProj_Laser {
 	Default {	
-		DamageFunction 15 * DSCDMG;
+		DamageFunction DescentDMG(15);
 		DSCProj_Laser.LaserColor "White";
 		DSCProj_Laser.CoreColor "White"; // "Black"
 		DSCProjectile.energyUse 0.2;

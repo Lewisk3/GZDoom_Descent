@@ -421,7 +421,7 @@ class EnergyConvertDevice : Inventory
 	States
 	{
 		DoConvert:
-			TNT1 A 5
+			TNT1 A 3
 			{
 				let dscplr = DescentPlayer(Owner);
 				if(!dscplr) return HaltConvert();
@@ -440,7 +440,7 @@ class EnergyConvertDevice : Inventory
 					return HaltConvert();
 				}
 				
-				Owner.A_StartSound("EnergyConverter/Convert", flags:CHANF_OVERLAP|CHANF_NOSTOP);
+				Owner.A_StartSound("EnergyConverter/Convert", flags:CHANF_NOSTOP);
 				dscplr.energy -= 1;
 				dscplr.shields += 0.5;
 				

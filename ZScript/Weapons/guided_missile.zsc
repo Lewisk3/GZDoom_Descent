@@ -59,7 +59,7 @@ class DSCProj_GuidedMissile : DSCProj_ConMissile
 	{
 		Scale 1.25;
 		Speed 15;
-		DamageFunction 49 * DSCDMG;
+		DamageFunction DescentDMG(49);
 		DSCProjectile.FireSound "GuidedMissile/Fire";
 		DSCProjectile.GuidedMissile true;
 		Tag "Guided";

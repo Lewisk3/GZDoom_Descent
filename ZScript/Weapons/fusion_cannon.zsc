@@ -102,7 +102,7 @@ class DSCProj_FusionPlasma : DSCProj_Laser
 	
 	virtual int GetDamage()
 	{
-		return ( 60 + (60*charge) ) * DSCDMG;
+		return DescentDMG( 60 + (60*charge) );
 	}
 	
 	States

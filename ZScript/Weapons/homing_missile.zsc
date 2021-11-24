@@ -62,7 +62,7 @@ class DSCProj_HomMissile : DSCProj_ConMissile
 	Default
 	{
 		Speed 20;
-		DamageFunction 27 * DSCDMG;
+		DamageFunction DescentDMG(27);
 		DSCProj_HomMissile.TargetFindTime 1.0;
 		DSCProj_HomMissile.TrackingRanges 0, 512;
 		DSCProj_HomMissile.TrackingStrength 2;

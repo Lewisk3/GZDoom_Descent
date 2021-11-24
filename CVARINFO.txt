@@ -1,0 +1,3 @@
+user bool descent_gatlinglasers = false;
+server float descentServer_indamagemod  = 1.0;
+server float descentServer_outdamagemod = 1.0;

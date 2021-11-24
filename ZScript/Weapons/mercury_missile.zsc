@@ -58,7 +58,7 @@ class DSCProj_MercMissile : DSCProj_ConMissile
 	{
 		Scale 1.25;
 		Speed 50;
-		DamageFunction 42 * DSCDMG;
+		DamageFunction DescentDMG(42);
 		DSCProjectile.FireSound "MercuryMissile/Fire";
 		Tag "Mercury";
 	}

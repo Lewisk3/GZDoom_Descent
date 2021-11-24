@@ -42,6 +42,22 @@ AddOptionMenu "CustomizeControls"
 	StaticText "↓ More Controls ↓"
 }
 
+AddOptionMenu "OptionsMenu"
+{
+	SubMenu "Descent Options", "GZDescentGameplayMenu"
+}
+
+OptionMenu "GZDescentGameplayMenu"
+{
+	Title "GZDescent Gameplay Tweaks"
+	StaticText "Weapon Tweaks", "Sapphire"
+	Option "Gattling Lasers", "descent_gatlinglasers", "OnOff"
+	StaticText " "
+	StaticText "Damage Tweaks", "Sapphire"
+	Slider "Incoming Damage Multiplier", "descentServer_indamagemod",  0, 100, 0.05, 2
+	Slider "Outgoing Damage Multiplier", "descentServer_outdamagemod", 0, 100, 0.05, 2
+}
+
 OptionMenu "GZDescentControlsMenu"
 {
 	Title "GZDescent Controls"
@@ -93,5 +109,10 @@ OptionMenu "GZDescentControlsMenu"
 	Control "Flash"		 	  , "selectmissile09" 
 	Control "Earthshaker"	  , "selectmissile10" 
 	
-	StaticText " "
+}
+
+OptionValue "OnOff"
+{
+	0, "Off" 
+	1, "On" 
 }

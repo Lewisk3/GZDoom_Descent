@@ -53,7 +53,7 @@ class DSCProj_ShakerMissile : DSCProj_ConMissile
 	Default
 	{
 		Speed 20;
-		DamageFunction 500 * DSCDMG;
+		DamageFunction DescentDMG(500);
 		DSCProjectile.FireSound "Earthshaker/Fire";
 		DSCProjectile.SetMissileCamera true;
 		Tag "Earthshaker";
@@ -82,7 +82,6 @@ class DSCProj_ShakerMissile : DSCProj_ConMissile
 			}
 		loop;
 		
-		
 		Crash:
 		Death:
 		XDeath:
@@ -103,7 +102,7 @@ class DSCProj_ShakerMissile : DSCProj_ConMissile
 				if(GetAge() < 20) blink = false;
 				
 				DSCEffects.ViewRecoil(target, frandom[EarthShake](-2,2), frandom[EarthShake](-2,2), frandom[EarthShake](-2,2));
-				A_ExplodeEx(30 * DSCDMG, 1024);
+				A_ExplodeEx(30, 1024);
 			}
 			// Flash lighting effects.
 			TNT1 A 0 A_StopSound(CHAN_BODY);
@@ -117,7 +116,7 @@ class DSCProj_ShakerTracker : DSCProj_SmartTracker
 	{
 		Scale 0.25;
 		Speed 10;
-		DamageFunction 100 * DSCDMG;
+		DamageFunction DescentDMG(100);
 	}
 	
 	States
@@ -132,7 +131,7 @@ class DSCProj_ShakerTracker : DSCProj_SmartTracker
 		Crash:
 		Death:
 		XDeath:
-			BOOM A 1 Bright DoMissileExplosion(300 * DSCDMG, 128, 2.0, type:"EarthshakerChildExplosion");
+			BOOM A 1 Bright DoMissileExplosion(300, 128, 2.0, type:"EarthshakerChildExplosion");
 		stop;
 	}
 }

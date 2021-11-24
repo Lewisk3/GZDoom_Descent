@@ -40,7 +40,7 @@ class DSCProj_Phoenix : DSCProj_Plasma
 		Radius 5;
 		Height 5;
 		Speed 20;
-		DamageFunction 14 * DSCDMG;
+		DamageFunction DescentDMG(14);
 		Scale 0.35;
 		DSCProjectile.EnergyUse 0.35;
 		Decal "Scorch";
