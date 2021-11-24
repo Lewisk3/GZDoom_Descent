@@ -470,7 +470,7 @@ class DSCProjectile : Actor
 		{
 			FLineTraceData lt;
 			LineTrace(angle, radius*2, pitch, data:lt);
-			if(lt.HitLine) DSCEffects.CanOpenDoor(self, lt.HitLine);
+			if(lt.HitLine) DSCEffects.CanOpenDoor(target, lt.HitLine);
 			dead = true;
 			return; // Collided
 		}

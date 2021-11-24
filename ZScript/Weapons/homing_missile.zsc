@@ -54,9 +54,10 @@ class Descent_HomMissileBundle : DSCMissilePickup
 
 class DSCProj_HomMissile : DSCProj_ConMissile
 {
-	double mindist, maxdist, trackTime, viewFOV;
+	double mindist, maxdist, trackTime, viewFOV, maxturn;
 	Property TargetFindTime : trackTime; // In seconds.
 	Property TrackingRanges : mindist, maxdist; 
+	Property TrackingStrength : maxturn;
 	
 	Default
 	{
@@ -64,11 +65,12 @@ class DSCProj_HomMissile : DSCProj_ConMissile
 		DamageFunction 27 * DSCDMG;
 		DSCProj_HomMissile.TargetFindTime 1.0;
 		DSCProj_HomMissile.TrackingRanges 0, 512;
+		DSCProj_HomMissile.TrackingStrength 2;
 		DSCProjectile.FireSound "HomingMissile/Fire";
 		Tag "Homing";
 	}
 	
-	void TrackTracer(double maxturn = 2)
+	void TrackTracer()
 	{
 		if(!tracer) return;
 		if(tracer.health <= 0 || tracer.bCORPSE) 
@@ -87,7 +89,7 @@ class DSCProj_HomMissile : DSCProj_ConMissile
 		vel = DSCMath.V3Offset(angle,pitch,roll, 1,0,0, vel.Length());
 	}
 	
-	Actor FindTarget()
+	Actor FindTarget(bool allaround = true)
 	{
 		let it = BlockThingsIterator.Create(self, 512);
 		Actor act;
@@ -101,8 +103,8 @@ class DSCProj_HomMissile : DSCProj_ConMissile
 			if(act == self || act == target) continue;
 			if(!act.bSHOOTABLE || !act.bISMONSTER) continue;
 			if (act.bKILLED) continue;        
-			if(!IsVisible(act, false)) continue; // Actor is behind wall.     
-			if(target && !target.IsVisible(act, false)) continue;
+			if(!IsVisible(act, allaround)) continue; // Actor is behind wall.     
+			if(target && !target.IsVisible(act, allaround)) continue;
 			tracer = act;
 			closest = dist;
 		}
