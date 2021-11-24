@@ -51,11 +51,11 @@ OptionMenu "GZDescentGameplayMenu"
 {
 	Title "GZDescent Gameplay Tweaks"
 	StaticText "Weapon Tweaks", "Sapphire"
-	Option "Gattling Lasers", "descent_gatlinglasers", "OnOff"
+	Option "Gatling Lasers", "descent_gatlinglasers", "OnOff"
 	StaticText " "
 	StaticText "Damage Tweaks", "Sapphire"
-	Slider "Incoming Damage Multiplier", "descentServer_indamagemod",  0, 100, 0.05, 2
-	Slider "Outgoing Damage Multiplier", "descentServer_outdamagemod", 0, 100, 0.05, 2
+	Slider "Incoming Damage Multiplier", "descentServer_indamagemod",  0, 10, 0.05, 2
+	Slider "Outgoing Damage Multiplier", "descentServer_outdamagemod", 0, 10, 0.05, 2
 }
 
 OptionMenu "GZDescentControlsMenu"
