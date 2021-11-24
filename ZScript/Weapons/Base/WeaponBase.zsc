@@ -329,6 +329,7 @@ class DSCSpecialWeapon : Inventory abstract
 
 class DSCHitscanBullet : FastProjectile
 {
+	double truedamage;
 	Default
 	{
 		Radius 5;
@@ -354,7 +355,7 @@ class DSCHitscanBullet : FastProjectile
 		{
 			victim.DamageMobJ(
 				master, master.target, 
-				master.damage, master.DamageType, 
+				truedamage, master.DamageType, 
 				0, victim.AngleTo(self)
 			);
 			Spawn("ImpactExplosion", pos);
@@ -381,6 +382,7 @@ class DSCHitscanBullet : FastProjectile
 
 class DSCProjectile : Actor
 {
+	double hitscanDamage;
 	double energyUse;
 	Sound fireSound;
 	bool setCamera;
@@ -398,7 +400,7 @@ class DSCProjectile : Actor
 	Property SetupAmmo : ammoType, ammoUse;
 	Property SetMissileCamera : setCamera;
 	Property GuidedMissile : guided;
-	
+	Property HitscanDamage : hitscanDamage;
 	
 	Default
 	{	
@@ -490,14 +492,16 @@ class DSCProjectile : Actor
 		
 	}
 	
-	DSCHitscanBullet DoHitscan()
+	DSCHitscanBullet DoHitscan(double dmg = -1)
 	{
 		let hitscan = DSCHitscanBullet(Spawn("DSCHitscanBullet", pos));
 		if(hitscan) 
 		{
+			if(dmg < 0) dmg = hitscanDamage;
 			hitscan.vel = vel.Unit() * hitscan.Speed;
 			hitscan.A_SetSize(radius, height);
 			hitscan.target = target;
+			hitscan.truedamage = DescentDMG(dmg);
 			hitscan.master = self;
 		}
 		return hitscan;

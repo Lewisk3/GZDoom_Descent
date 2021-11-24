@@ -64,8 +64,8 @@ class VulcanBullet : DSCProjectile
 		Radius 2;
 		Height 2;
 		Scale 0.65;
-		DamageFunction DescentDMG(4);
 		+ROLLSPRITE;
+		DSCProjectile.HitscanDamage 4;
 		DSCProjectile.SetupAmmo "VulcanAmmo", 13; // 12.75 per-shot.
 	}
 		
@@ -78,7 +78,7 @@ class VulcanBullet : DSCProjectile
 	States
 	{	
 		Spawn:
-			MODL A 0 NoDelay DoHitscan();
+			TNT1 A 0 NoDelay DoHitscan();
 		SpawnLoop:
 			TNT1 A 1;
 		loop;
