@@ -107,7 +107,7 @@ extend class DescentEvents
 				"Descent_MercMissileBundle",
 				"Descent_MercMissileBundle",
 				"Descent_GuidedMissileBundle",
-				"Descent_GuidedMissileBundle",
+				"Descent_MercMissileBundle",
 				"Descent_HomMissileBundle",
 				"Descent_HomMissileBundle",
 				"Descent_SmartMissile",

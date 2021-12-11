@@ -74,6 +74,7 @@ class DSCProj_SmartTracker : DSCProj_HomMissile
 		DSCProj_HomMissile.TargetFindTime 0; // Infinite
 		DSCProj_HomMissile.TrackingRanges 0, 512;
 		DSCProj_HomMissile.TrackingStrength 8;
+		DSCProj_HomMissile.TrackFullVision true;
 		DSCProjectile.FireSound "";
 	}
 	

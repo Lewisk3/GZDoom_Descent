@@ -54,10 +54,12 @@ class Descent_HomMissileBundle : DSCMissilePickup
 
 class DSCProj_HomMissile : DSCProj_ConMissile
 {
-	double mindist, maxdist, trackTime, viewFOV, maxturn;
+	bool view_allaround;
+	double mindist, maxdist, trackTime, maxturn;
 	Property TargetFindTime : trackTime; // In seconds.
 	Property TrackingRanges : mindist, maxdist; 
 	Property TrackingStrength : maxturn;
+	Property TrackFullVision : view_allaround;
 	
 	Default
 	{
@@ -66,6 +68,7 @@ class DSCProj_HomMissile : DSCProj_ConMissile
 		DSCProj_HomMissile.TargetFindTime 1.0;
 		DSCProj_HomMissile.TrackingRanges 0, 512;
 		DSCProj_HomMissile.TrackingStrength 2;
+		DSCProj_HomMissile.TrackFullVision false;
 		DSCProjectile.FireSound "HomingMissile/Fire";
 		Tag "Homing";
 	}
@@ -91,20 +94,22 @@ class DSCProj_HomMissile : DSCProj_ConMissile
 	
 	Actor FindTarget(bool allaround = true)
 	{
-		let it = BlockThingsIterator.Create(self, 512);
+		let it = ThinkerIterator.Create();
 		Actor act;
 		double closest = tracer ? Distance3DSquared(tracer) : double.infinity;
-		while (it.Next())
+		while (act = Actor(it.Next()))
 		{
-			let act = it.thing;
-			int dist = Distance3DSquared(act);
-			if(dist < mindist**2) continue;
-			if(dist > closest**2) continue;
+			double dist = Distance3DSquared(act);
+			if(dist > closest || dist < mindist**2 || dist > maxdist**2) continue;
+			
 			if(act == self || act == target) continue;
-			if(!act.bSHOOTABLE || !act.bISMONSTER) continue;
-			if (act.bKILLED) continue;        
-			if(!IsVisible(act, allaround)) continue; // Actor is behind wall.     
-			if(target && !target.IsVisible(act, allaround)) continue;
+			if(!act.bSHOOTABLE || !act.bISMONSTER || act.bKILLED) continue;   
+			
+			LookExParams look;
+			look.FOV = allaround ? 360 : 30;
+			if(!IsVisible(act, allaround, look)) continue; // Actor is behind wall.     
+			if(target && !target.IsVisible(act, allaround, look)) continue;
+			
 			tracer = act;
 			closest = dist;
 		}
@@ -115,7 +120,7 @@ class DSCProj_HomMissile : DSCProj_ConMissile
 	{
 		super.Tick();
 		if(GetAge() > 5 && (GetAge() < (trackTime * 35.0) || trackTime <= 0)) 
-			FindTarget();
+			FindTarget(view_allaround);
 			
 		TrackTracer();
 	}
