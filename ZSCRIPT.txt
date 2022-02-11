@@ -23,6 +23,9 @@ const DSCMOVEFRICT = 0.88; // Movement Friction
 #include "ZScript/descent_spawners.zsc"
 #include "ZScript/descent_effectItems.zsc"
 
+// API
+#include "ZScript/API/enemies.zsc"
+
 // SBS
 #include "ZScript/SBS/dsc_sbs_base.zsc"
 #include "ZScript/SBS/dsc_sbs_3D.zsc"

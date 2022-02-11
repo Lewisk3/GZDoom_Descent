@@ -1,0 +1,209 @@
+class DescentEnemy : Actor
+{
+	double friction;
+	vector3 toAngles;
+	double curChaseAngle;
+	Quaternion curRotation;
+
+	Property MoveFriction : friction;
+
+	Default
+	{
+		+INTERPOLATEANGLES;
+		+SLIDESONWALLS;
+		
+		DescentEnemy.MoveFriction 0.03;
+	}
+	
+	override void PostBeginPlay()
+	{
+		curRotation.fromEulerAngle(angle, pitch, roll);
+		toAngles = (0, 0, 0);
+		curChaseAngle = angle;
+		super.PostBeginPlay();
+	}
+	
+	Actor A_ShootProjectile(class<Actor> proj, double angleOffs = 0, double pitchOffs = 0, double rollOffs = 0, double fw = 0, double lr = 0, double ud = 0, double speed = 0)
+	{
+		vector3 views = (angle+angleOffs, pitch+pitchOffs, roll+rollOffs);
+		vector3 worldOffs = DSCMath.V3Offset(views.x,views.y,views.z, fw,lr,ud, 1.0);
+		vector3 spawnPos = level.vec3offset(pos, worldOffs);
+		
+		let proj = DSCProjectile(Actor.Spawn(proj, spawnPos));
+		if(proj)
+		{
+			proj.angle = views.x;
+			proj.pitch = views.y;
+			proj.roll  = views.z;
+			proj.target = self;
+			
+			double move = speed ? speed : proj.default.Speed;
+            proj.vel = DSCMath.V3Offset(views.x,views.y,views.z, 1,0,0, move);
+		}
+		
+		return proj;
+	}
+	
+	override int DamageMobJ(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
+	{
+		Actor shooter = inflictor.bSHOOTABLE ? inflictor : source;
+		if(shooter.bSHOOTABLE && target != shooter) 
+		{
+			double shooterDist = Distance3DSquared(shooter);
+			double curDist = Distance3DSquared(target);
+			double distMod = clamp(shooterDist / curDist, 0, 2.0);
+			double threatLevel = 50 * distMod;
+			if(random[EngageThreat](0,100) >= (100-threatLevel))
+				target = shooter;	
+		}
+		
+		return super.DamageMobJ(inflictor, source, damage, mod, flags, angle);
+	}
+	
+	override void Tick()
+	{
+		A_TurnToTarget();
+	
+        Quaternion input;
+        input.FromEulerAngle(toAngles.x, toAngles.y, toAngles.z);
+        Quaternion.Multiply(curRotation, curRotation, input);
+
+        // Interpolate to it
+        Quaternion r;
+        r.FromEulerAngle(angle, pitch, roll);
+
+        Quaternion.Slerp(r, r, curRotation, 0.2);
+
+        double newAngle, newPitch, newRoll;
+        [newAngle, newPitch, newRoll] = r.ToEulerAngle();
+
+        A_SetAngle(newAngle, SPF_Interpolate);
+        A_SetPitch(newPitch, SPF_Interpolate);
+        A_SetRoll(newRoll, SPF_Interpolate);
+		toAngles *= 0;
+		
+		vel *= (1.0-friction); // Friction
+		
+		super.Tick();
+	}
+	
+	void A_DescentLook(StateLabel seeState = "See", double lookFOV = 90)
+	{
+		LookExParams look;
+		look.FOV = 90;
+		int close = int.max;
+		target = null;
+		
+		// Process hearing
+		Actor noisyActor = CurSector.SoundTarget;
+		if(!noisyActor) noisyActor = LastHeard;
+		
+		let it = ThinkerIterator.Create();
+		Actor act;
+		while(act = Actor(it.Next()))
+		{
+			if(!act.bSHOOTABLE) continue;
+			if(!IsHostile(act)) continue;
+			if(!IsVisible(act, false, look) && act != noisyActor) continue;
+			
+			double dist = Distance3DSquared(act);
+			if(close > dist) 
+			{
+				target = act;
+				close = dist;
+			}
+		}
+		
+		if(target && seeState) 
+			SetStateLabel(seeState); 
+	}
+	
+	void A_DescentChase(double missileChance = 50, double minMissileDist = 512, double viewSens = 10)
+	{
+		if(!target || target.health <= 0) 
+		{
+			if(bFRIENDLY) 
+			{
+				A_DescentLook(null);
+				A_DescentWander();
+			}
+			else
+			{
+				SetStateLabel("Spawn");
+			}
+			return;
+		}
+		
+		if(bFRIENDLY)
+		{
+			PlayerInfo fPlayer = players[FriendPlayer];
+			if(fPlayer && fPlayer.attacker && !fPlayer.attacker.bFRIENDLY)
+				target = fPLayer.attacker;
+		}
+		
+		LookExParams look;
+		look.FOV = 90;
+		bool canSee = IsVisible(target, false, look);
+		
+		// Take direct route.
+		vector3 aimToPos = (target.pos.xy, target.pos.z + (target.height*0.5));
+		vector3 toOther = level.sphericalCoords(pos, aimToPos, (angle,pitch));
+		bool facingTarget = (abs(toOther.x) + abs(toOther.y)) <= viewSens;
+		if(!facingTarget) return;
+		
+		if( canSee && (toOther.z <= minMissileDist || random[MissileRandom](0,100) >= (100-missileChance)) ) 
+		{
+			SetStateLabel("Missile");
+			return;
+		}
+
+		if(canSee)
+		{
+			toOther.x += angle;
+			toOther.y += pitch;
+			vel = (
+				cos(toOther.x) * cos(toOther.y),
+				sin(toOther.x) * cos(toOther.y),
+				-sin(toOther.y)
+			) * default.Speed; 
+		}
+		else
+		{
+			NewChaseDir();
+			curChaseAngle = DSCMath.LerpDegrees(curChaseAngle, movedir*45, 0.25);
+			
+			vel = (
+				cos(curChaseAngle) * cos(toOther.y),
+				sin(curChaseAngle) * cos(toOther.y),
+				-sin(toOther.y)
+			) * default.Speed;
+		}
+	}
+	
+	void A_DescentWander()
+	{
+		RandomChaseDir();
+		curChaseAngle = DSCMath.LerpDegrees(curChaseAngle, movedir*45, 0.25);
+		
+		vel = (
+			cos(curChaseAngle) * cos(pitch),
+			sin(curChaseAngle) * cos(pitch),
+			-sin(pitch)
+		) * default.Speed;
+	}
+	
+	void A_TurnToTarget(double turnSpeed = 4)
+	{
+		if(!target) return;
+		vector3 aimToPos = (target.pos.xy, target.pos.z + (target.height*0.5));
+		vector3 toOther = level.sphericalCoords(pos, aimToPos, (angle,pitch));
+		double toRoll = target.roll-roll;
+		double xSpeed = -turnSpeed * (abs(toOther.x) > turnSpeed);
+		double ySpeed = -turnSpeed * (abs(toOther.y) > turnSpeed);
+		double zSpeed = -turnSpeed * (abs(toRoll) > turnSpeed);
+		
+		toAngles.x = xSpeed * DSCMath.sign(toOther.x);
+		toAngles.y = ySpeed * DSCMath.sign(toOther.y);
+		toAngles.z = 0;
+	}	
+}
