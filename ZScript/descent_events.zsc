@@ -13,13 +13,13 @@ class DescentEvents : EventHandler
 		vector3 explodePos = level.vec3offset(e.Thing.pos, (0,0,e.Thing.Height*0.5));
 		Actor.Spawn("EnemyExplosion", explodePos);
 		
-		int energyOdds = 30;
-		energyOdds -= clamp(ceil(e.Thing.SpawnHealth() / 40), 0, 30);
-		
-		if(random[EDeathDrops](0,energyOdds) == 0)
+		int energyOdds = 25;
+		energyOdds -= clamp(ceil(e.Thing.SpawnHealth() / 30), 0, energyOdds);
+			
+		if(!energyOdds || random[EDeathDrops](0,energyOdds) == 0)
 			Actor.Spawn("EnergyBoost", e.Thing.pos);
 			
-		if(random[SDeathDrops](0,50) == 0)
+		if(random[SDeathDrops](0,100) == 0)
 			Actor.Spawn("ShieldsBoost", e.Thing.pos);
 	}
 	

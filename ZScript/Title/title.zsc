@@ -213,6 +213,10 @@ class DescentDoom_TitleMenu : DescentMenuBase
 		btntxt = newBtnText("OPTIONS...", MenuFont);
 		buttons.push(Button.CreateTextButton('Options', 960, btnY, 256, 32, btntxt));
 		btnY += btnSpace;
+		
+		btntxt = newBtnText("DIFFICULTY...", MenuFont);
+		buttons.push(Button.CreateTextButton('Tweaks', 960, btnY, 256, 32, btntxt));
+		btnY += btnSpace;
 				
 		btntxt = newBtnText("CREDITS", MenuFont);
 		buttons.push(Button.CreateTextButton('Credits', 960, btnY, 256, 32, btntxt));
@@ -308,6 +312,9 @@ class DescentDoom_TitleMenu : DescentMenuBase
 					break;
 					case 'Options':     // Options
 						Menu.SetMenu('OptionsMenu');
+					break;
+					case 'Tweaks':    // Descent Doom configuration.
+						Menu.SetMenu("GZDescentGameplayMenu");
 					break;
 					case 'Credits':     // Credits
 						Menu.SetMenu('CreditsMenu');

@@ -13,6 +13,7 @@ class SixDoFPlayer : PlayerPawn
 	vector3 viewAngles;
 	vector3 adjustView;
 	vector3 accel;
+	vector3 prevPos; // Try and detect teleport.
 
     double upMove;
     Quaternion targetRotation;
@@ -68,6 +69,13 @@ class SixDoFPlayer : PlayerPawn
 
     override void MovePlayer()
     {	
+		vector3 moveDelta = level.vec3diff(prevPos, pos);
+		if( !(moveDelta ~== (0,0,0)) && moveDelta.Length() > vel.Length()*2.0)
+		{
+			// Reset interpolation, maybe we teleported?
+			targetRotation.FromEulerAngle(angle, pitch, roll);
+		}
+		
         UserCmd cmd = player.cmd;
 
 		viewAngles *= viewFriction;			
@@ -102,6 +110,7 @@ class SixDoFPlayer : PlayerPawn
 		
 		vel += accel;
 		player.vel = vel.xy;
+		prevPos = pos;
     }
 	
 	virtual void DoAccelerate(double inputForward, double inputSide, double inputUp, double fw_mod = 1.0, double lr_mod = 1.0)
@@ -157,7 +166,7 @@ class SixDoFPlayer : PlayerPawn
 		
 		if(cmdYaw)
 		{
-			ViewRoll -= (cmdYaw * 0.5);
+			ViewRoll -= (cmdYaw * 0.15);
 		}
 
         Quaternion input;

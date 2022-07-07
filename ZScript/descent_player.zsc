@@ -93,6 +93,9 @@ class DescentPlayer : SixDoFPlayer
 			trueDamage /= DSCDMG;
 		else 
 			trueDamage *= DMGTAKEN;
+			
+		if(mod == 'Hitscan')
+			trueDamage *= DMGHITSCANMOD;
 		
 		if(!shields)
 		{
@@ -148,7 +151,7 @@ class DescentPlayer : SixDoFPlayer
 		}
 				
 		// Height is set here so that voodoo scripts do not break.
-		if(height != 28) A_SetSize(16,28);
+		if(height != 28) A_SetSize(16,20);
 		
 		screen_fade *= FADE_RATE;
 		FilterWeapons();

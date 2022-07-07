@@ -97,7 +97,7 @@ extend class DescentEvents
 		if(e.Replacee is "Clip" || e.Replacee is "Shell" || e.Replacee is "Cell")
 		{
 			e.Replacement = "Actor";
-			if(random[DSCReplacement](0,4)==4)
+			if(random[DSCReplacement](0,2)==2)
 				e.Replacement = "EnergyBoost";
 		}
 		
