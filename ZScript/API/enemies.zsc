@@ -47,7 +47,7 @@ class DescentEnemy : Actor
 	override int DamageMobJ(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
 	{
 		Actor shooter = inflictor.bSHOOTABLE ? inflictor : source;
-		if(shooter.bSHOOTABLE && target != shooter) 
+		if(shooter.bSHOOTABLE && target != shooter && target) 
 		{
 			double shooterDist = Distance3DSquared(shooter);
 			double curDist = Distance3DSquared(target);
