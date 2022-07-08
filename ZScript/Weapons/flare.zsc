@@ -19,8 +19,9 @@ class DSCProj_Flare : DSCProjectile
 	States
 	{	
 		Death:
-			MODL A 70;
-		stop;
+			MODL A 350;
+			MODL A 1 A_FadeOut();
+		wait;
 		
 		XDeath:
 		Crash:

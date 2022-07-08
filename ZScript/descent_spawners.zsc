@@ -91,7 +91,10 @@ extend class DescentEvents
 				"Descent_FlashMissile",
 				"Descent_MegaMissile"
 			};
-			e.Replacement = replacements[random[DSCReplacement](0,12)];
+			int maxItems = 11;
+			if(random[MegaMissileSpawn](0,10) == 0) maxItems++;
+			
+			e.Replacement = replacements[random[DSCReplacement](0,maxItems)];
 			return;
 		}
 		if(e.Replacee is "Clip" || e.Replacee is "Shell" || e.Replacee is "Cell")
@@ -106,13 +109,17 @@ extend class DescentEvents
 			string replacements[] = {
 				"Descent_MercMissileBundle",
 				"Descent_MercMissileBundle",
-				"Descent_GuidedMissileBundle",
 				"Descent_MercMissileBundle",
+				"Descent_GuidedMissileBundle",
+				"Descent_GuidedMissileBundle",
+				"Descent_HomMissileBundle",
+				"Descent_HomMissileBundle",
 				"Descent_HomMissileBundle",
 				"Descent_HomMissileBundle",
 				"Descent_SmartMissile",
 				"Descent_SmartMissile",
 				"Descent_SmartMissile",
+				"Descent_FlashMissileBundle",
 				"Descent_FlashMissileBundle",
 				"Descent_MegaMissile"
 			};
