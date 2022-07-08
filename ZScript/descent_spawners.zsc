@@ -123,7 +123,7 @@ extend class DescentEvents
 				"Descent_FlashMissileBundle",
 				"Descent_MegaMissile"
 			};
-			e.Replacement = replacements[random[DSCReplacement](0,10)];
+			e.Replacement = replacements[random[DSCReplacement](0,14)];
 			return;
 		}
 		if(e.Replacee is "RocketAmmo")
