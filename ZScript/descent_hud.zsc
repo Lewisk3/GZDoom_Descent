@@ -201,7 +201,7 @@ class DescentStatusBar : BaseStatusBar
 	void PushMessage(String msg)
 	{
 		vector2 msgscale = (0.7, 0.8);
-		uint count = messages.Size()-1;
+		int count = messages.Size()-1;
 		// Generate
 		let msg = DescentMessage.CreateMessage(fnt, msg.MakeUpper(), msgscale);
 		if(count >= MSGMAX-1) messages.Delete(count);
@@ -213,7 +213,7 @@ class DescentStatusBar : BaseStatusBar
 	void DrawMessages()
 	{
 		vector2 msgpos = (0, -540);
-		uint count = messages.Size()-1;
+		int count = messages.Size()-1;
 		for(int i = count; i >= 0; i--)
 		{
 			let msg = messages[i];

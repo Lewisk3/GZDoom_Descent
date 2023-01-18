@@ -1,4 +1,4 @@
-version "4.5"
+version "4.10"
 
 const DMGTAKEN      = 1.35; // Damage received multiplier.
 const DSCDMG        = 1.15; // Damage dealt muiltiplier
@@ -7,8 +7,7 @@ const DSCMAXAMMO    = 2.00; // Max Ammo Scale
 const DSCMOVESPEED  = 0.22; // Move Speed
 const DSCMOVEFRICT  = 0.88; // Movement Friction
 
-// Full Credit to: dodopod ( https://gitlab.com/dodopod/6dof-player )
-#include "ZScript/6dof/quaternion.zs"
+// Based on dodopod's original 6DOF movement code ( https://gitlab.com/dodopod/6dof-player )
 #include "ZScript/6dof/ctrls_handler.zs"
 #include "ZScript/6dof/six_dof_player.zs"
 

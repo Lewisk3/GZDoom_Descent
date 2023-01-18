@@ -3,7 +3,7 @@ class DescentEnemy : Actor
 	double friction;
 	vector3 toAngles;
 	double curChaseAngle;
-	Quaternion curRotation;
+	Quat curRotation;
 
 	Property MoveFriction : friction;
 
@@ -17,7 +17,7 @@ class DescentEnemy : Actor
 	
 	override void PostBeginPlay()
 	{
-		curRotation.fromEulerAngle(angle, pitch, roll);
+		curRotation = Quat.FromAngles(angle, pitch, roll);
 		toAngles = (0, 0, 0);
 		curChaseAngle = angle;
 		super.PostBeginPlay();
@@ -64,22 +64,17 @@ class DescentEnemy : Actor
 	{
 		A_TurnToTarget();
 	
-        Quaternion input;
-        input.FromEulerAngle(toAngles.x, toAngles.y, toAngles.z);
-        Quaternion.Multiply(curRotation, curRotation, input);
-
+        let input = Quat.FromAngles(toAngles.x, toAngles.y, toAngles.z);
+		curRotation *= input;
+	
         // Interpolate to it
-        Quaternion r;
-        r.FromEulerAngle(angle, pitch, roll);
+        let r = Quat.FromAngles(angle, pitch, roll);
+        r = Quat.Slerp(r, curRotation, 0.2);
 
-        Quaternion.Slerp(r, r, curRotation, 0.2);
-
-        double newAngle, newPitch, newRoll;
-        [newAngle, newPitch, newRoll] = r.ToEulerAngle();
-
-        A_SetAngle(newAngle, SPF_Interpolate);
-        A_SetPitch(newPitch, SPF_Interpolate);
-        A_SetRoll(newRoll, SPF_Interpolate);
+		let eulerAngles = DSCMath.getQuatAngles(r);
+        A_SetAngle(eulerAngles.x, SPF_Interpolate);
+        A_SetPitch(eulerAngles.y, SPF_Interpolate);
+        A_SetRoll(eulerAngles.z, SPF_Interpolate);
 		toAngles *= 0;
 		
 		vel *= (1.0-friction); // Friction

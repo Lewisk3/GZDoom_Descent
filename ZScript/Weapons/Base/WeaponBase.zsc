@@ -388,7 +388,7 @@ class DSCProjectile : Actor
 	bool setCamera;
 	bool guided;
 	bool dead;
-	Quaternion guidedRotation;
+	Quat guidedRotation;
 	
 	
 	class<Ammo> ammoType;
@@ -429,7 +429,7 @@ class DSCProjectile : Actor
 	{
 		super.PostBeginPlay();
 		
-		guidedRotation.FromEulerAngle(angle, pitch, roll);
+		guidedRotation = Quat.FromAngles(angle, pitch, roll);
 		A_StartSound(FireSound, CHAN_VOICE, CHANF_OVERLAP);
 		
 		let plr = DescentPlayer(target);
@@ -560,22 +560,17 @@ class DSCProjectile : Actor
 			cmdRoll -= (cmdYaw * 0.5);
 		}
 
-        Quaternion input;
-        input.FromEulerAngle(cmdYaw, cmdPitch, cmdRoll);
-        Quaternion.Multiply(guidedRotation, guidedRotation, input);
-
+        let input = Quat.FromAngles(cmdYaw, cmdPitch, cmdRoll);
+		guidedRotation *= input;
+		
         // Interpolate to it
-        Quaternion r;
-        r.FromEulerAngle(angle, pitch, roll);
+		let r = Quat.FromAngles(angle, pitch, roll);
+        r = Quat.Slerp(r, guidedRotation, 0.2);
 
-        Quaternion.Slerp(r, r, guidedRotation, 0.2);
-
-        double newAngle, newPitch, newRoll;
-        [newAngle, newPitch, newRoll] = r.ToEulerAngle();
-
-        A_SetAngle(newAngle, SPF_Interpolate);
-        A_SetPitch(newPitch, SPF_Interpolate);
-        A_SetRoll(newRoll, SPF_Interpolate);
+        vector3 eulerAngles = DSCMath.getQuatAngles(r);
+        A_SetAngle(eulerAngles.x, SPF_Interpolate);
+        A_SetPitch(eulerAngles.y, SPF_Interpolate);
+        A_SetRoll(eulerAngles.z, SPF_Interpolate);
 		
         vel = DSCMath.V3Offset(angle,pitch,roll, 1,0,0, vel.Length());
 	}

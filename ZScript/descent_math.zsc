@@ -237,6 +237,43 @@ class DSCMath Abstract
 		return dest, fulldist;
 	}
 	
+	// Get angle, pitch, roll from Quaternion q.
+	static vector3 GetQuatAngles(Quat q)
+	{
+        // Roll
+        double sinRCosP = 2 * (q.w * q.x + q.y * q.z);
+        double cosRCosP = 1 - 2 * (q.x * q.x + q.y * q.y);
+        double roll = Atan2(sinRCosP, cosRCosP);
+
+        // Pitch
+        double sinP = 2 * (q.w * q.y - q.z * q.x);
+        double pitch;
+        if (Abs(sinP) >= 1) pitch = 90 * (sinP < 0 ? -1 : 1);
+        else pitch = Asin(sinP);
+
+        // Yaw
+        double sinYCosP = 2 * (q.w * q.z + q.x * q.y);
+        double cosYCosP = 1 - 2 * (q.y * q.y + q.z * q.z);
+        double yaw = Atan2(sinYCosP, cosYCosP);
+
+        return (yaw, pitch, roll);
+	}
+	static Vector3, Vector3, Vector3 GetActorAxes(Actor act, vector3 viewScale = (1,1,1))
+    {
+        Quat r = Quat.FromAngles(act.angle * viewScale.x, act.pitch * viewScale.y, act.roll * viewScale.z);
+
+        Vector3 forward = (1, 0, 0);
+        forward = r * forward;
+
+        Vector3 right = (0, -1, 0);
+        right = r * right;
+
+        Vector3 up = (0, 0, 1);
+        up = r * up;
+
+        return forward, right, up;
+    }
+	
 	// Offset vector position.
 	static Vector2 VOffset(double angle, double xoffs, double yoffs, double dist)
 	{
@@ -246,11 +283,9 @@ class DSCMath Abstract
 	
 	// 3D Vector offset. Utilizes Gutamatrix matrixes
 	static vector3 V3Offset(double fromangle, double frompitch, double fromroll, double forward, double leftright, double updown, double distance)
-    {	
-		let mat = DSCMatrix.fromEulerAngles(fromangle, frompitch, fromroll);
-		mat = mat.multiplyVector3((forward, -leftright, updown));
-		
-		return mat.asVector3(false) * distance;
+    {
+		let dir = Quat.FromAngles(fromangle,frompitch,fromroll);
+		return dir * ((forward, -leftright, updown) * distance);
     }
 	
 	static vector3 RelativeV3Offset(Actor source, double angleoffs, double pitchoffs, double rolloffs, double forward, double leftright, double updown, double distance)
@@ -317,298 +352,4 @@ class DSCMath Abstract
 	{
         return -(d * v) - (k * (p - r));
     }
-}
-
-
-// Matrix library from Gutamatics (https://gitlab.com/Gutawer/gzdoom-gutamatics/-/blob/master/Gutamatics/Matrix.zsc)
-enum DSCVectorType {
-	DSCVector_Position,
-	DSCVector_Direction
-}
-
-class DSCMatrix {
-	private Array<double> values;
-	private int columns;
-	int rows;
-
-	/// Initialises a new Matrix.
-	DSCMatrix init(int columns, int rows) {
-		if (columns <= 0 || rows <= 0) {
-			throwAbortException("Error: <%p>.init(%d, %d) - Matrix needs to be at least 1 * 1", self, columns, rows);
-		}
-
-		self.rows = rows;
-		self.columns = columns;
-		values.resize(columns * rows);
-		for (int i = 0; i < values.size(); i++) {
-			values[i] = 0;
-		}
-
-		return self;
-	}
-
-	/// Initialises a new Matrix in a static context.
-	static DSCMatrix create(int columns, int rows) {
-		return new("DSCMatrix").init(columns, rows);
-	}
-
-	/// Returns an identity matrix.
-	static DSCMatrix identity(int dimension) {
-		DSCMatrix ret = DSCMatrix.create(dimension, dimension);
-		for (int i = 0; i < dimension; i++) {
-			ret.set(i, i, 1);
-		}
-		return ret;
-	}
-
-	/// Returns a rotation matrix from euler angles.
-	static DSCMatrix fromEulerAngles(double yaw, double pitch, double roll) {
-		DSCMatrix rYaw = DSCMatrix.identity(4);
-		double sYaw = sin(yaw);
-		double cYaw = cos(yaw);
-		rYaw.set(0, 0,  cYaw);
-		rYaw.set(0, 1, -sYaw);
-		rYaw.set(1, 0,  sYaw);
-		rYaw.set(1, 1,  cYaw);
-
-		DSCMatrix rPitch = DSCMatrix.identity(4);
-		double sPitch = sin(pitch);
-		double cPitch = cos(pitch);
-		rPitch.set(0, 0,  cPitch);
-		rPitch.set(2, 0, -sPitch);
-		rPitch.set(0, 2,  sPitch);
-		rPitch.set(2, 2,  cPitch);
-
-		DSCMatrix rRoll = DSCMatrix.identity(4);
-		double sRoll = sin(roll);
-		double cRoll = cos(roll);
-		rRoll.set(1, 1,  cRoll);
-		rRoll.set(1, 2, -sRoll);
-		rRoll.set(2, 1,  sRoll);
-		rRoll.set(2, 2,  cRoll);
-
-		// concatenate ypr to get the final matrix
-		DSCMatrix ret = rYaw.multiplyMatrix(rPitch);
-		ret = ret.multiplyMatrix(rRoll);
-		return ret;
-	}
-
-	/// Returns a rotation matrix from an axis and an angle.
-	static DSCMatrix fromAxisAngle(Vector3 axis, double angle) {
-		DSCMatrix ret = DSCMatrix.identity(4);
-		double c = cos(angle);
-		double s = sin(angle);
-		double x = axis.x;
-		double y = axis.y;
-		double z = axis.z;
-
-		ret.set(0, 0, (x * x * (1.0 - c) + c));
-		ret.set(0, 1, (x * y * (1.0 - c) - z * s));
-		ret.set(0, 2, (x * z * (1.0 - c) + y * s));
-		ret.set(1, 0, (y * x * (1.0 - c) + z * s));
-		ret.set(1, 1, (y * y * (1.0 - c) + c));
-		ret.set(1, 2, (y * z * (1.0 - c) - x * s));
-		ret.set(2, 0, (x * z * (1.0 - c) - y * s));
-		ret.set(2, 1, (y * z * (1.0 - c) + x * s));
-		ret.set(2, 2, (z * z * (1.0 - c) + c));
-
-		return ret;
-	}
-	
-	static DSCMatrix createTRSEuler(Vector3 translate, double yaw, double pitch, double roll, Vector3 scale) {
-		DSCMatrix translateMat = DSCMatrix.identity(4);
-		translateMat.set(0, 3, translate.x);
-		translateMat.set(1, 3, translate.y);
-		translateMat.set(2, 3, translate.z);
-		
-		DSCMatrix rotateMat = DSCMatrix.fromEulerAngles(yaw, pitch, roll);
-		
-		DSCMatrix scaleMat = DSCMatrix.identity(4);
-		scaleMat.set(0, 0, scale.x);
-		scaleMat.set(1, 1, scale.y);
-		scaleMat.set(2, 2, scale.z);
-		
-		DSCMatrix ret = translateMat.multiplyMatrix(rotateMat);
-		ret = ret.multiplyMatrix(scaleMat);
-		return ret;
-	}
-	
-	static DSCMatrix createTRSAxisAngle(Vector3 translate, Vector3 axis, double angle, Vector3 scale) {
-		DSCMatrix translateMat = DSCMatrix.identity(4);
-		translateMat.set(0, 3, translate.x);
-		translateMat.set(1, 3, translate.y);
-		translateMat.set(2, 3, translate.z);
-		
-		DSCMatrix rotateMat = DSCMatrix.fromAxisAngle(axis, angle);
-		
-		DSCMatrix scaleMat = DSCMatrix.identity(4);
-		scaleMat.set(0, 0, scale.x);
-		scaleMat.set(1, 1, scale.y);
-		scaleMat.set(2, 2, scale.z);
-		
-		DSCMatrix ret = translateMat.multiplyMatrix(rotateMat);
-		ret = ret.multiplyMatrix(scaleMat);
-		return ret;
-	}
-
-	/// Returns a view matrix.
-	static DSCMatrix view(Vector3 camPos, double yaw, double pitch, double roll) {
-		// all of this is basically lifted and converted from PolyRenderer::SetupPerspectiveMatrix(),
-		// so credit goes to Graf Zahl/dpJudas/whoever else
-		// pitch needs to be adjusted by the pixel ratio
-		float pixelRatio = level.pixelstretch;
-		double angx = cos(pitch);
-		double angy = sin(pitch) * pixelRatio;
-		double alen = sqrt(angx * angx + angy * angy);
-		double adjustedPitch = asin(angy / alen);
-		double adjustedYaw = yaw - 90;
-
-		// rotations
-		DSCMatrix rotR = DSCMatrix.fromAxisAngle((0, 0, 1), roll);
-		DSCMatrix rotP = DSCMatrix.fromAxisAngle((1, 0, 0), adjustedPitch);
-		DSCMatrix rotY = DSCMatrix.fromAxisAngle((0, -1, 0), adjustedYaw);
-		// pixel ratio scaling
-		DSCMatrix scale = DSCMatrix.identity(4);
-		scale.set(1, 1, pixelRatio);
-		// swapping y and z
-		DSCMatrix swapYZ = DSCMatrix.create(4, 4);
-		swapYZ.set(0, 0, 1);
-		swapYZ.set(1, 2, 1);
-		swapYZ.set(2, 1, -1);
-		swapYZ.set(3, 3, 1);
-		// translation
-		DSCMatrix translate = DSCMatrix.identity(4);
-		translate.set(0, 3, -camPos.x);
-		translate.set(1, 3, -camPos.y);
-		translate.set(2, 3, -camPos.z);
-
-		// concatenate them all to get a final matrix
-		DSCMatrix ret = rotR.multiplyMatrix(rotP);
-		ret = ret.multiplyMatrix(rotY);
-		ret = ret.multiplyMatrix(scale);
-		ret = ret.multiplyMatrix(swapYZ);
-		ret = ret.multiplyMatrix(translate);
-
-		return ret;
-	}
-
-	/// Returns a perspective matrix (same format as gluPerspective).
-	static DSCMatrix perspective(double fovy, double aspect, double zNear, double zFar) {
-		DSCMatrix ret = DSCMatrix.create(4, 4);
-		double f = 1 / tan(fovy / 2.0);
-		// x coord
-		ret.set(0, 0, f / aspect);
-		// y coord
-		ret.set(1, 1, f);
-		// z buffer coord
-		ret.set(2, 2, (zFar + zNear) / (zNear - zFar));
-		ret.set(2, 3, (2 * zFar * zNear) / (zNear - zFar));
-		// w (homogeneous coordinates)
-		ret.set(3, 2, -1);
-		return ret;
-	}
-
-	/// Gets the value at row, col.
-	double get(int row, int col) const {
-		return values[columns * row + col];
-	}
-
-	/// Sets the value at row, col.
-	void set(int row, int col, double val) {
-		values[columns * row + col] = val;
-	}
-
-	/// Adds two matrices and returns the result.
-	DSCMatrix addMatrix(DSCMatrix other) const {
-		if (rows != other.rows || columns != other.columns) {
-			throwAbortException("Error: <%p>.addMatrix(<%p>) - Matrices need to be equal size", self, other);
-		}
-		DSCMatrix ret = DSCMatrix.create(columns, rows);
-		for (int row = 0; row < rows; row++) {
-			for (int col = 0; col < columns; col++) {
-				ret.set(row, col, get(row, col) + other.get(row, col));
-			}
-		}
-		return ret;
-	}
-
-	/// Multiplies the matrix by a scalar and returns the result.
-	DSCMatrix multiplyScalar(double scalar) const {
-		DSCMatrix ret = DSCMatrix.create(rows, columns);
-		for (int row = 0; row < rows; row++) {
-			for (int col = 0; col < columns; col++) {
-				ret.set(row, col, get(row, col) * scalar);
-			}
-		}
-		return ret;
-	}
-
-	/// Multiplies two matrices and returns the result.
-	DSCMatrix multiplyMatrix(DSCMatrix other) const {
-		if (columns != other.rows) {
-			throwAbortException("Error: <%p>.multiplyMatrix(<%p>) - Matrix A columns needs to equal Matrix B rows", self, other);
-		}
-		DSCMatrix ret = DSCMatrix.create(other.columns, rows);
-		for (int row = 0; row < ret.rows; row++) {
-			for (int col = 0; col < ret.columns; col++) {
-				double val = 0;
-				for (int i = 0; i < columns; i++) {
-					val += get(row, i) * other.get(i, col);
-				}
-				ret.set(row, col, val);
-			}
-		}
-		return ret;
-	}
-
-	/// Multiplies this Matrix by a 2D vector.
-	DSCMatrix multiplyVector2(Vector2 vec, DSCVectorType type = DSCVector_Position) const {
-		DSCMatrix vec2Matrix = DSCMatrix.create(1, 3);
-		vec2Matrix.set(0, 0, vec.x);
-		vec2Matrix.set(1, 0, vec.y);
-		if (type == DSCVector_Position)       vec2Matrix.set(2, 0, 1);
-		else if (type == DSCVector_Direction) vec2Matrix.set(2, 0, 0);
-		else throwAbortException("Error: Invalid vector type for multiplyVector2 (%d)", type);
-		return multiplyMatrix(vec2Matrix);
-	}
-
-	/// Multiplies this Matrix by a 3D vector.
-	DSCMatrix multiplyVector3(Vector3 vec, DSCVectorType type = DSCVector_Position) const {
-		DSCMatrix vec3Matrix = DSCMatrix.create(1, 4);
-		vec3Matrix.set(0, 0, vec.x);
-		vec3Matrix.set(1, 0, vec.y);
-		vec3Matrix.set(2, 0, vec.z);
-		if (type == DSCVector_Position)       vec3Matrix.set(3, 0, 1);
-		else if (type == DSCVector_Direction) vec3Matrix.set(3, 0, 0);
-		else throwAbortException("Error: Invalid vector type for multiplyVector3 (%d)", type);
-		return multiplyMatrix(vec3Matrix);
-	}
-
-	/// Returns the Matrix in Vector2 form, optionally dividing by z.
-	Vector2 asVector2(bool divideZ = true) const {
-		if (columns != 1 || rows != 3) {
-			throwAbortException("Error: <%p>.asVector2() - Matrix needs to be 1 * 3", self);
-		}
-		if (divideZ) return (get(0, 0), get(1, 0)) / get(2, 0);
-		else         return (get(0, 0), get(1, 0));
-	}
-
-	/// Returns the Matrix in Vector3 form, optionally dividing by w.
-	Vector3 asVector3(bool divideW = true) const {
-		if (columns != 1 || rows != 4) {
-			throwAbortException("Error: <%p>.asVector3() - Matrix needs to be 1 * 4", self);
-		}
-		if (divideW) return (get(0, 0), get(1, 0), get(2, 0)) / get(3, 0);
-		else         return (get(0, 0), get(1, 0), get(2, 0));
-	}
-
-	/// Returns the number of columns.
-	int getColumns() const {
-		return columns;
-	}
-
-	/// Returns the number of rows.
-	int getRows() const {
-		return rows;
-	}
 }

@@ -16,8 +16,8 @@ class SixDoFPlayer : PlayerPawn
 	vector3 prevPos; // Try and detect teleport.
 
     double upMove;
-    Quaternion targetRotation;
-	
+    Quat targetRotation;
+
 	Property ViewFriction : viewFriction;
 	Property LookSpeed : lookMod;
 	
@@ -42,7 +42,7 @@ class SixDoFPlayer : PlayerPawn
         Super.PostBeginPlay();
 
         bFly = true;
-        targetRotation.FromEulerAngle(angle, pitch, roll);
+        targetRotation = Quat.FromAngles(angle, pitch, roll);
     }
 	
 	virtual void ResetRotation()
@@ -50,7 +50,7 @@ class SixDoFPlayer : PlayerPawn
 		viewAngles *= 0;
 		pitch = 0;
 		roll = 0;
-		targetRotation.FromEulerAngle(angle, pitch, roll);
+		targetRotation = Quat.FromAngles(angle, pitch, roll);
 	}
 
     override void HandleMovement()
@@ -73,7 +73,7 @@ class SixDoFPlayer : PlayerPawn
 		if( !(moveDelta ~== (0,0,0)) && moveDelta.Length() > vel.Length()*2.0)
 		{
 			// Reset interpolation, maybe we teleported?
-			targetRotation.FromEulerAngle(angle, pitch, roll);
+			targetRotation.FromAngles(angle, pitch, roll);
 		}
 		
         UserCmd cmd = player.cmd;
@@ -128,7 +128,7 @@ class SixDoFPlayer : PlayerPawn
 		}
 
 		Vector3 forward, right, up;
-		[forward, right, up] = Quaternion.GetActorAxes(self, (1, controlInvert ? -1 : 1,1));
+		[forward, right, up] = DSCMath.GetActorAxes(self, (1, controlInvert ? -1 : 1,1));
 
 		Vector3 wishVel = fm * forward + sm * right + um * up;
 		accel += wishVel;
@@ -154,6 +154,7 @@ class SixDoFPlayer : PlayerPawn
         double cmdYaw = cmd.yaw * 360 / maxYaw;
         double cmdPitch = -cmd.pitch * 360 / maxPitch;
         double cmdRoll = cmd.roll * 360 / maxRoll;
+		
 		cmdYaw   += viewAngles.x;
 		cmdPitch += viewAngles.y;
 		cmdRoll  += viewAngles.z;
@@ -168,23 +169,17 @@ class SixDoFPlayer : PlayerPawn
 		{
 			ViewRoll -= (cmdYaw * 0.15);
 		}
-
-        Quaternion input;
-        input.FromEulerAngle(cmdYaw, cmdPitch, cmdRoll);
-        Quaternion.Multiply(targetRotation, targetRotation, input);
-
-        // Interpolate to it
-        Quaternion r;
-        r.FromEulerAngle(angle, pitch, roll);
-
-        Quaternion.Slerp(r, r, targetRotation, 0.2);
-
-        double newAngle, newPitch, newRoll;
-        [newAngle, newPitch, newRoll] = r.ToEulerAngle();
-
-        A_SetAngle(newAngle, SPF_Interpolate);
-        A_SetPitch(newPitch, SPF_Interpolate);
-        A_SetRoll(newRoll, SPF_Interpolate);
+		
+		Quat input = Quat.FromAngles(cmdYaw, cmdPitch, cmdRoll);
+		targetRotation *= input;
+		
+		Quat r = Quat.FromAngles(angle, pitch, roll);
+		r = Quat.SLerp(r, targetRotation, 0.2);
+		
+		vector3 eulerAngles = DSCMath.GetQuatAngles(r);
+		A_SetAngle(eulerAngles.x, SPF_Interpolate);
+		A_SetPitch(eulerAngles.y, SPF_Interpolate);
+		A_SetRoll(eulerAngles.z, SPF_Interpolate);
     }
 
 

@@ -89,7 +89,7 @@ class DSCEffects abstract play
 	{
 		let dscplr = DescentPlayer(src);
 		Vector3 fw, lr, ud;
-        [fw, lr, ud] = Quaternion.GetActorAxes(dscplr, (1,1,1));
+        [fw, lr, ud] = DSCMath.GetActorAxes(dscplr, (1,1,1));
         vector3 wishVel = forward * fw + leftright * lr + updown * ud;
 		dscplr.accel += wishVel;
 	}
@@ -128,7 +128,7 @@ class DSCEffects abstract play
 		if(!locked) return false;
 		
 		// Check line key code.
-		uint keyNum = ln.args[3]; 
+		int keyNum = ln.args[3]; 
 		bool canOpen = false;
 		String keyColor = "";
 		[canOpen, keyColor] = CheckKey(src, keyNum);
