@@ -172,10 +172,10 @@ class SixDoFPlayer : PlayerPawn
 		
 		Quat input = Quat.FromAngles(cmdYaw, cmdPitch, cmdRoll);
 		targetRotation *= input;
-		
+
 		Quat r = Quat.FromAngles(angle, pitch, roll);
 		r = Quat.SLerp(r, targetRotation, 0.2);
-		
+
 		vector3 eulerAngles = DSCMath.GetQuatAngles(r);
 		A_SetAngle(eulerAngles.x, SPF_Interpolate);
 		A_SetPitch(eulerAngles.y, SPF_Interpolate);

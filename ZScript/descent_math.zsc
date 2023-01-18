@@ -240,45 +240,46 @@ class DSCMath Abstract
 	// Get angle, pitch, roll from Quaternion q.
 	static vector3 GetQuatAngles(Quat q)
 	{
-        // Roll
-        double sinRCosP = 2 * (q.w * q.x + q.y * q.z);
-        double cosRCosP = 1 - 2 * (q.x * q.x + q.y * q.y);
-        double roll = Atan2(sinRCosP, cosRCosP);
+		// Roll
+		double sinRCosP = 2 * (q.w * q.x + q.y * q.z);
+		double cosRCosP = 1 - 2 * (q.x * q.x + q.y * q.y);
+		double roll = Atan2(sinRCosP, cosRCosP);
 
-        // Pitch
-        double sinP = 2 * (q.w * q.y - q.z * q.x);
-        double pitch;
-        if (Abs(sinP) >= 1) pitch = 90 * (sinP < 0 ? -1 : 1);
-        else pitch = Asin(sinP);
+		// Pitch
+		double sinP = 2 * (q.w * q.y - q.z * q.x);
+		double pitch;
+		if (Abs(sinP) >= 1) pitch = 90 * (sinP < 0 ? -1 : 1);
+		else pitch = Asin(sinP);
 
-        // Yaw
-        double sinYCosP = 2 * (q.w * q.z + q.x * q.y);
-        double cosYCosP = 1 - 2 * (q.y * q.y + q.z * q.z);
-        double yaw = Atan2(sinYCosP, cosYCosP);
+		// Yaw
+		double sinYCosP = 2 * (q.w * q.z + q.x * q.y);
+		double cosYCosP = 1 - 2 * (q.y * q.y + q.z * q.z);
+		double yaw = Atan2(sinYCosP, cosYCosP);
 
-        return (yaw, pitch, roll);
+		return (yaw, pitch, roll);
 	}
+	
 	static Vector3, Vector3, Vector3 GetActorAxes(Actor act, vector3 viewScale = (1,1,1))
-    {
-        Quat r = Quat.FromAngles(act.angle * viewScale.x, act.pitch * viewScale.y, act.roll * viewScale.z);
+	{
+		Quat r = Quat.FromAngles(act.angle * viewScale.x, act.pitch * viewScale.y, act.roll * viewScale.z);
 
-        Vector3 forward = (1, 0, 0);
-        forward = r * forward;
+		Vector3 forward = (1, 0, 0);
+		forward = r * forward;
 
-        Vector3 right = (0, -1, 0);
-        right = r * right;
+		Vector3 right = (0, -1, 0);
+		right = r * right;
 
-        Vector3 up = (0, 0, 1);
-        up = r * up;
+		Vector3 up = (0, 0, 1);
+		up = r * up;
 
-        return forward, right, up;
-    }
+		return forward, right, up;
+	}
 	
 	// Offset vector position.
 	static Vector2 VOffset(double angle, double xoffs, double yoffs, double dist)
 	{
 		return ( xoffs * cos(angle) - yoffs * sin(angle),
-				 yoffs * cos(angle) + xoffs * sin(angle) )*dist;
+		yoffs * cos(angle) + xoffs * sin(angle) )*dist;
 	}
 	
 	// 3D Vector offset. Utilizes Gutamatrix matrixes
@@ -289,7 +290,7 @@ class DSCMath Abstract
     }
 	
 	static vector3 RelativeV3Offset(Actor source, double angleoffs, double pitchoffs, double rolloffs, double forward, double leftright, double updown, double distance)
-    {
+	{
 		double a = source.angle + angleoffs;
 		double p = source.pitch + pitchoffs;
 		double r = source.roll  + rolloffs;
@@ -299,7 +300,7 @@ class DSCMath Abstract
 		if(source.player) frompos.z = source.player.viewz;
 		
 		return level.vec3offset(frompos, vec);
-    }
+	}
 
 	// Intertial calculations for thrust on monsters.
 	static double GetInertia(double emass)
