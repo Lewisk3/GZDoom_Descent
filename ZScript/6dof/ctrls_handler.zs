@@ -1,7 +1,5 @@
 class SDOF_MovementHandler : EventHandler
 {
-    const rollAmount = 4 * (65536.0 / 360);
-	
     override void UiTick()
     {
         for(int i = 0; i < MAXPLAYERS; i++)
@@ -20,14 +18,34 @@ class SDOF_MovementHandler : EventHandler
 		}
     }
 	
+	override void WorldLoaded(WorldEvent e)
+	{
+		for(int i = 0; i < MAXPLAYERS; i++)
+		{
+			if(!PlayerInGame[i]) continue;
+			PlayerInfo plr = players[i];
+			if(!plr) continue;
+			
+			let dscplr = DescentPlayer(plr.mo);
+			if(!dscplr) continue;
+			
+			dscplr.HandleLevelLoaded();
+		}	
+	}
+	
     override void NetworkProcess(ConsoleEvent e)
     {
 		let dscplr = DescentPlayer(players[e.Player].mo);
 		if(!dscplr) return;
 		
-		bool rollRight = e.name ~== "+rollleft"  || e.name ~== "-rollright";
-		bool rollLeft  = e.name ~== "+rollright" || e.name ~== "-rollleft";
-        if (rollRight) dscplr.adjustView.z -= rollAmount;
-		if (rollLeft ) dscplr.adjustView.z += rollAmount;
+		if(e.name ~== "+rollleft")
+			dscplr.rollingLeft = true;
+		else if(e.name ~== "-rollleft")
+			dscplr.rollingLeft = false;
+			
+		if(e.name ~== "+rollright")
+			dscplr.rollingRight = true;
+		else if(e.name ~== "-rollright")
+			dscplr.rollingRight = false;
     }
 }

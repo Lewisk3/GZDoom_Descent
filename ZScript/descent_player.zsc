@@ -236,7 +236,25 @@ class DescentPlayer : SixDoFPlayer
 		return null;
 	}
 	
-	// Messy but idk how to fix currently.
+	virtual DSCSpecialWeapon SearchForSpecial(int desiredSlot, out int closestSlot)
+	{
+		DSCSpecialWeapon result;
+		for(let item = Inv; item; item = item.Inv)
+		{
+			let spec = DSCSpecialWeapon(item);
+			if(!spec || spec == ReadySpecial) continue;
+			if(spec.amount <= 0) continue;
+			int slotDiff = abs(desiredSlot-spec.slot);
+			if( slotDiff < closestSlot && (desiredSlot <= 0 || spec.slot >= desiredSlot) ) 
+			{
+				closestSlot = slotDiff;
+				result = spec;
+			}
+		}
+		
+		return result;
+	}
+
 	virtual DSCSpecialWeapon FindNextSpecial()
 	{
 		DSCSpecialWeapon result;
@@ -255,34 +273,9 @@ class DescentPlayer : SixDoFPlayer
 		{
 			int desiredSlot = ReadySpecial.slot + 1;
 			int closestSlot = int.max;
-			for(let item = Inv; item; item = item.Inv)
-			{
-				let spec = DSCSpecialWeapon(item);
-				if(!spec || spec == ReadySpecial) continue;
-				if(spec.amount <= 0) continue;
-				int slotDiff = abs(desiredSlot-spec.slot);
-				if(slotDiff < closestSlot && spec.slot >= desiredSlot) 
-				{
-					closestSlot = slotDiff;
-					result = spec;
-				}
-			}
-			if(!result)
-			{
-				desiredSlot = 0;
-				for(let item = Inv; item; item = item.Inv)
-				{
-					let spec = DSCSpecialWeapon(item);
-					if(!spec || spec == ReadySpecial) continue;
-					if(spec.amount <= 0) continue;
-					int slotDiff = abs(desiredSlot-spec.slot);
-					if(slotDiff < closestSlot) 
-					{
-						closestSlot = slotDiff;
-						result = spec;
-					}
-				}
-			}
+			
+			result = SearchForSpecial(desiredSlot, closestSlot);
+			if(!result) result = SearchForSpecial(0, closestSlot);
 		}
 		return result;
 	}

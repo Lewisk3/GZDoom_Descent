@@ -6,6 +6,8 @@ class SixDoFPlayer : PlayerPawn
     const maxYaw = 65536.0;
     const maxPitch = 65536.0;
     const maxRoll = 65536.0;
+	const rollInputAmount = 4.27;
+	
     const Friction = DSCMOVEFRICT;
 	double lookMod;
 	double viewFriction;
@@ -17,6 +19,10 @@ class SixDoFPlayer : PlayerPawn
 
     double upMove;
     Quat targetRotation;
+	
+	// Controls
+	double rollInput;
+	bool rollingLeft, rollingRight;
 
 	Property ViewFriction : viewFriction;
 	Property LookSpeed : lookMod;
@@ -50,6 +56,7 @@ class SixDoFPlayer : PlayerPawn
 		viewAngles *= 0;
 		pitch = 0;
 		roll = 0;
+		rollingLeft = rollingLeft = false;
 		targetRotation = Quat.FromAngles(angle, pitch, roll);
 	}
 
@@ -63,6 +70,11 @@ class SixDoFPlayer : PlayerPawn
             MovePlayer();
         }
     }
+	
+	virtual void HandleLevelLoaded()
+	{
+		rollingLeft = rollingLeft = false;
+	}
 
     override void CheckCrouch(bool totallyFrozen) {}
     override void CheckPitch() {}
@@ -155,6 +167,10 @@ class SixDoFPlayer : PlayerPawn
         double cmdPitch = -cmd.pitch * 360 / maxPitch;
         double cmdRoll = cmd.roll * 360 / maxRoll;
 		
+		// Handle roll inputs
+		if(rollingLeft ) cmdRoll -= rollInputAmount;
+		if(rollingRight) cmdRoll += rollInputAmount;
+		
 		cmdYaw   += viewAngles.x;
 		cmdPitch += viewAngles.y;
 		cmdRoll  += viewAngles.z;
@@ -180,7 +196,7 @@ class SixDoFPlayer : PlayerPawn
 		A_SetAngle(eulerAngles.x, SPF_Interpolate);
 		A_SetPitch(eulerAngles.y, SPF_Interpolate);
 		A_SetRoll(eulerAngles.z, SPF_Interpolate);
-    }
+	}
 
 
 	override void CalcHeight()

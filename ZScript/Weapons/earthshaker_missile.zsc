@@ -88,7 +88,7 @@ class DSCProj_ShakerMissile : DSCProj_ConMissile
 			BOOM A 1 
 			{
 				DoMissileExplosion(0,0, 10.0, type:"EarthshakerExplosion");
-				A_Quake(6, 70, 0, 1024, "Earthshaker/Quake");
+				A_QuakeEx(6,6,6, 90, 0, 1024, "Earthshaker/Quake", QF_SCALEDOWN);
 				A_StartSound("Earthshaker/Quake", CHAN_BODY, CHANF_OVERLAP|CHANF_LOOPING, attenuation:ATTN_NONE);
 				DoPayload();
 			}
