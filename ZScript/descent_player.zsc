@@ -236,7 +236,7 @@ class DescentPlayer : SixDoFPlayer
 		return null;
 	}
 	
-	virtual DSCSpecialWeapon SearchForSpecial(int desiredSlot, out int closestSlot)
+	virtual DSCSpecialWeapon SearchForSpecial(int desiredSlot, out int closestSlot, bool reverseOrder = false)
 	{
 		DSCSpecialWeapon result;
 		for(let item = Inv; item; item = item.Inv)
@@ -245,7 +245,10 @@ class DescentPlayer : SixDoFPlayer
 			if(!spec || spec == ReadySpecial) continue;
 			if(spec.amount <= 0) continue;
 			int slotDiff = abs(desiredSlot-spec.slot);
-			if( slotDiff < closestSlot && (desiredSlot <= 0 || spec.slot >= desiredSlot) ) 
+			bool slotDir = reverseOrder ? spec.slot <= desiredSlot : spec.slot >= desiredSlot;
+			bool isNextSlot = (reverseOrder ? desiredSlot >= 10 : desiredSlot <= 0) || slotDir;
+			
+			if( slotDiff < closestSlot && isNextSlot ) 
 			{
 				closestSlot = slotDiff;
 				result = spec;
@@ -298,34 +301,9 @@ class DescentPlayer : SixDoFPlayer
 		{
 			int desiredSlot = ReadySpecial.slot - 1;
 			int closestSlot = int.max;
-			for(let item = Inv; item; item = item.Inv)
-			{
-				let spec = DSCSpecialWeapon(item);
-				if(!spec || spec == ReadySpecial) continue;
-				if(spec.amount <= 0) continue;
-				int slotDiff = abs(desiredSlot-spec.slot);
-				if(slotDiff < closestSlot && spec.slot <= desiredSlot) 
-				{
-					closestSlot = slotDiff;
-					result = spec;
-				}
-			}
-			if(!result)
-			{
-				desiredSlot = 10;
-				for(let item = Inv; item; item = item.Inv)
-				{
-					let spec = DSCSpecialWeapon(item);
-					if(!spec || spec == ReadySpecial) continue;
-					if(spec.amount <= 0) continue;
-					int slotDiff = abs(desiredSlot-spec.slot);
-					if(slotDiff < closestSlot) 
-					{
-						closestSlot = slotDiff;
-						result = spec;
-					}
-				}
-			}
+			
+			result = SearchForSpecial(desiredSlot, closestSlot, true);
+			if(!result) result = SearchForSpecial(10, closestSlot, true);
 		}
 		return result;
 	}
