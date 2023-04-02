@@ -2,9 +2,16 @@ class DescentEnemy : Actor
 {
 	double friction;
 	vector3 toAngles;
+	vector3 targetLastPos;
+	vector3 curTrackingPos;
+	
 	double curChaseAngle;
+	double turnSpeed;
+	bool trackLastPos;
 	Quat curRotation;
 
+	
+	Property TurnSpeed : turnSpeed;
 	Property MoveFriction : friction;
 
 	Default
@@ -12,6 +19,7 @@ class DescentEnemy : Actor
 		+INTERPOLATEANGLES;
 		+SLIDESONWALLS;
 		
+		DescentEnemy.TurnSpeed 4;
 		DescentEnemy.MoveFriction 0.03;
 	}
 	
@@ -21,6 +29,12 @@ class DescentEnemy : Actor
 		toAngles = (0, 0, 0);
 		curChaseAngle = angle;
 		super.PostBeginPlay();
+	}
+	
+	void Accelerate(double spd)
+	{
+		Quat dir = Quat.FromAngles(angle, pitch, roll);
+		vel += dir * (spd, 0,0);
 	}
 	
 	Actor A_ShootProjectile(class<Actor> proj, double angleOffs = 0, double pitchOffs = 0, double rollOffs = 0, double fw = 0, double lr = 0, double ud = 0, double speed = 0)
@@ -46,8 +60,11 @@ class DescentEnemy : Actor
 	
 	override int DamageMobJ(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
 	{
+		if(!inflictor) 
+			return super.DamageMobJ(inflictor, source, damage, mod, flags, angle);
+		
 		Actor shooter = inflictor.bSHOOTABLE ? inflictor : source;
-		if(shooter.bSHOOTABLE && target != shooter && target) 
+		if(shooter && shooter.bSHOOTABLE && target && target != shooter) 
 		{
 			double shooterDist = Distance3DSquared(shooter);
 			double curDist = Distance3DSquared(target);
@@ -57,27 +74,40 @@ class DescentEnemy : Actor
 				target = shooter;	
 		}
 		
+		double scaledDamage = double(damage) / DSCDMG;
+		damage = max(1, floor(scaledDamage));
+		
 		return super.DamageMobJ(inflictor, source, damage, mod, flags, angle);
+	}
+	
+	void A_ViewRecoil(double yaw, double pitch, double roll)
+	{
+		toAngles.x += yaw;
+		toAngles.y += pitch;
+		toAngles.z += roll;
 	}
 	
 	override void Tick()
 	{
-		A_TurnToTarget();
-	
-        let input = Quat.FromAngles(toAngles.x, toAngles.y, toAngles.z);
-		curRotation *= input;
-	
-        // Interpolate to it
-        let r = Quat.FromAngles(angle, pitch, roll);
-        r = Quat.Slerp(r, curRotation, 0.2);
-
-		let eulerAngles = DSCMath.getQuatAngles(r);
-        A_SetAngle(eulerAngles.x, SPF_Interpolate);
-        A_SetPitch(eulerAngles.y, SPF_Interpolate);
-        A_SetRoll(eulerAngles.z, SPF_Interpolate);
-		toAngles *= 0;
+		if(!level.isFrozen())
+		{
+			A_TurnToTarget();
 		
-		vel *= (1.0-friction); // Friction
+			let input = Quat.FromAngles(toAngles.x, toAngles.y, toAngles.z);
+			curRotation *= input;
+		
+			// Interpolate to it
+			let r = Quat.FromAngles(angle, pitch, roll);
+			r = Quat.Slerp(r, curRotation, 0.2);
+
+			let eulerAngles = DSCMath.getQuatAngles(r);
+			A_SetAngle(eulerAngles.x, SPF_Interpolate);
+			A_SetPitch(eulerAngles.y, SPF_Interpolate);
+			A_SetRoll(eulerAngles.z, SPF_Interpolate);
+			toAngles *= 0;
+			
+			vel *= (1.0-friction); // Friction;
+		}
 		
 		super.Tick();
 	}
@@ -137,16 +167,20 @@ class DescentEnemy : Actor
 		}
 		
 		LookExParams look;
+		look.FOV = 180;
+		bool canSee = IsVisible(target, true, look);
+		
 		look.FOV = 90;
-		bool canSee = IsVisible(target, false, look);
+		bool inView = IsVisible(target, false, look);
+		
+		if(canSee) curTrackingPos = target.pos;
 		
 		// Take direct route.
-		vector3 aimToPos = (target.pos.xy, target.pos.z + (target.height*0.5));
+		vector3 aimToPos = (curTrackingPos.xy, curTrackingPos.z + (target.height*0.5));
 		vector3 toOther = level.sphericalCoords(pos, aimToPos, (angle,pitch));
 		bool facingTarget = (abs(toOther.x) + abs(toOther.y)) <= viewSens;
-		if(!facingTarget) return;
 		
-		if( canSee && (toOther.z <= minMissileDist || random[MissileRandom](0,100) >= (100-missileChance)) ) 
+		if( facingTarget && canSee && (toOther.z <= minMissileDist || random[MissileRandom](0,100) >= (100-missileChance)) ) 
 		{
 			SetStateLabel("Missile");
 			return;
@@ -154,24 +188,44 @@ class DescentEnemy : Actor
 
 		if(canSee)
 		{
-			toOther.x += angle;
-			toOther.y += pitch;
-			vel = (
-				cos(toOther.x) * cos(toOther.y),
-				sin(toOther.x) * cos(toOther.y),
-				-sin(toOther.y)
-			) * default.Speed; 
-		}
-		else
-		{
-			NewChaseDir();
-			curChaseAngle = DSCMath.LerpDegrees(curChaseAngle, movedir*45, 0.25);
+			if(inView) Accelerate(default.Speed);
 			
-			vel = (
-				cos(curChaseAngle) * cos(toOther.y),
-				sin(curChaseAngle) * cos(toOther.y),
-				-sin(toOther.y)
-			) * default.Speed;
+			targetLastPos = target.pos;
+			trackLastPos = true;
+		}
+		else 
+		{
+			FLineTraceData lt;
+			LineTrace(angle, 64, pitch, data:lt);
+			bool canMoveTo = lt.HitType == TRACE_HitNone;
+			
+			if(trackLastPos && canMoveTo)
+			{
+				curTrackingPos = targetLastPos;
+				Accelerate(default.Speed);
+				
+				vector3 posDiff = level.Vec3Diff(pos, aimToPos);
+				if( posDiff.Length() <= radius*2.0 ) 
+				{
+					// If we're still looking at this point, we've got no idea where 
+					// they went.
+					trackLastPos = false;
+				}
+			}
+			else
+			{
+				NewChaseDir();
+				curChaseAngle = DSCMath.LerpDegrees(curChaseAngle, movedir*45, 0.25);
+				
+				vector3 chaseDiff = level.vec3diff(pos, target.pos);
+				double chasePitch = -asin(chaseDiff.z);
+				
+				vel = (
+					cos(curChaseAngle) * cos(chasePitch),
+					sin(curChaseAngle) * cos(chasePitch),
+					-sin(chasePitch)
+				) * default.Speed;
+			}
 		}
 	}
 	
@@ -187,10 +241,11 @@ class DescentEnemy : Actor
 		) * default.Speed;
 	}
 	
-	void A_TurnToTarget(double turnSpeed = 4)
+	void A_TurnToTarget()
 	{
 		if(!target) return;
-		vector3 aimToPos = (target.pos.xy, target.pos.z + (target.height*0.5));
+		
+		vector3 aimToPos = (curTrackingPos.xy, curTrackingPos.z + (target.height*0.5));
 		vector3 toOther = level.sphericalCoords(pos, aimToPos, (angle,pitch));
 		double toRoll = target.roll-roll;
 		double xSpeed = -turnSpeed * (abs(toOther.x) > turnSpeed);

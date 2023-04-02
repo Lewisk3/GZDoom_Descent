@@ -147,8 +147,8 @@ class PowerCloak : PowerInvisibility
 	
 	override void EndEffect()
 	{
+		if(Owner) Owner.A_StartSound("Cloak/Disable", flags:CHANF_OVERLAP);
 		super.EndEffect();
-		Owner.A_StartSound("Cloak/Disable", flags:CHANF_OVERLAP);
 	}
 }
 class CloakDevice : DSCItemPickup
