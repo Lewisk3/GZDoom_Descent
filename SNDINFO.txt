@@ -48,6 +48,24 @@ Earthshaker/Quake      "Sounds/Weapons/EarthshakerImpact02.wav"
 ProximityMine/Drop     "Sounds/Weapons/dropbomb.wav"
 Flare/Fire			   "Sounds/Weapons/flare.wav"
 
+$limit Earthshaker/Fire 0
+$limit FlashMissile/Fire 0
+$limit MercuryMissile/Fire 0
+$limit GuidedMissile/Fire 0
+$limit ConcussionMissile/Fire 0 
+$limit HomingMissile/Fire 0    
+$limit SmartMissile/Fire 0     
+$limit MegaMissile/Fire 0      
+$limit Missile/Explode 0      
+$limit MegaMissile/Explode 0   
+$limit SmartMissile/Explode 0 
+$limit FlashMissile/Explode 0 
+$limit Earthshaker/Explode 0 
+$limit Earthshaker/Quake 0   
+$limit ProximityMine/Drop 0  
+$limit Flare/Fire 0			 
+
+
 // Item Sounds
 DSCItem/Pickup "Sounds/Items/pickup.wav"
 Cloak/Enable   "Sounds/Items/cloakon.wav"

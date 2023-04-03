@@ -1,18 +1,25 @@
 class DescentEnemy : Actor
 {
 	double friction;
+	double aggressiveness;
 	vector3 toAngles;
 	vector3 targetLastPos;
 	vector3 curTrackingPos;
+	vector3 angleImpulse; // Used to shake the actor around.
 	
 	double curChaseAngle;
 	double turnSpeed;
+	double dodgeChance, dodgeWait, dodgeTimer;
+	int score;
 	bool trackLastPos;
 	Quat curRotation;
-
 	
 	Property TurnSpeed : turnSpeed;
 	Property MoveFriction : friction;
+	Property Aggression : aggressiveness;
+	Property ScorePoints : score;
+	Property DodgeChance : dodgeChance;
+	Property DodgeCooldown : dodgeWait;
 
 	Default
 	{
@@ -21,6 +28,10 @@ class DescentEnemy : Actor
 		
 		DescentEnemy.TurnSpeed 4;
 		DescentEnemy.MoveFriction 0.03;
+		DescentEnemy.Aggression 0.5;
+		DescentEnemy.ScorePoints 100;
+		DescentEnemy.DodgeChance 50;
+		DescentEnemy.DodgeCooldown 15;
 	}
 	
 	override void PostBeginPlay()
@@ -36,6 +47,26 @@ class DescentEnemy : Actor
 		Quat dir = Quat.FromAngles(angle, pitch, roll);
 		vel += dir * (spd, 0,0);
 	}
+	
+	void DodgeRandom(double spd)
+	{
+		Quat dir = Quat.FromAngles(angle, pitch, roll);
+		vector3 dodgeDir = (
+			randompick[DSCDroneDodge](-1,1), 
+			randompick[DSCDroneDodge](-1,1), 
+			randompick[DSCDroneDodge](-1,1)
+		);
+		
+		vel += dir * (dodgeDir * spd);
+	}
+	
+	void DodgeDirection(double spd, double fw, double lr, double ud)
+	{
+		Quat dir = Quat.FromAngles(angle, pitch, roll);
+		vector3 dodgeDir = (fw, lr, ud);
+		
+		vel += dir * (dodgeDir * spd);
+	}	
 	
 	Actor A_ShootProjectile(class<Actor> proj, double angleOffs = 0, double pitchOffs = 0, double rollOffs = 0, double fw = 0, double lr = 0, double ud = 0, double speed = 0)
 	{
@@ -60,6 +91,9 @@ class DescentEnemy : Actor
 	
 	override int DamageMobJ(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
 	{
+		if(mod == 'DescentMissileExplosion')
+			damage = floor(damage / 10.);
+	
 		if(!inflictor) 
 			return super.DamageMobJ(inflictor, source, damage, mod, flags, angle);
 		
@@ -82,9 +116,9 @@ class DescentEnemy : Actor
 	
 	void A_ViewRecoil(double yaw, double pitch, double roll)
 	{
-		toAngles.x += yaw;
-		toAngles.y += pitch;
-		toAngles.z += roll;
+		angleImpulse.x += yaw;
+		angleImpulse.y += pitch;
+		angleImpulse.z += roll;
 	}
 	
 	override void Tick()
@@ -93,7 +127,12 @@ class DescentEnemy : Actor
 		{
 			A_TurnToTarget();
 		
-			let input = Quat.FromAngles(toAngles.x, toAngles.y, toAngles.z);
+			let input = Quat.FromAngles(
+				toAngles.x + angleImpulse.x, 
+				toAngles.y + angleImpulse.y, 
+				toAngles.z + angleImpulse.z
+			);
+			
 			curRotation *= input;
 		
 			// Interpolate to it
@@ -102,14 +141,18 @@ class DescentEnemy : Actor
 
 			let eulerAngles = DSCMath.getQuatAngles(r);
 			A_SetAngle(eulerAngles.x, SPF_Interpolate);
-			A_SetPitch(eulerAngles.y, SPF_Interpolate);
+			A_SetPitch(eulerAngles.y, SPF_Interpolate);		
 			A_SetRoll(eulerAngles.z, SPF_Interpolate);
+			
 			toAngles *= 0;
 			
 			vel *= (1.0-friction); // Friction;
+			angleImpulse *= 0.97;
 		}
 		
-		super.Tick();
+		
+		if(dodgeTimer > 0) dodgeTimer--;
+		super.Tick();		
 	}
 	
 	void A_DescentLook(StateLabel seeState = "See", double lookFOV = 90)
@@ -139,11 +182,14 @@ class DescentEnemy : Actor
 			}
 		}
 		
-		if(target && seeState) 
+		if(target && seeState)
+		{
+			curTrackingPos = target.pos;
 			SetStateLabel(seeState); 
+		}
 	}
 	
-	void A_DescentChase(double missileChance = 50, double minMissileDist = 512, double viewSens = 10)
+	void A_DescentChase(double missileChance = 50, double minMissileDist = 512, double minEngageDist = 64, double viewSens = 10)
 	{
 		if(!target || target.health <= 0) 
 		{
@@ -167,7 +213,7 @@ class DescentEnemy : Actor
 		}
 		
 		LookExParams look;
-		look.FOV = 180;
+		look.FOV = 360;
 		bool canSee = IsVisible(target, true, look);
 		
 		look.FOV = 90;
@@ -178,17 +224,45 @@ class DescentEnemy : Actor
 		// Take direct route.
 		vector3 aimToPos = (curTrackingPos.xy, curTrackingPos.z + (target.height*0.5));
 		vector3 toOther = level.sphericalCoords(pos, aimToPos, (angle,pitch));
-		bool facingTarget = (abs(toOther.x) + abs(toOther.y)) <= viewSens;
+		bool facingTarget = ((abs(toOther.x) + abs(toOther.y)) <= viewSens) || (random[DescentAIAggression](0,100) <= (aggressiveness*100));
+		
+		if(facingTarget)
+		{
+			let plrtarget = PlayerPawn(target);
+			if(plrtarget)
+			{
+				let cmd = plrtarget.player.cmd;
+				bool plrFiring = plrtarget.InStateSequence(plrtarget.CurState, plrtarget.MissileState);
+				
+				FLineTraceData hitpos;
+				plrtarget.LineTrace(plrtarget.angle, 8192, plrtarget.pitch, data:hitPos);
+				
+				bool willHit = (hitpos.HitType == TRACE_HitActor) && hitpos.HitActor == self;
+
+				if( willHit && dodgeTimer <= 0 && plrFiring && random[DroneDodgeRNG](0,100) >= (100-dodgeChance) )
+				{
+					DodgeRandom(default.Speed * frandom[DroneDodgeRNG](3.0,6.0));
+					dodgeTimer = dodgeWait;
+				}
+			}
+		}
 		
 		if( facingTarget && canSee && (toOther.z <= minMissileDist || random[MissileRandom](0,100) >= (100-missileChance)) ) 
 		{
 			SetStateLabel("Missile");
-			return;
+			
+			if(toOther.z <= minEngageDist) return;
+			
+			double hperc = health / SpawnHealth();
+			hperc += aggressiveness;
+			hperc = clamp(hperc, 0, 1.0);
+			double midEngageDist = minEngageDist * (1.0 - hperc);
+			if(toOther.z < midEngageDist) return;
 		}
 
 		if(canSee)
 		{
-			if(inView) Accelerate(default.Speed);
+			Accelerate( default.Speed * (inView ? 1.0 : 0.3) );
 			
 			targetLastPos = target.pos;
 			trackLastPos = true;
@@ -240,20 +314,27 @@ class DescentEnemy : Actor
 			-sin(pitch)
 		) * default.Speed;
 	}
+
 	
 	void A_TurnToTarget()
 	{
 		if(!target) return;
 		
 		vector3 aimToPos = (curTrackingPos.xy, curTrackingPos.z + (target.height*0.5));
-		vector3 toOther = level.sphericalCoords(pos, aimToPos, (angle,pitch));
-		double toRoll = target.roll-roll;
-		double xSpeed = -turnSpeed * (abs(toOther.x) > turnSpeed);
-		double ySpeed = -turnSpeed * (abs(toOther.y) > turnSpeed);
-		double zSpeed = -turnSpeed * (abs(toRoll) > turnSpeed);
+		vector3 forwardPos = DSCMath.V3Offset(angle, pitch, roll, radius, 0, 0, 1.);
+		forwardPos = level.vec3offset(pos, forwardPos);
+
+		vector3 toOther = level.sphericalCoords(forwardPos, aimToPos, (angle, pitch));
+		double angleTo = -toOther.x;
+		double pitchTo = -toOther.y;
 		
-		toAngles.x = xSpeed * DSCMath.sign(toOther.x);
-		toAngles.y = ySpeed * DSCMath.sign(toOther.y);
+		double turnRateX = min(turnSpeed, abs(angleTo));
+		double turnRateY = min(turnSpeed, abs(pitchTo));
+		double xSpeed = turnRateX * DSCMath.sign(angleTo);
+		double ySpeed = turnRateY * DSCMath.sign(pitchTo);
+		
+		if(abs(angleTo) >= 2) toAngles.x = xSpeed;
+		if(abs(pitchTo) >= 2) toAngles.y = ySpeed;
 		toAngles.z = 0;
 	}	
 }

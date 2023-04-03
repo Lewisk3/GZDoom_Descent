@@ -1,0 +1,76 @@
+	vector3 quatToSphere(Quat q)
+	{
+		double cos_a  = q.W;
+		double sin_a  = sqrt( 1.0 - cos_a * cos_a );
+		if( abs(sin_a) < 0.0005 ) sin_a = 1;
+		
+		double yaw = acos( cos_a ) * 2;
+		double tx = q.X / sin_a;
+		double ty = q.Y / sin_a;
+		double tz = q.Z / sin_a;
+		
+		double latitude = -asin( ty );
+		double longitude = 0;
+		
+		if ( tx * tx + tz * tz < 0.0005 )
+			longitude   = 0;
+		else
+		   longitude  = atan2( tx, tz );
+		   
+		if ( longitude < 0 )
+		  longitude += 360.0;
+		  
+		return (yaw, latitude, longitude);
+	}
+	
+	
+	vector3 quatToSphere(Quat q)
+	{
+		Quat u = q.Unit();
+		double r = q.Length();
+
+		double inclination = asin(2 * (u.x * u.z - u.w * u.y));
+		double azimuth = atan2( 2 * (u.x * u.y + u.z * u.w), 1 - (2 * ((u.y*u.y) + (u.z*u.z))) );
+		return (r, inclination, azimuth);
+	}
+	
+					
+	Quat quatSphereCoords(vector3 fromPos, vector3 toPos, double turnRate = 1.0)
+	{
+		Quat facing = Quat.FromAngles(angle, pitch, roll);
+		vector3 diff = level.vec3diff(fromPos, toPos).Unit();
+		double toAngle = atan2(diff.y, diff.x);
+		double toPitch = -asin(diff.z);
+		double toRoll  = acos(cos(-toPitch) * cos(toAngle));
+
+		Quat wish = Quat.FromAngles(toAngle, toPitch, toRoll); // Use roll here?
+		
+		/*
+		vector3 facingDir = facing * (1.0,0,0);
+		vector3 wishDir = wish * (1.0,0,0);
+		double angDiff = acos(facingDir dot wishDir);
+		if (angDiff <= maxTurn)
+		  return wish;
+		*/
+
+		return Quat.SLerp(facing, wish, turnRate);
+	}
+	
+	
+			/*
+		let rot = quatSphereCoords(forwardPos, aimToPos, (turnSpeed*TICRATE) / 360.);
+		curRotation = rot;
+		*/
+		
+		/*
+		vector3 fromAxis = forwardPos.Unit();
+		vector3 toAxis = aimToPos.Unit();
+		vector3 rotationAxis = fromAxis cross toAxis;
+		Quat sphere = Quat.AxisAngle(rotationAxis, acos(fromAxis dot toAxis));		
+		
+		console.printf("X: %f, Y: %f, Z: %f", rot.x, rot.y, rot.z);
+		
+		curRotation = sphere;
+		*/
+		
+		

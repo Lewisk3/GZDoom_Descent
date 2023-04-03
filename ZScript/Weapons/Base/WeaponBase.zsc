@@ -520,7 +520,7 @@ class DSCProjectile : Actor
 			// Apply default damage scaling.
 			dam = DescentDMG(dam);
 		}
-		A_Explode(dam, dist, flags);
+		A_Explode(dam, dist, flags, damageType:"DescentMissileExplosion");
 		let expl = Spawn(type, (pos.xy,pos.z+(height*0.5)));
 		if(expl) expl.A_SetScale(scale, scale);
 		return expl;
