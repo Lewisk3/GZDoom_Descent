@@ -390,6 +390,9 @@ class DSCProjectile : Actor
 	bool dead;
 	Quat guidedRotation;
 	
+	// Disables Damage scaling on this projectile.
+	// Does not respond to descentServer_outdamagemod or DSCDMG.
+	bool dontScaleDamage; 
 	
 	class<Ammo> ammoType;
 	double ammoUse;
@@ -415,7 +418,11 @@ class DSCProjectile : Actor
 		Tag "Missile";
 	}
 	
-	static int DescentDMG(double dmg)
+	int DescentDMG(double dmg)
+	{
+		return dontScaleDamage ? dmg : ScaleDSCDMG(dmg);
+	}
+	static int ScaleDSCDMG(double dmg)
 	{
 		return dmg * DSCDMG * descentServer_outdamagemod;
 	}

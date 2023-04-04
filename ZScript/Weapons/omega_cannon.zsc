@@ -129,7 +129,7 @@ class Descent_OmegaCannon : DSCWeapon
 			TNT1 A 1 
 			{	
 				A_StartSound("OmegaCannon/Fire", CHAN_WEAPON, CHANF_OVERLAP | CHANF_LOOPING);
-				A_FireOmega(DSCProjectile.DescentDMG(18));
+				A_FireOmega(DSCProjectile.ScaleDSCDMG(18));
 			}
 			TNT1 A 0 A_ReFire();
 		Goto NoCharge;

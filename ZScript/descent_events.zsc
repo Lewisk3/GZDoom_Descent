@@ -20,7 +20,8 @@ class DescentEvents : EventHandler
 		
 		int energyOdds = 25;
 		energyOdds -= clamp(ceil(e.Thing.SpawnHealth() / 30), 0, energyOdds);
-			
+		
+		if(dscEnemy) return; // Don't do random drops for Descent Enemies.
 		if(!energyOdds || random[EDeathDrops](0,energyOdds) == 0)
 			Actor.Spawn("EnergyBoost", e.Thing.pos);
 			

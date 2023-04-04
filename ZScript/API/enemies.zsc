@@ -11,6 +11,7 @@ class DescentEnemy : Actor
 	double turnSpeed;
 	double dodgeChance, dodgeWait, dodgeTimer;
 	int score;
+	int wanderTime;
 	bool trackLastPos;
 	Quat curRotation;
 	
@@ -174,6 +175,10 @@ class DescentEnemy : Actor
 			if(!IsHostile(act)) continue;
 			if(!IsVisible(act, false, look) && act != noisyActor) continue;
 			
+			let dscPlr = DescentPlayer(act);
+			// Player is invisible and not making much noise.
+			if(dscPlr && !!dscPlr.FindInventory("PowerCloak", true) && dscPlr != noisyActor) continue; 
+			
 			double dist = Distance3DSquared(act);
 			if(close > dist) 
 			{
@@ -196,7 +201,7 @@ class DescentEnemy : Actor
 			if(bFRIENDLY) 
 			{
 				A_DescentLook(null);
-				A_DescentWander();
+				A_DescentWander(minMissileDist);
 			}
 			else
 			{
@@ -218,6 +223,10 @@ class DescentEnemy : Actor
 		
 		look.FOV = 90;
 		bool inView = IsVisible(target, false, look);
+				
+		// Custom handling for cloaking.
+		let dscPlr = DescentPlayer(target);
+		if(dscPlr && !!dscPlr.FindInventory("PowerCloak", true)) canSee = false;
 		
 		if(canSee) curTrackingPos = target.pos;
 		
@@ -239,7 +248,7 @@ class DescentEnemy : Actor
 				
 				bool willHit = (hitpos.HitType == TRACE_HitActor) && hitpos.HitActor == self;
 
-				if( willHit && dodgeTimer <= 0 && plrFiring && random[DroneDodgeRNG](0,100) >= (100-dodgeChance) )
+				if( willHit && dodgeTimer <= 0 && plrFiring && random[DroneDodgeRNG](0,100) <= dodgeChance )
 				{
 					DodgeRandom(default.Speed * frandom[DroneDodgeRNG](3.0,6.0));
 					dodgeTimer = dodgeWait;
@@ -247,7 +256,7 @@ class DescentEnemy : Actor
 			}
 		}
 		
-		if( facingTarget && canSee && (toOther.z <= minMissileDist || random[MissileRandom](0,100) >= (100-missileChance)) ) 
+		if( facingTarget && canSee && (toOther.z <= minMissileDist || random[MissileRandom](0,100) <= missileChance) ) 
 		{
 			SetStateLabel("Missile");
 			
@@ -286,7 +295,7 @@ class DescentEnemy : Actor
 					trackLastPos = false;
 				}
 			}
-			else
+			else if(trackLastPos && !canMoveTo)
 			{
 				NewChaseDir();
 				curChaseAngle = DSCMath.LerpDegrees(curChaseAngle, movedir*45, 0.25);
@@ -300,27 +309,50 @@ class DescentEnemy : Actor
 					-sin(chasePitch)
 				) * default.Speed;
 			}
+			else
+			{
+				A_DescentWander(minMissileDist);
+			}
 		}
 	}
 	
-	void A_DescentWander()
+	void A_DescentWander(double maxDist)
 	{
-		RandomChaseDir();
-		curChaseAngle = DSCMath.LerpDegrees(curChaseAngle, movedir*45, 0.25);
+		wanderTime++;
+			
+		vector3 posDiff = level.Vec3Diff(pos, curTrackingPos);
+		bool atChasePos = (posDiff.Length() <= radius*2.0);
 		
-		vel = (
-			cos(curChaseAngle) * cos(pitch),
-			sin(curChaseAngle) * cos(pitch),
-			-sin(pitch)
-		) * default.Speed;
+		FLineTraceData lt;
+		LineTrace(angle, radius+128, pitch, data:lt);
+		bool canMoveTo = lt.HitType == TRACE_HitNone;
+		
+		if(atChasePos || wanderTime >= (35*10) || !canMoveTo)
+		{
+			vector3 wanderPos = (
+				frandom[DroneWanderRNG](-1,1),
+				frandom[DroneWanderRNG](-1,1),
+				frandom[DroneWanderRNG](-1,1)
+			) * frandom[DroneWanderRNG](-maxDist, maxDist);
+			
+			wanderPos = level.vec3offset(pos, curRotation * wanderPos);
+			curTrackingPos = wanderPos;
+			wanderTime = 0;
+		}
+		
+		vector3 aimToPos = (curTrackingPos.xy, curTrackingPos.z);
+		vector3 toOther = level.sphericalCoords(pos, aimToPos, (angle,pitch));
+		bool facingDir = ((abs(toOther.x) + abs(toOther.y)) <= 20);
+		
+		Accelerate(default.Speed * (facingDir ? 0.8 : 0));
 	}
 
 	
-	void A_TurnToTarget()
+	void A_TurnToTarget(bool requireTarget = true)
 	{
-		if(!target) return;
+		if(!target && requireTarget) return;
 		
-		vector3 aimToPos = (curTrackingPos.xy, curTrackingPos.z + (target.height*0.5));
+		vector3 aimToPos = (curTrackingPos.xy, curTrackingPos.z + (target ? target.height*0.5 : 0));
 		vector3 forwardPos = DSCMath.V3Offset(angle, pitch, roll, radius, 0, 0, 1.);
 		forwardPos = level.vec3offset(pos, forwardPos);
 

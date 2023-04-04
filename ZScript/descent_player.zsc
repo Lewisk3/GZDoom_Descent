@@ -91,7 +91,7 @@ class DescentPlayer : SixDoFPlayer
 		double trueDamage = double(damage) * descentServer_indamagemod;
 		if(source is "DescentPlayer") 
 			trueDamage /= DSCDMG;
-		else 
+		else if( !(source is "DescentEnemy") )
 			trueDamage *= DMGTAKEN;
 			
 		if(mod == 'Hitscan')
