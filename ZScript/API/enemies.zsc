@@ -250,7 +250,7 @@ class DescentEnemy : Actor
 
 				if( willHit && dodgeTimer <= 0 && plrFiring && random[DroneDodgeRNG](0,100) <= dodgeChance )
 				{
-					DodgeRandom(min(12, default.Speed * frandom[DroneDodgeRNG](3.0,6.0)));
+					DodgeRandom(min(10, default.Speed * frandom[DroneDodgeRNG](3.0,6.0)));
 					dodgeTimer = dodgeWait;
 				}
 			}

@@ -27,6 +27,8 @@ class SixDoFPlayer : PlayerPawn
 	Property ViewFriction : viewFriction;
 	Property LookSpeed : lookMod;
 	
+	transient CVar cv_mouseturn;
+	
 	Default
 	{
 		Gravity 0;
@@ -36,6 +38,7 @@ class SixDoFPlayer : PlayerPawn
         SixDoFPlayer.UpMove 0.10;
         +RollSprite;
 		+SlidesOnWalls;
+		//-INTERPOLATEANGLES;
 	}
 
 	clearscope bool checkVoodoo() 
@@ -61,10 +64,13 @@ class SixDoFPlayer : PlayerPawn
 	}
 
     override void HandleMovement()
-    {				
+    {		
+		if(!cv_mouseturn) 
+			cv_mouseturn = CVar.GetCVar("descent_mouselook", player);
+	
         if (reactionTime) --reactionTime;   // Player is frozen
         else
-        {
+        {	
             CheckQuickTurn();
             RotatePlayer();
             MovePlayer();
@@ -180,10 +186,17 @@ class SixDoFPlayer : PlayerPawn
 		cmdRoll *= lookMod;
 		
 		if(controlInvert) cmdPitch *= -1;
+		if(cmdYaw) A_SetViewRoll(ViewRoll - (cmdYaw * 0.15), SPF_INTERPOLATE);
 		
-		if(cmdYaw)
+		if(cv_mouseturn && !cv_mouseturn.getBool())
 		{
-			ViewRoll -= (cmdYaw * 0.15);
+			double turnSpeed = 5;
+			double turnRateYaw   = min(turnSpeed, abs(cmdYaw));
+			double turnRatePitch = min(turnSpeed, abs(cmdPitch));
+			double turnRateRoll  = min(turnSpeed, abs(cmdRoll));
+			cmdYaw   = turnRateYaw   * DSCMath.sign(cmdYaw);
+			cmdPitch = turnRatePitch * DSCMath.sign(cmdPitch);
+			cmdRoll  = turnRateRoll  * DSCMath.sign(cmdRoll);
 		}
 		
 		Quat input = Quat.FromAngles(cmdYaw, cmdPitch, cmdRoll);
@@ -193,7 +206,8 @@ class SixDoFPlayer : PlayerPawn
 		r = Quat.SLerp(r, targetRotation, 0.2);
 
 		vector3 eulerAngles = DSCMath.GetQuatAngles(r);
-		A_SetAngle(eulerAngles.x, SPF_Interpolate);
+		
+		A_SetAngle(eulerAngles.x, SPF_Interpolate); 
 		A_SetPitch(eulerAngles.y, SPF_Interpolate);
 		A_SetRoll(eulerAngles.z, SPF_Interpolate);
 	}

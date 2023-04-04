@@ -29,6 +29,8 @@ class Descent_OmegaCannon : DSCWeapon
 		while (it.Next())
 		{
 			let act = it.thing;
+			if(!act) continue;
+			
 			int dist = Distance3DSquared(act);
 			if(dist < mindist) continue;
 			if(dist > closest) continue;

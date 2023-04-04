@@ -50,6 +50,11 @@ AddOptionMenu "OptionsMenu"
 OptionMenu "GZDescentGameplayMenu"
 {
 	Title "GZDescent Gameplay Tweaks"
+	StaticText "Simulation Tweaks", "Sapphire"
+	Option "Clamp turn speed", "descent_mouselook", "OffOn"
+	StaticText "Clamps the turn speed of the PyroGX. By default you can turn", "Black"
+	StaticText "as fast as you can move the mouse.", "Black"
+	StaticText " "
 	StaticText "Weapon Tweaks", "Sapphire"
 	Option "Gatling Lasers", "descent_gatlinglasers", "OnOff"
 	StaticText " "
@@ -115,4 +120,9 @@ OptionValue "OnOff"
 {
 	0, "Off" 
 	1, "On" 
+}
+OptionValue "OffOn"
+{
+	0, "On" 
+	1, "Off" 
 }

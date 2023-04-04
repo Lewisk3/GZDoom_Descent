@@ -1,3 +1,4 @@
 user bool descent_gatlinglasers = false;
+user bool descent_mouselook = true;
 server float descentServer_indamagemod  = 1.0;
 server float descentServer_outdamagemod = 1.0;
