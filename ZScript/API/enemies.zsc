@@ -138,7 +138,7 @@ class DescentEnemy : Actor
 		
 			// Interpolate to it
 			let r = Quat.FromAngles(angle, pitch, roll);
-			r = Quat.Slerp(r, curRotation, 0.2);
+			r = Quat.Slerp(r, curRotation, 0.3);
 
 			let eulerAngles = DSCMath.getQuatAngles(r);
 			A_SetAngle(eulerAngles.x, SPF_Interpolate);
@@ -194,14 +194,14 @@ class DescentEnemy : Actor
 		}
 	}
 	
-	void A_DescentChase(double missileChance = 50, double minMissileDist = 512, double minEngageDist = 64, double viewSens = 10)
+	void A_DescentChase(double attackChance = 50, double minAttackDist = 512, double minEngageDist = 64, double viewSens = 10, bool moveWhileTurning = true)
 	{
 		if(!target || target.health <= 0) 
 		{
 			if(bFRIENDLY) 
 			{
 				A_DescentLook(null);
-				A_DescentWander(minMissileDist);
+				A_DescentWander(minAttackDist);
 			}
 			else
 			{
@@ -250,15 +250,15 @@ class DescentEnemy : Actor
 
 				if( willHit && dodgeTimer <= 0 && plrFiring && random[DroneDodgeRNG](0,100) <= dodgeChance )
 				{
-					DodgeRandom(default.Speed * frandom[DroneDodgeRNG](3.0,6.0));
+					DodgeRandom(min(12, default.Speed * frandom[DroneDodgeRNG](3.0,6.0)));
 					dodgeTimer = dodgeWait;
 				}
 			}
 		}
 		
-		if( facingTarget && canSee && (toOther.z <= minMissileDist || random[MissileRandom](0,100) <= missileChance) ) 
+		if( facingTarget && canSee && (toOther.z <= minAttackDist && random[DroneAttackRandom](0,100) <= attackChance) ) 
 		{
-			SetStateLabel("Missile");
+			SetStateLabel("Attack");
 			
 			if(toOther.z <= minEngageDist) return;
 			
@@ -271,7 +271,8 @@ class DescentEnemy : Actor
 
 		if(canSee)
 		{
-			Accelerate( default.Speed * (inView ? 1.0 : 0.3) );
+			if( (!moveWhileTurning && facingTarget) || moveWhileTurning)
+				Accelerate( default.Speed * (inView ? 1.0 : 0.5) );
 			
 			targetLastPos = target.pos;
 			trackLastPos = true;
@@ -311,7 +312,7 @@ class DescentEnemy : Actor
 			}
 			else
 			{
-				A_DescentWander(minMissileDist);
+				A_DescentWander(minAttackDist);
 			}
 		}
 	}
@@ -364,7 +365,7 @@ class DescentEnemy : Actor
 		double turnRateY = min(turnSpeed, abs(pitchTo));
 		double xSpeed = turnRateX * DSCMath.sign(angleTo);
 		double ySpeed = turnRateY * DSCMath.sign(pitchTo);
-		
+				
 		if(abs(angleTo) >= 2) toAngles.x = xSpeed;
 		if(abs(pitchTo) >= 2) toAngles.y = ySpeed;
 		toAngles.z = 0;
