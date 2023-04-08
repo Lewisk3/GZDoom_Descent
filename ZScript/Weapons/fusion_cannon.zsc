@@ -51,9 +51,9 @@ class Descent_FusionCannon : DSCWeapon
 				double curHue = DSCMath.Lerp(int(invoker.charge_hue), interpHue, invoker.charge);
 				A_ScreenFlash(DSCStatusColor.hslToRgb(curHue / 360.0, 1.0, 0.5), 0.35);
 				vector3 shake = (
-					frandom(-1.0, 1.0),
-					frandom(-1.0, 1.0),
-					frandom(-1.0, 1.0)
+					frandom[DSCWeaponFX](-1.0, 1.0),
+					frandom[DSCWeaponFX](-1.0, 1.0),
+					frandom[DSCWeaponFX](-1.0, 1.0)
 				);
 				vector3 viewShake = shake * 0.30;
 				vector3 velShake = shake * 0.60;

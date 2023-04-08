@@ -25,11 +25,11 @@ class Descent_Laser : DSCWeapon
 		}
 				
 		for(int i = 0; i < upgrades; i++)
-			DSCEffects.EjectItem(laserType, Owner.pos, frandom(0,360), frandom(-90,90), 5);
+			DSCEffects.EjectItem(laserType, Owner.pos, frandom[DSCWeapRNG](0,360), frandom[DSCWeapRNG](-90,90), 5);
 		
 		if(quadFire)
 		{
-			DSCEffects.EjectItem("Descent_QuadLasers", Owner.pos, frandom(0,360), frandom(-90,90), 5);
+			DSCEffects.EjectItem("Descent_QuadLasers", Owner.pos, frandom[DSCWeapRNG](0,360), frandom[DSCWeapRNG](-90,90), 5);
 			quadFire = false;
 		}
 		

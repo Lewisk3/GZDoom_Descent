@@ -29,7 +29,7 @@ class DSCWeapon : Weapon abstract
 	
 	virtual void EjectWeapon()
 	{
-		DSCEffects.EjectItem(getClass(), Owner.pos, frandom(0,360), frandom(-90,90), 5);
+		DSCEffects.EjectItem(getClass(), Owner.pos, frandom[DSCWeapRNG](0,360), frandom[DSCWeapRNG](-90,90), 5);
 		Owner.RemoveInventory(self);
 		GoAwayAndDie();
 	}
@@ -201,10 +201,10 @@ class DSCSpecialWeapon : Inventory abstract
 		int bundles = floor(trueamount / double(bundleAmt));
 		int remaining = trueamount - (bundles*bundleAmt);
 		for(int i = 0; i < bundles; i++)
-			DSCEffects.EjectItem(bundleType, Owner.pos, frandom(0,360), frandom(-90,90), 5);
+			DSCEffects.EjectItem(bundleType, Owner.pos, frandom[DSCWeapRNG](0,360), frandom[DSCWeapRNG](-90,90), 5);
 		
 		for(int i = 0; i < remaining; i++)
-			DSCEffects.EjectItem(GetClass(), Owner.pos, frandom(0,360), frandom(-90,90), 5);
+			DSCEffects.EjectItem(GetClass(), Owner.pos, frandom[DSCWeapRNG](0,360), frandom[DSCWeapRNG](-90,90), 5);
 		
 		Owner.RemoveInventory(self);
 		GoAwayAndDie();
@@ -220,7 +220,7 @@ class DSCSpecialWeapon : Inventory abstract
 		}
 		
 		for(int i = 0; i < floor(amount / default.amount); i++)
-			DSCEffects.EjectItem(getClass(), Owner.pos, frandom(0,360), frandom(-90,90), 5);
+			DSCEffects.EjectItem(getClass(), Owner.pos, frandom[DSCWeapRNG](0,360), frandom[DSCWeapRNG](-90,90), 5);
 			
 		Owner.RemoveInventory(self);
 		GoAwayAndDie();

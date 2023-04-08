@@ -137,6 +137,9 @@ class DescentPlayer : SixDoFPlayer
 	{
 		super.Tick();
 		
+		// Do not run this code during prediction.
+		if(player.cheats & CF_PREDICTING) return;
+		
 		WorldOffset.z = 10;
 		if(checkVoodoo() || health <= 0) 
 		{

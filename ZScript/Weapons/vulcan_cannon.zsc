@@ -46,7 +46,7 @@ class Descent_VulcanCannon : DSCWeapon
 		Fire:
 			TNT1 A 2
 			{
-				A_ShootProjectile("VulcanBullet", "VulcanCannon/Fire", true, offs:(20, frandom(-5,5), frandom(-8,8)));
+				A_ShootProjectile("VulcanBullet", "VulcanCannon/Fire", true, offs:(20, frandom[DSCWeapRNG](-5,5), frandom[DSCWeapRNG](-8,8)));
 			}
 		Goto Ready;
 		

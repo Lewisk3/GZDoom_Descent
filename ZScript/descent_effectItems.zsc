@@ -110,7 +110,7 @@ class Effect_BlindMe : Inventory
 				cos(Owner.angle),
 				sin(Owner.angle),
 				0
-			) * frandom(-300,300);
+			) * frandom[BlindAttack](-300,300);
 			dummy = Spawn("TargetDummy", level.vec3offset(Owner.pos, randpos));
 		
 			Owner.SetState(Owner.FindState("Melee"));

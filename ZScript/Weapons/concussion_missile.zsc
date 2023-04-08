@@ -20,10 +20,10 @@ class Descent_ConMissile : DSCSpecialWeapon
 		int bundles = floor(trueamount / 4.0);
 		int remaining = trueamount - (bundles*4);
 		for(int i = 0; i < bundles; i++)
-			DSCEffects.EjectItem("Descent_ConMissileBundle", Owner.pos, frandom(0,360), frandom(-90,90), 5);
+			DSCEffects.EjectItem("Descent_ConMissileBundle", Owner.pos, frandom[DSCWeapRNG](0,360), frandom[DSCWeapRNG](-90,90), 5);
 		
 		for(int i = 0; i < remaining; i++)
-			DSCEffects.EjectItem("Descent_ConMissile", Owner.pos, frandom(0,360), frandom(-90,90), 5);
+			DSCEffects.EjectItem("Descent_ConMissile", Owner.pos, frandom[DSCWeapRNG](0,360), frandom[DSCWeapRNG](-90,90), 5);
 		
 		amount = 3;
 	}

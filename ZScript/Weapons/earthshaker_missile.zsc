@@ -64,8 +64,8 @@ class DSCProj_ShakerMissile : DSCProj_ConMissile
 		for(int i = 0; i < 6; i++)
 		{
 			vector3 views = (
-				 frandom(-90,90) + 180,
-				-pitch + frandom(-30,30), 
+				 frandom[EarthShake](-90,90) + 180,
+				-pitch + frandom[EarthShake](-30,30), 
 				 roll
 			);
 			DSCEffects.ShootProjectile(self, "DSCProj_ShakerTracker", false, views.x,views.y,views.z);
@@ -98,7 +98,7 @@ class DSCProj_ShakerMissile : DSCProj_ConMissile
 				Name boomSprite = "BOOM";
 				if(blink) boomSprite = "TNT1";
 				Sprite = GetSpriteIndex(boomSprite);
-				blink = random(0,1);
+				blink = random[EarthShake](0,1);
 				if(GetAge() < 20) blink = false;
 				
 				DSCEffects.ViewRecoil(target, frandom[EarthShake](-2,2), frandom[EarthShake](-2,2), frandom[EarthShake](-2,2));

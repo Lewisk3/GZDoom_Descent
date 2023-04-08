@@ -217,10 +217,10 @@ class SixDoFPlayer : PlayerPawn
 	{
 		double bob_angle = Level.maptime / (120 * TICRATE / 35.) * 360.;
 		double bob = (0.06 * sin(bob_angle));
+		if(player.cheats & CF_PREDICTING) return;
 		
 		vector3 worldOffs = DSCMath.V3Offset(angle, pitch, roll, 0,0,bob, 0.25);
 		vel += worldOffs;
-		
 		player.viewz = (pos.Z + vel.z) + ViewHeight;
 	}
 
