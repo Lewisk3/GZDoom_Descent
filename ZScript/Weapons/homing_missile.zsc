@@ -66,12 +66,12 @@ class DSCProj_HomMissile : DSCProj_ConMissile
 	
 	Default
 	{
-		Speed 20;
+		Speed 14;
 		+INTERPOLATEANGLES;
 		DamageFunction DescentDMG(27);
 		DSCProj_HomMissile.TargetSearchTime 5.0; 
 		DSCProj_HomMissile.TrackingRanges 0, 1024;
-		DSCProj_HomMissile.TrackingStrength 5;
+		DSCProj_HomMissile.TrackingStrength 4;
 		DSCProj_HomMissile.TrackFullVision false;
 		DSCProjectile.FireSound "HomingMissile/Fire";
 		Tag "Homing";
@@ -101,6 +101,14 @@ class DSCProj_HomMissile : DSCProj_ConMissile
 	
 	Actor FindTarget(bool allaround = true)
 	{
+		// Don't search for nearby targets if we've already got one
+		// as a drone.
+		if(DescentEnemy(target))
+		{
+			tracer = target.target;
+			return target.target;
+		}
+		
 		let it = ThinkerIterator.Create();
 		Actor act;
 		double closest = tracer ? Distance3DSquared(tracer) : double.infinity;
