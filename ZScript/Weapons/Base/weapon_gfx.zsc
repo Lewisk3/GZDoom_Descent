@@ -144,6 +144,8 @@ class FlashExplosion : MissileExplosion
 		while(it.Next())
 		{
 			let act = it.Thing;
+			if(!act) continue; // Wtf?
+			
 			double dist = Distance3D(act);
 			if(!act.bSHOOTABLE) continue;
 			if(act.health <= 0) continue;

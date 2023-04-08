@@ -159,7 +159,7 @@ class DescentEnemy : Actor
 	void A_DescentLook(StateLabel seeState = "See", double lookFOV = 90)
 	{
 		LookExParams look;
-		look.FOV = 90;
+		look.FOV = lookFOV;
 		int close = int.max;
 		target = null;
 		
@@ -194,7 +194,7 @@ class DescentEnemy : Actor
 		}
 	}
 	
-	void A_DescentChase(double attackChance = 50, double minAttackDist = 512, double minEngageDist = 64, double viewSens = 10, bool moveWhileTurning = true)
+	void A_DescentChase(double attackChance = 50, double minAttackDist = 512, double minEngageDist = 64, double viewSens = 10, bool moveWhileTurning = true, StateLabel attackState = "Attack")
 	{
 		if(!target || target.health <= 0) 
 		{
@@ -258,31 +258,32 @@ class DescentEnemy : Actor
 		
 		if( facingTarget && canSee && (toOther.z <= minAttackDist && random[DroneAttackRandom](0,100) <= attackChance) ) 
 		{
-			SetStateLabel("Attack");
-			
-			if(toOther.z <= minEngageDist) return;
-			
+			SetStateLabel(attackState);
+						
 			double hperc = health / SpawnHealth();
 			hperc += aggressiveness;
 			hperc = clamp(hperc, 0, 1.0);
 			double midEngageDist = minEngageDist * (1.0 - hperc);
 			if(toOther.z < midEngageDist) return;
 		}
-
-		if(canSee)
+		
+		FLineTraceData lt;
+		LineTrace(angle, 64, pitch, data:lt);
+		bool canMoveTo = lt.HitType == TRACE_HitNone;
+		
+		if(canSee && canMoveTo)
 		{
+			// Don't move further if we've reached minimum engage distance.
+			if(toOther.z <= minEngageDist) return;
+		
 			if( (!moveWhileTurning && facingTarget) || moveWhileTurning)
 				Accelerate( default.Speed * (inView ? 1.0 : 0.5) );
 			
 			targetLastPos = target.pos;
 			trackLastPos = true;
 		}
-		else 
-		{
-			FLineTraceData lt;
-			LineTrace(angle, 64, pitch, data:lt);
-			bool canMoveTo = lt.HitType == TRACE_HitNone;
-			
+		else if(canMoveTo)
+		{			
 			if(trackLastPos && canMoveTo)
 			{
 				curTrackingPos = targetLastPos;
@@ -296,24 +297,24 @@ class DescentEnemy : Actor
 					trackLastPos = false;
 				}
 			}
-			else if(trackLastPos && !canMoveTo)
-			{
-				NewChaseDir();
-				curChaseAngle = DSCMath.LerpDegrees(curChaseAngle, movedir*45, 0.25);
-				
-				vector3 chaseDiff = level.vec3diff(pos, target.pos);
-				double chasePitch = -asin(chaseDiff.z);
-				
-				vel = (
-					cos(curChaseAngle) * cos(chasePitch),
-					sin(curChaseAngle) * cos(chasePitch),
-					-sin(chasePitch)
-				) * default.Speed;
-			}
-			else
+			else 
 			{
 				A_DescentWander(minAttackDist);
 			}
+		}
+		else if(!canMoveTo) 
+		{
+			NewChaseDir();
+			curChaseAngle = DSCMath.LerpDegrees(curChaseAngle, movedir*45, 0.25);
+			
+			vector3 chaseDiff = level.vec3diff(pos, target.pos);
+			double chasePitch = -asin(chaseDiff.z);
+			
+			vel = (
+				cos(curChaseAngle) * cos(chasePitch),
+				sin(curChaseAngle) * cos(chasePitch),
+				-sin(chasePitch)
+			) * default.Speed;
 		}
 	}
 	

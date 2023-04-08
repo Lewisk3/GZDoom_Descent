@@ -16,6 +16,7 @@ vec4 Process(vec4 color)
 	);
 	float lightLevel = angle;
 	lightLevel /= pi;
+	lightLevel *= 1.5;
 	
 	// This lighting tweak results in things being a bit too bright.
 	// lightLevel *= 2;

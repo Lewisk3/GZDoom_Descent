@@ -54,9 +54,12 @@ class Descent_HomMissileBundle : DSCMissilePickup
 
 class DSCProj_HomMissile : DSCProj_ConMissile
 {
+	vector3 toAngles;
+	Quat curRotation;
+
 	bool view_allaround;
 	double mindist, maxdist, trackTime, maxturn;
-	Property TargetFindTime : trackTime; // In seconds.
+	Property TargetSearchTime : trackTime; // In seconds.
 	Property TrackingRanges : mindist, maxdist; 
 	Property TrackingStrength : maxturn;
 	Property TrackFullVision : view_allaround;
@@ -64,13 +67,21 @@ class DSCProj_HomMissile : DSCProj_ConMissile
 	Default
 	{
 		Speed 20;
+		+INTERPOLATEANGLES;
 		DamageFunction DescentDMG(27);
-		DSCProj_HomMissile.TargetFindTime 1.0;
-		DSCProj_HomMissile.TrackingRanges 0, 512;
-		DSCProj_HomMissile.TrackingStrength 2;
+		DSCProj_HomMissile.TargetSearchTime 5.0; 
+		DSCProj_HomMissile.TrackingRanges 0, 1024;
+		DSCProj_HomMissile.TrackingStrength 5;
 		DSCProj_HomMissile.TrackFullVision false;
 		DSCProjectile.FireSound "HomingMissile/Fire";
 		Tag "Homing";
+	}
+	
+	override void PostBeginPlay()
+	{
+		super.PostBeginPlay();
+		
+		curRotation = Quat.FromAngles(angle, pitch, roll);
 	}
 	
 	void TrackTracer()
@@ -83,13 +94,9 @@ class DSCProj_HomMissile : DSCProj_ConMissile
 		}
 		
 		vector3 trackAngles = level.SphericalCoords(pos, (tracer.pos.xy, tracer.pos.z+tracer.height*0.5), (angle, pitch));
-		if(abs(trackAngles.x) > maxturn) trackAngles.x = maxturn*DSCMath.Sign(trackAngles.x); 
-		if(abs(trackAngles.y) > maxturn) trackAngles.y = maxturn*DSCMath.Sign(trackAngles.y);
-		A_SetAngle(angle - trackAngles.x, SPF_INTERPOLATE);
-		A_SetPitch(pitch - trackAngles.y, SPF_INTERPOLATE);
-		
-		// Modify velocity
-		vel = DSCMath.V3Offset(angle,pitch,roll, 1,0,0, vel.Length());
+		double turnRateX = min(maxturn, abs(trackAngles.x)) * -DSCMath.Sign(trackAngles.x);
+		double turnRateY = min(maxturn, abs(trackAngles.y)) * -DSCMath.Sign(trackAngles.y);
+		toAngles = (turnRateX, turnRateY, 0);	
 	}
 	
 	Actor FindTarget(bool allaround = true)
@@ -97,16 +104,18 @@ class DSCProj_HomMissile : DSCProj_ConMissile
 		let it = ThinkerIterator.Create();
 		Actor act;
 		double closest = tracer ? Distance3DSquared(tracer) : double.infinity;
+		double sq_mindist = mindist*mindist;
+		double sq_maxdist = maxdist*maxdist;
 		while (act = Actor(it.Next()))
 		{
 			double dist = Distance3DSquared(act);
-			if(dist > closest || dist < mindist**2 || dist > maxdist**2) continue;
+			if(dist > closest || dist < sq_mindist || dist > sq_maxdist) continue;
 			
 			if(act == self || act == target) continue;
-			if(!act.bSHOOTABLE || !act.bISMONSTER || act.bKILLED) continue;   
+			if(!act.bSHOOTABLE || (target && target.player && !act.bISMONSTER) || act.bKILLED) continue;   
 			
 			LookExParams look;
-			look.FOV = allaround ? 360 : 30;
+			look.FOV = allaround ? 360 : 90;
 			if(!IsVisible(act, allaround, look)) continue; // Actor is behind wall.     
 			if(target && !target.IsVisible(act, allaround, look)) continue;
 			
@@ -119,9 +128,23 @@ class DSCProj_HomMissile : DSCProj_ConMissile
 	override void Tick()
 	{
 		super.Tick();
-		if(GetAge() > 5 && (GetAge() < (trackTime * 35.0) || trackTime <= 0)) 
+		if( GetAge() > 5 && (GetAge() < (trackTime * 35.0) || trackTime <= 0) ) 
 			FindTarget(view_allaround);
 			
+		Quat input = Quat.FromAngles(toAngles.x, toAngles.y, toAngles.z);
+		curRotation *= input;
+		toAngles *= 0;
+		
+		Quat r = Quat.FromAngles(angle, pitch, roll);
+		r = Quat.SLerp(r, curRotation, 0.3);
+		
+		let euler = DSCMath.getQuatAngles(r);
+		A_SetAngle(euler.x, SPF_INTERPOLATE);
+		A_SetPitch(euler.y, SPF_INTERPOLATE);
+		A_SetRoll (euler.z, SPF_INTERPOLATE);
 		TrackTracer();
+		
+		// Update velocity
+		vel = DSCMath.V3Offset(angle,pitch,roll, 1,0,0, vel.Length());
 	}
 }

@@ -96,6 +96,9 @@ class DescentPlayer : SixDoFPlayer
 			
 		if(mod == 'Hitscan')
 			trueDamage *= DMGHITSCANMOD;
+			
+		if(mod == 'DescentMissileExplosion')
+			trueDamage *= 0.1;
 		
 		if(!shields)
 		{
@@ -134,6 +137,7 @@ class DescentPlayer : SixDoFPlayer
 	{
 		super.Tick();
 		
+		WorldOffset.z = 10;
 		if(checkVoodoo() || health <= 0) 
 		{
 			bNOGRAVITY = false;
