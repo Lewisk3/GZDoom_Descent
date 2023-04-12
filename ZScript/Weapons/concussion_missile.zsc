@@ -69,12 +69,16 @@ class Descent_ConMissileBundle : DSCMissilePickup
 
 class DSCProj_ConMissile : DSCProjectile
 {
+	double explosionDMG, explosionSize;
+	Property ExplosiveDamage : explosionDMG, explosionSize;
+
 	Default
 	{
 		Scale 1.25;
 		Speed 20;
-		DamageFunction DescentDMG(20);
+		DamageFunction DescentDMG(30);
 		DSCProjectile.FireSound "ConcussionMissile/Fire";
+		DSCProj_ConMissile.ExplosiveDamage 70, 128;
 		Tag "Concussion";
 	}
 			
@@ -92,7 +96,7 @@ class DSCProj_ConMissile : DSCProjectile
 		XDeath:
 			TNT1 A 1 
 			{
-				DoMissileExplosion(scale:0.8);
+				DoMissileExplosion(explosionDMG, explosionSize, scale:0.8);
 				DoPayload();
 			}
 		stop;

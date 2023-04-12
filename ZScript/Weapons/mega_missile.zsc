@@ -50,7 +50,7 @@ class DSCProj_MegaMissile : DSCProj_HomMissile
 	Default
 	{
 		Speed 15;
-		DamageFunction DescentDMG(300);
+		DamageFunction DescentDMG(200);
 		DSCProj_HomMissile.TargetSearchTime 10.0;
 		DSCProj_HomMissile.TrackingRanges 0, 512;
 		DSCProjectile.FireSound "MegaMissile/Fire";
@@ -62,7 +62,7 @@ class DSCProj_MegaMissile : DSCProj_HomMissile
 		Crash:
 		Death:
 		XDeath:
-			TNT1 A 1 Bright DoMissileExplosion(250, 512, 4.5, 0, "MegaMissileExplosion");
+			TNT1 A 1 Bright DoMissileExplosion(300, 512, 4.5, 0, "MegaMissileExplosion");
 		stop;
 	}
 }

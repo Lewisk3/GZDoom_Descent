@@ -382,6 +382,7 @@ class DSCHitscanBullet : FastProjectile
 
 class DSCProjectile : Actor
 {
+	double damageOverride; // Override damage with this value; not randomized, not scaled.
 	double hitscanDamage;
 	double energyUse;
 	Sound fireSound;
@@ -404,6 +405,7 @@ class DSCProjectile : Actor
 	Property SetMissileCamera : setCamera;
 	Property GuidedMissile : guided;
 	Property HitscanDamage : hitscanDamage;
+	Property DamageOverride : damageOverride;
 	
 	Default
 	{	
@@ -415,11 +417,18 @@ class DSCProjectile : Actor
 		+INTERPOLATEANGLES;
 		DSCProjectile.SetMissileCamera false;
 		DSCProjectile.GuidedMissile false;
+		DSCProjectile.DamageOverride -1; // Disabled
 		Tag "Missile";
+	}
+	
+	void SetExactDamage(double val)
+	{
+		damageOverride = val;
 	}
 	
 	int DescentDMG(double dmg)
 	{
+		if(damageOverride >= 0) return damageOverride;
 		return dontScaleDamage ? dmg : ScaleDSCDMG(dmg);
 	}
 	static int ScaleDSCDMG(double dmg)

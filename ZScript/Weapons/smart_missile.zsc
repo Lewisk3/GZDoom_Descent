@@ -38,6 +38,8 @@ class DSCProj_SmartMissile : DSCProj_ConMissile
 {
 	Default
 	{
+		DamageFunction DescentDMG(25);
+		DSCProj_ConMissile.ExplosiveDamage 70, 96;
 		DSCProjectile.FireSound "SmartMissile/Fire";
 		DSCProjectile.SetMissileCamera true;
 		Tag "Smart";

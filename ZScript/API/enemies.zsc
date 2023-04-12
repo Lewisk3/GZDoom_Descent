@@ -361,6 +361,7 @@ class DescentEnemy : Actor
 		vector3 toOther = level.sphericalCoords(forwardPos, aimToPos, (angle, pitch));
 		double angleTo = -toOther.x;
 		double pitchTo = -toOther.y;
+		double rollTo  = (target.roll-roll);
 		
 		double turnRateX = min(turnSpeed, abs(angleTo));
 		double turnRateY = min(turnSpeed, abs(pitchTo));
@@ -369,6 +370,8 @@ class DescentEnemy : Actor
 				
 		if(abs(angleTo) >= 2) toAngles.x = xSpeed;
 		if(abs(pitchTo) >= 2) toAngles.y = ySpeed;
-		toAngles.z = 0;
+		
+		// Maybe one day...
+		// if(abs(rollTo) >= 30) toAngles.z = min(turnSpeed, abs(rollTo)) * DSCMath.Sign(rollTo);
 	}	
 }

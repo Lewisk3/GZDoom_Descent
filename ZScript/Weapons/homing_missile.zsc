@@ -68,7 +68,8 @@ class DSCProj_HomMissile : DSCProj_ConMissile
 	{
 		Speed 14;
 		+INTERPOLATEANGLES;
-		DamageFunction DescentDMG(27);
+		DamageFunction DescentDMG(40);
+		DSCProj_ConMissile.ExplosiveDamage 70, 128;
 		DSCProj_HomMissile.TargetSearchTime 5.0; 
 		DSCProj_HomMissile.TrackingRanges 0, 1024;
 		DSCProj_HomMissile.TrackingStrength 4;
