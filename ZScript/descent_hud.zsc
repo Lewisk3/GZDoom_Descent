@@ -96,7 +96,9 @@ class AnimatedImage ui
 	
 	void Reset()
 	{	
-		totaltime = timer = frame = 0;
+		totaltime = 0;
+		timer = 0;
+		frame = 0;
 	}
 	
 	string GetImage(double dT)
@@ -411,6 +413,7 @@ class DescentStatusBar : BaseStatusBar
 		}
 		else if(missileCamActive)
 		{
+			
 			DrawImg(camstaticGraphic.GetImage(deltaTime), camPos, (1.0,0.8));
 			if(camstaticGraphic.totaltime > 60) 
 			{
