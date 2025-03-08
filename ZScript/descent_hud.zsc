@@ -79,8 +79,8 @@ class AnimatedImage ui
 	double totaltime;
 	double timer;
 	double animrate;
-	uint frame;
-	uint maxframe;
+	int frame;
+	int maxframe;
 	
 	static AnimatedImage Create(string img, double animspd, uint frames)
 	{
@@ -96,8 +96,7 @@ class AnimatedImage ui
 	
 	void Reset()
 	{	
-		totaltime = 0;
-		timer = 0;
+		totaltime = timer = 0;
 		frame = 0;
 	}
 	
